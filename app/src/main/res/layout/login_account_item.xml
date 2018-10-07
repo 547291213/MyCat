@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageView
+        android:id="@+id/iv_loginHistoryClose"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/close_blue"
+        android:layout_alignParentRight="true"
+        android:scaleType="fitXY"
+        android:layout_marginTop="5dp"
+        android:alpha="0.6"
+
+        />
+    <ImageView
+        android:id="@+id/iv_loginHistoryHead"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/cat_default"
+        android:layout_toLeftOf="@id/iv_loginHistoryClose"
+        android:scaleType="fitCenter"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
+        android:alpha="0.6"
+
+        />
+
+    <TextView
+        android:id="@+id/tv_loginHistoryAccount"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:textSize="20sp"
+        android:layout_toLeftOf="@id/iv_loginHistoryHead"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        />
+
+    <!--<android.support.design.widget.TextInputLayout-->
+        <!--android:layout_below="@id/til_user"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--&gt;-->
+
+        <!--<com.example.xkfeng.mycat.DrawableText.DrawableTextEdit-->
+            <!--android:id="@+id/tiet_accountEdit"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:drawableRight="@drawable/not_show"-->
+            <!--android:drawableLeft="@drawable/not_show"-->
+
+            <!--/>-->
+
+    <!--</android.support.design.widget.TextInputLayout>-->
+</RelativeLayout>

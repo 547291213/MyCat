@@ -26,7 +26,9 @@ public class DrawableTextEdit extends TextInputEditText {
 
     private static final String TAG = "DrawableTextEdit";
 
-    private static Boolean FLAG = true ;
+   // private static Boolean FLAG = true ;
+
+    private int TYPE = 1 ;
 
     private DrawableListener drawableListener;
 
@@ -74,18 +76,30 @@ public class DrawableTextEdit extends TextInputEditText {
         super.onDraw(canvas);
         Drawable drawable = getCompoundDrawables()[0];
         Drawable drawable1 = getCompoundDrawables()[2] ;
-        if (drawable != null && drawable1!=null&&width>0 && FLAG) {
-            drawable.setBounds(width-100-drawable1.getBounds().width()-5, 0, width-drawable1.getBounds().width()-10, 50);
-            drawable.setLayoutDirection(LAYOUT_DIRECTION_LTR) ;
-            drawable.invalidateSelf();
-            setCompoundDrawablePadding(-100);
+        if (drawable != null && drawable1!=null&&width>0 ) {
+            if (TYPE==1)
+            {
+                drawable.setBounds(width-100-drawable1.getBounds().width()-5, 0, width-drawable1.getBounds().width()-10, 50);
+                setCompoundDrawablePadding(-100);
+
+            }
+            else if (TYPE ==0){
+                drawable.setBounds(width-85-drawable1.getBounds().width()-5, 0, width-drawable1.getBounds().width()-30, 60);
+                setCompoundDrawablePadding(-drawable1.getBounds().width()+10);
+
+            }
             setCompoundDrawables(drawable, null, drawable1, null);
-            FLAG = false ;
-            Log.d(TAG, "onDraw: " + drawable.getBounds().left + " Padding-left " );
+//            FLAG = false ;
+         //   Log.d(TAG, "onDraw: " + drawable.getBounds().left + " Padding-left " );
         }
     }
 
 
+
+    public void setTYPE(int TYPE)
+    {
+        this.TYPE =TYPE ;
+    }
 
     public void setDrawableListener(DrawableListener drawableListener) {
         this.drawableListener = drawableListener;
