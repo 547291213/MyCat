@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">MyCat</string>
+
+    <dimen name="font_size_16">16</dimen>
+    <dimen name="distance_size_50">50</dimen>
+    <dimen name="distance_size_8">8</dimen>
+    <dimen name="distance_size_split_line">2dp</dimen>
+
+</resources>
