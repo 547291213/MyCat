@@ -51,12 +51,15 @@ import com.example.xkfeng.mycat.Dialog.BottomDialog;
 import com.example.xkfeng.mycat.DrawableText.DrawableTextEdit;
 import com.example.xkfeng.mycat.QuickAdapter.QuickAdapter;
 import com.example.xkfeng.mycat.SqlHelper.LoginhistorySql;
+import com.example.xkfeng.mycat.Util.RSAEncrypt;
 
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -96,7 +99,9 @@ public class LoginActivity extends BaseActivity {
     @BindView(R.id.rl_loginRelayout)
     RelativeLayout rl_loginRelayout;
     @BindView(R.id.iv_backImage)
-    ImageView iv_backImage ;
+    ImageView iv_backImage;
+    @BindView(R.id.tv_registerUserTv)
+    TextView tv_registerUserTv;
 
     private Drawable drawableNotshow;
     private Drawable drawableShow;
@@ -109,12 +114,13 @@ public class LoginActivity extends BaseActivity {
     private Drawable drawableAccountHead;
     private SQLiteDatabase database;
     private List<String> lists;
-    private List<Map<String , String>> mapList ;
+    private List<Map<String, String>> mapList;
     private RecyclerView recyclerView;
-    private QuickAdapter<String> quickAdapter ;
-    private PopupWindow window ;
+    private QuickAdapter<String> quickAdapter;
+    private PopupWindow window;
 
-    private static int TEST_ID = 123456 ;
+
+    private static int TEST_ID = 123456;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -124,6 +130,14 @@ public class LoginActivity extends BaseActivity {
         setContentView(R.layout.login_layout);
         ButterKnife.bind(this);
         init();
+    }
+
+    /*
+       注册按钮点击事件功能实现
+     */
+    @OnClick(R.id.tv_registerUserTv)
+    public void setTv_registerUserTv(View view) {
+        Toast.makeText(this, "注册", Toast.LENGTH_SHORT).show();
     }
 
     /*
@@ -164,18 +178,29 @@ public class LoginActivity extends BaseActivity {
      */
     @OnClick(R.id.bt_loginBtn)
     public void setBt_loginBtb(View view) {
-//        if (database == null) {
-//            new Exception("database is null object");
-//        }
-//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        Date date = new Date(System.currentTimeMillis());
-//        ContentValues contentValues = new ContentValues();
-//        contentValues.put(LoginhistorySql.ID, "" + TEST_ID++);
-//        contentValues.put(LoginhistorySql.PASSWORD, "Hello world");
-//        contentValues.put(LoginhistorySql.ISTOPLOGIN, "false");
-//        contentValues.put(LoginhistorySql.LASTUPDATETIME, simpleDateFormat.format(date));
-//        database.insertOrThrow(LoginhistorySql.TABLE_NAME, null, contentValues);
-//        tiet_PasswordEdit.getText().toString();
+        Toast.makeText(this, "BtnClick", Toast.LENGTH_SHORT).show();
+        if (database == null) {
+            new Exception("database is null object");
+        }
+        //规范化时间
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date(System.currentTimeMillis());
+
+        try {
+            PublicKey publicKey = RSAEncrypt.getPublicKey(RSAEncrypt.PUBLIC_KEY) ;
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(LoginhistorySql.ID, "" + TEST_ID++);
+            contentValues.put(LoginhistorySql.PASSWORD, RSAEncrypt.encrypt("" + TEST_ID , publicKey));
+            contentValues.put(LoginhistorySql.ISTOPLOGIN, "false");
+            contentValues.put(LoginhistorySql.LASTUPDATETIME, simpleDateFormat.format(date));
+            database.insertOrThrow(LoginhistorySql.TABLE_NAME, null, contentValues);
+            tiet_PasswordEdit.getText().toString();
+            Log.d(TAG, "setBt_loginBtb: miwen is :" +  RSAEncrypt.encrypt("" + TEST_ID , publicKey));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     //服务协议按钮
@@ -265,19 +290,22 @@ public class LoginActivity extends BaseActivity {
        * drawableleft  drawableright点击事件的监听
        *
      */
-    private void passwordEditInit()
-    {
+    private void passwordEditInit() {
+
+        tiet_PasswordEdit.setTYPE(0);
         // 设置DrawableRight的相关属性，以及有关事件的监听和处理
         preferences = getSharedPreferences("drawableshow", MODE_PRIVATE);
 
         drawableNotshow = getResources().getDrawable(R.drawable.not_show);
         drawableShow = getResources().getDrawable(R.drawable.show);
-        drawableShow.setBounds(0, 0, 100, 50);
-        drawableNotshow.setBounds(0, 0, 100, 50);
+        drawableShow.setBounds(0, 0, 70, 50);
+        drawableNotshow.setBounds(0, 0, 70, 50);
+//        drawableShow.setBounds(0, 0, 100, 50);
+//        drawableNotshow.setBounds(0, 0, 100, 50);
 
-        final Drawable left = getResources().getDrawable(R.drawable.close_blue) ;
-        left.setBounds(0 , 0 , 1 , 1);
 
+        final Drawable left = getResources().getDrawable(R.drawable.close_blue);
+        left.setBounds(0, 0, 1, 1);
 
 
         tiet_PasswordEdit.setDrawableListener(new DrawableTextEdit.DrawableListener() {
@@ -356,8 +384,7 @@ public class LoginActivity extends BaseActivity {
        DrawableTextEdit  用户按钮功能的实现
        Drawableleft  DrawableRight  事件  弹出式窗口实现的输入历史记录
      */
-    private void userEditInit()
-    {
+    private void userEditInit() {
         tiet_UserEdit.setTYPE(0);
         drawableAccountHead = getResources().getDrawable(R.drawable.cat_default);
         drawableAccountHead.setAlpha((int) (255 * 0.6));
@@ -403,14 +430,13 @@ public class LoginActivity extends BaseActivity {
                     // window.showAtLocation(tiet_UserEdit, Gravity.LEFT, 0, 0);
 
 
-
                     //为了更好的用户体验
                     //在有列表数据的时候取消drawableLeft的显示
                     if (mapList.size() > 0) {
                         tiet_UserEdit.setCompoundDrawables(null, null, drawableAccountHead, null);
 
                     } else {
-                        tiet_UserEdit.setCompoundDrawables(left , null , drawableAccountHead , null);
+                        tiet_UserEdit.setCompoundDrawables(left, null, drawableAccountHead, null);
                     }
                 }
             }
@@ -445,16 +471,14 @@ public class LoginActivity extends BaseActivity {
     }
 
 
-
     //Sql 和RecyclerView的初始化
-    private void sqlRecyclerViewDataInit()
-    {
+    private void sqlRecyclerViewDataInit() {
         //完成数据库的创建和调用
         sql = new LoginhistorySql(this, "login.db", null, 1);
         database = sql.getWritableDatabase();
 
         lists = new ArrayList<>();
-        mapList  = new ArrayList<>() ;
+        mapList = new ArrayList<>();
         /*
           在子线程中获取数据库的数据
          */
@@ -467,13 +491,13 @@ public class LoginActivity extends BaseActivity {
                 cursor.moveToFirst();
                 while (cursor.moveToNext()) {
                     Log.d(TAG, "onClick: " + cursor.getString(cursor.getColumnIndex("id")));
-                    Map<String ,String> map = new HashMap<>() ;
-                    map.put("id",cursor.getString(cursor.getColumnIndex(LoginhistorySql.ID))) ;
-                    map.put("password",cursor.getString(cursor.getColumnIndex(LoginhistorySql.PASSWORD))) ;
-                    map.put("isTopLogin",cursor.getString(cursor.getColumnIndex(LoginhistorySql.ISTOPLOGIN))) ;
-                    map.put("lastUpdateTime",cursor.getString(cursor.getColumnIndex(LoginhistorySql.LASTUPDATETIME))) ;
-                    mapList.add(map) ;
-                    lists.add(cursor.getString(cursor.getColumnIndex("id"))) ;
+                    Map<String, String> map = new HashMap<>();
+                    map.put("id", cursor.getString(cursor.getColumnIndex(LoginhistorySql.ID)));
+                    map.put("password", cursor.getString(cursor.getColumnIndex(LoginhistorySql.PASSWORD)));
+                    map.put("isTopLogin", cursor.getString(cursor.getColumnIndex(LoginhistorySql.ISTOPLOGIN)));
+                    map.put("lastUpdateTime", cursor.getString(cursor.getColumnIndex(LoginhistorySql.LASTUPDATETIME)));
+                    mapList.add(map);
+                    lists.add(cursor.getString(cursor.getColumnIndex("id")));
 
                 }
                 cursor.close();
@@ -493,13 +517,22 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void convert(QuickAdapter.VH vh, final String data, final int position) {
-                vh.setText(R.id.tv_loginHistoryAccount,data);
+                vh.setText(R.id.tv_loginHistoryAccount, data);
                 vh.getView(R.id.tv_loginHistoryAccount).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Toast.makeText(LoginActivity.this, "Click Text" + position, Toast.LENGTH_SHORT).show();
                         //设置输入栏的数据为用户所选择的数据
                         tiet_UserEdit.setText(data);
+                        //设置密码输入栏的数据为数据库保存的数据
+                        //密码字段需要经过RSA解密
+                        try {
+                            PrivateKey privateKey = RSAEncrypt.getPrivateKey(RSAEncrypt.PRIVATE_KEY) ;
+                            tiet_PasswordEdit.setText(RSAEncrypt.decrypt(mapList.get(position).get(LoginhistorySql.PASSWORD) , privateKey));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
                         //如果PopupWindow不为空就关闭
                         if (window != null) {
                             window.dismiss();
@@ -512,8 +545,8 @@ public class LoginActivity extends BaseActivity {
                     @Override
                     public void onClick(View v) {
 
-                        mapList.remove(position) ;
-                        lists.remove(position) ;
+                        mapList.remove(position);
+                        lists.remove(position);
                         quickAdapter.notifyDataSetChanged();
                         Toast.makeText(LoginActivity.this, "Click CLose" + position, Toast.LENGTH_SHORT).show();
                     }
@@ -521,21 +554,21 @@ public class LoginActivity extends BaseActivity {
             }
         };
         recyclerView.setAdapter(quickAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this ,LinearLayoutManager.VERTICAL,false));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new DividerItemDecoration(this , DividerItemDecoration.VERTICAL));
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
 
     /*
       完成初始化工作
      */
-    private void init(){
+    private void init() {
 
         //加载背景图片
-        Glide.with(LoginActivity.this).load(getResources().getDrawable(R.drawable.background)).into(iv_backImage) ;
+        Glide.with(LoginActivity.this).load(getResources().getDrawable(R.drawable.background)).into(iv_backImage);
 
         //sql和RecyclerView的数据初始化
-        sqlRecyclerViewDataInit() ;
+        sqlRecyclerViewDataInit();
 
         //用户drawabkeTextEdit的功能实现
         userEditInit();

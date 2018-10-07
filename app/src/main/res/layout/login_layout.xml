@@ -98,17 +98,36 @@
             android:alpha="0.4"
             />
 
-        <TextView
-            android:id="@+id/tv_forgetPasswordTv"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#31dccd"
-            android:clickable="true"
-            android:enabled="true"
-            android:text="忘记密码？"
             android:layout_below="@id/bt_loginBtn"
-            android:layout_marginTop="7dp"
-            />
+            >
+            <TextView
+                android:id="@+id/tv_forgetPasswordTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#31dccd"
+                android:clickable="true"
+                android:enabled="true"
+                android:text="忘记密码？"
+                android:layout_marginTop="7dp"
+                />
+
+            <TextView
+                android:id="@+id/tv_registerUserTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#31dccd"
+                android:clickable="true"
+                android:enabled="true"
+                android:text="注册新用户"
+                android:layout_marginTop="7dp"
+                android:layout_alignParentRight="true"
+
+                />
+        </RelativeLayout>
+
 
         <LinearLayout
             android:id="@+id/ll_bottomLayout"
