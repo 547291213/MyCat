@@ -21,7 +21,7 @@
             >
 
             <com.example.xkfeng.mycat.DrawableText.DrawableTextEdit
-                android:id="@+id/tiet_passwordEdit"
+                android:id="@+id/tiet_userEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="请输入密码"

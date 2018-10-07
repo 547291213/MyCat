@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
@@ -43,18 +44,18 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends BaseActivity {
 
-    @BindView(R.id.tiet_passwordEdit)
-    DrawableTextEdit tiet_PasswordEdit;
+    @BindView(R.id.tiet_userEdit)
+    DrawableTextEdit tiet_UserEdit;
     @BindView(R.id.til_passwrod)
     TextInputLayout tilPasswrod;
     @BindView(R.id.bt_logBtn)
     Button bt_logBtn;
     private LoginhistorySql sql;
-    private Drawable drawableNotshow;
-    private Drawable drawableShow;
+    private Drawable drawableAccountHead;
     private SQLiteDatabase database;
     private static final String TAG = "MainActivity";
     private List<String> lists;
+    private List<Map<String , String>> mapList ;
     private RecyclerView recyclerView;
     private QuickAdapter<String> quickAdapter ;
 
@@ -72,7 +73,10 @@ public class MainActivity extends BaseActivity {
         database = sql.getWritableDatabase();
 
         lists = new ArrayList<>();
-
+        mapList  = new ArrayList<>() ;
+        /*
+          在子线程中获取数据库的数据
+         */
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -82,6 +86,12 @@ public class MainActivity extends BaseActivity {
                 cursor.moveToFirst();
                 while (cursor.moveToNext()) {
                     Log.d(TAG, "onClick: " + cursor.getString(cursor.getColumnIndex("id")));
+                    Map<String ,String> map = new HashMap<>() ;
+                    map.put("id",cursor.getString(cursor.getColumnIndex(LoginhistorySql.ID))) ;
+                    map.put("password",cursor.getString(cursor.getColumnIndex(LoginhistorySql.PASSWORD))) ;
+                    map.put("isTopLogin",cursor.getString(cursor.getColumnIndex(LoginhistorySql.ISTOPLOGIN))) ;
+                    map.put("lastUpdateTime",cursor.getString(cursor.getColumnIndex(LoginhistorySql.LASTUPDATETIME))) ;
+                    mapList.add(map) ;
                     lists.add(cursor.getString(cursor.getColumnIndex("id"))) ;
 
                 }
@@ -90,6 +100,9 @@ public class MainActivity extends BaseActivity {
         }).start();
 
 
+        /*
+          利用万能适配器实现RecyclerView
+         */
         recyclerView = new RecyclerView(this);
         quickAdapter = new QuickAdapter<String>(lists) {
             @Override
@@ -98,18 +111,24 @@ public class MainActivity extends BaseActivity {
             }
 
             @Override
-            public void convert(QuickAdapter.VH vh, String data, final int position) {
+            public void convert(QuickAdapter.VH vh, final String data, final int position) {
                 vh.setText(R.id.tv_loginHistoryAccount,data);
                 vh.getView(R.id.tv_loginHistoryAccount).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Toast.makeText(MainActivity.this, "Click Text" + position, Toast.LENGTH_SHORT).show();
+                        tiet_UserEdit.setText(data);
+                        Log.d(TAG, "onClick: password is " + mapList.get(position).get(LoginhistorySql.PASSWORD));
                     }
                 });
 
                 vh.getView(R.id.iv_loginHistoryClose).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
+                        mapList.remove(position) ;
+                        lists.remove(position) ;
+                        quickAdapter.notifyDataSetChanged();
                         Toast.makeText(MainActivity.this, "Click CLose" + position, Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -142,22 +161,22 @@ public class MainActivity extends BaseActivity {
         });
 
 
-        tiet_PasswordEdit.setTYPE(0);
-        drawableShow = getResources().getDrawable(R.drawable.cat_default);
-        drawableShow.setAlpha((int) (255 * 0.6));
-        drawableShow.setBounds(0, 0, 70, 50);
+        tiet_UserEdit.setTYPE(0);
+        drawableAccountHead = getResources().getDrawable(R.drawable.cat_default);
+        drawableAccountHead.setAlpha((int) (255 * 0.6));
+        drawableAccountHead.setBounds(0, 0, 70, 50);
 
         final Drawable left = getResources().getDrawable(R.drawable.close_blue);
         left.setAlpha((int) (255 * 0.6));
         left.setBounds(0, 0, 1, 1);
 
 
-        tiet_PasswordEdit.setDrawableListener(new DrawableTextEdit.DrawableListener() {
+        tiet_UserEdit.setDrawableListener(new DrawableTextEdit.DrawableListener() {
             @Override
             public void leftDrawableClick(Drawable drawable) {
                 Toast.makeText(MainActivity.this, "LeftClick", Toast.LENGTH_SHORT).show();
 
-                tiet_PasswordEdit.setText("");
+                tiet_UserEdit.setText("");
 
 
             }
@@ -170,7 +189,7 @@ public class MainActivity extends BaseActivity {
                     // 创建PopupWindow对象，其中：
                     // 第一个参数是用于PopupWindow中的View，第二个参数是PopupWindow的宽度，
                     // 第三个参数是PopupWindow的高度，第四个参数指定PopupWindow能否获得焦点
-                    PopupWindow window = new PopupWindow(recyclerView, tiet_PasswordEdit.getWidth(), lists.size() * 80, true);
+                    PopupWindow window = new PopupWindow(recyclerView, tiet_UserEdit.getWidth(), lists.size() * 80, true);
                     //     Log.d(TAG, "leftDrawableClick: " +  listMap.size() );
                     // 设置PopupWindow的背景
                     window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -180,19 +199,19 @@ public class MainActivity extends BaseActivity {
                     window.setTouchable(true);
                     // 显示PopupWindow，其中：
                     // 第一个参数是PopupWindow的锚点，第二和第三个参数分别是PopupWindow相对锚点的x、y偏移
-                    window.showAsDropDown(tiet_PasswordEdit, 0, 0);
+                    window.showAsDropDown(tiet_UserEdit, 0, 0);
                     // 或者也可以调用此方法显示PopupWindow，其中：
                     // 第一个参数是PopupWindow的父View，第二个参数是PopupWindow相对父View的位置，
                     // 第三和第四个参数分别是PopupWindow相对父View的x、y偏移
-                    // window.showAtLocation(tiet_PasswordEdit, Gravity.LEFT, 0, 0);
+                    // window.showAtLocation(tiet_UserEdit, Gravity.LEFT, 0, 0);
 
-                    tiet_PasswordEdit.setCompoundDrawables(null, null, drawableShow, null);
+                    tiet_UserEdit.setCompoundDrawables(null, null, drawableAccountHead, null);
 
                 }
             }
         });
 
-        tiet_PasswordEdit.addTextChangedListener(new TextWatcher() {
+        tiet_UserEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -204,12 +223,12 @@ public class MainActivity extends BaseActivity {
                 final Boolean flag = false;
                 //如果不唯空对null和空指的双重判断。
                 if (!TextUtils.isEmpty(charSequence)) {
-                    tiet_PasswordEdit.setInputType(InputType.TYPE_CLASS_TEXT);
-                    tiet_PasswordEdit.setCompoundDrawables(left, null, drawableShow, null);
-                    tiet_PasswordEdit.setSelection(tiet_PasswordEdit.getText().toString().length());
+                    tiet_UserEdit.setInputType(InputType.TYPE_CLASS_TEXT);
+                    tiet_UserEdit.setCompoundDrawables(left, null, drawableAccountHead, null);
+                    tiet_UserEdit.setSelection(tiet_UserEdit.getText().toString().length());
 
                 } else {
-                    tiet_PasswordEdit.setCompoundDrawables(null, null, null, null);
+                    tiet_UserEdit.setCompoundDrawables(null, null, null, null);
                 }
             }
 
