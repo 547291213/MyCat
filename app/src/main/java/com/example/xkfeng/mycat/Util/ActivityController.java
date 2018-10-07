@@ -10,6 +10,7 @@ import java.util.List;
  */
 
 public class ActivityController {
+
     public static List<Activity> activities = new ArrayList<>() ;
 
     public static void addActivity(Activity activity)

@@ -60,7 +60,7 @@
             app:hintEnabled="true"
             app:errorEnabled="true"
             >
-            <android.support.design.widget.TextInputEditText
+            <com.example.xkfeng.mycat.DrawableText.DrawableTextEdit
                 android:id="@+id/tiet_userEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

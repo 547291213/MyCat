@@ -55,9 +55,10 @@ public class MainActivity extends BaseActivity {
     private SQLiteDatabase database;
     private static final String TAG = "MainActivity";
     private List<String> lists;
-    private List<Map<String , String>> mapList ;
+    private List<Map<String, String>> mapList;
     private RecyclerView recyclerView;
-    private QuickAdapter<String> quickAdapter ;
+    private QuickAdapter<String> quickAdapter;
+    private PopupWindow window;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,7 +74,7 @@ public class MainActivity extends BaseActivity {
         database = sql.getWritableDatabase();
 
         lists = new ArrayList<>();
-        mapList  = new ArrayList<>() ;
+        mapList = new ArrayList<>();
         /*
           在子线程中获取数据库的数据
          */
@@ -86,13 +87,13 @@ public class MainActivity extends BaseActivity {
                 cursor.moveToFirst();
                 while (cursor.moveToNext()) {
                     Log.d(TAG, "onClick: " + cursor.getString(cursor.getColumnIndex("id")));
-                    Map<String ,String> map = new HashMap<>() ;
-                    map.put("id",cursor.getString(cursor.getColumnIndex(LoginhistorySql.ID))) ;
-                    map.put("password",cursor.getString(cursor.getColumnIndex(LoginhistorySql.PASSWORD))) ;
-                    map.put("isTopLogin",cursor.getString(cursor.getColumnIndex(LoginhistorySql.ISTOPLOGIN))) ;
-                    map.put("lastUpdateTime",cursor.getString(cursor.getColumnIndex(LoginhistorySql.LASTUPDATETIME))) ;
-                    mapList.add(map) ;
-                    lists.add(cursor.getString(cursor.getColumnIndex("id"))) ;
+                    Map<String, String> map = new HashMap<>();
+                    map.put("id", cursor.getString(cursor.getColumnIndex(LoginhistorySql.ID)));
+                    map.put("password", cursor.getString(cursor.getColumnIndex(LoginhistorySql.PASSWORD)));
+                    map.put("isTopLogin", cursor.getString(cursor.getColumnIndex(LoginhistorySql.ISTOPLOGIN)));
+                    map.put("lastUpdateTime", cursor.getString(cursor.getColumnIndex(LoginhistorySql.LASTUPDATETIME)));
+                    mapList.add(map);
+                    lists.add(cursor.getString(cursor.getColumnIndex("id")));
 
                 }
                 cursor.close();
@@ -112,12 +113,17 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void convert(QuickAdapter.VH vh, final String data, final int position) {
-                vh.setText(R.id.tv_loginHistoryAccount,data);
+                vh.setText(R.id.tv_loginHistoryAccount, data);
                 vh.getView(R.id.tv_loginHistoryAccount).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Toast.makeText(MainActivity.this, "Click Text" + position, Toast.LENGTH_SHORT).show();
+                        //设置输入栏数据为用户所点击的数据
                         tiet_UserEdit.setText(data);
+                        //如果PopupWindow不为空就关闭
+                        if (window != null) {
+                            window.dismiss();
+                        }
                         Log.d(TAG, "onClick: password is " + mapList.get(position).get(LoginhistorySql.PASSWORD));
                     }
                 });
@@ -126,8 +132,8 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onClick(View v) {
 
-                        mapList.remove(position) ;
-                        lists.remove(position) ;
+                        mapList.remove(position);
+                        lists.remove(position);
                         quickAdapter.notifyDataSetChanged();
                         Toast.makeText(MainActivity.this, "Click CLose" + position, Toast.LENGTH_SHORT).show();
                     }
@@ -135,9 +141,9 @@ public class MainActivity extends BaseActivity {
             }
         };
         recyclerView.setAdapter(quickAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this ,LinearLayoutManager.VERTICAL,false));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new DividerItemDecoration(this , DividerItemDecoration.VERTICAL));
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
 
         bt_logBtn.setOnClickListener(new View.OnClickListener() {
@@ -189,7 +195,7 @@ public class MainActivity extends BaseActivity {
                     // 创建PopupWindow对象，其中：
                     // 第一个参数是用于PopupWindow中的View，第二个参数是PopupWindow的宽度，
                     // 第三个参数是PopupWindow的高度，第四个参数指定PopupWindow能否获得焦点
-                    PopupWindow window = new PopupWindow(recyclerView, tiet_UserEdit.getWidth(), lists.size() * 80, true);
+                    window = new PopupWindow(recyclerView, tiet_UserEdit.getWidth(), lists.size() * 80, true);
                     //     Log.d(TAG, "leftDrawableClick: " +  listMap.size() );
                     // 设置PopupWindow的背景
                     window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -205,7 +211,6 @@ public class MainActivity extends BaseActivity {
                     // 第三和第四个参数分别是PopupWindow相对父View的x、y偏移
                     // window.showAtLocation(tiet_UserEdit, Gravity.LEFT, 0, 0);
 
-                    tiet_UserEdit.setCompoundDrawables(null, null, drawableAccountHead, null);
 
                 }
             }
