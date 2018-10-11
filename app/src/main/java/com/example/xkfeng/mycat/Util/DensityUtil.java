@@ -28,5 +28,17 @@ public class DensityUtil {
         return uriPath;
     }
 
+    /**
+     *
+     * @param x   x轴偏移量
+     * @param y   y轴偏移量
+     * @return 偏移距离
+     */
+    public static float getDistance(double x, double y)
+    {
+        return (float) Math.sqrt(x * x + y * y);
+    }
+
+
 
 }

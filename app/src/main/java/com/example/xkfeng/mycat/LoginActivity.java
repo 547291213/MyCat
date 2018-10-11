@@ -178,27 +178,29 @@ public class LoginActivity extends BaseActivity {
      */
     @OnClick(R.id.bt_loginBtn)
     public void setBt_loginBtb(View view) {
-        Toast.makeText(this, "BtnClick", Toast.LENGTH_SHORT).show();
-        if (database == null) {
-            new Exception("database is null object");
-        }
-        //规范化时间
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = new Date(System.currentTimeMillis());
+//        Toast.makeText(this, "BtnClick", Toast.LENGTH_SHORT).show();
+//        if (database == null) {
+//            new Exception("database is null object");
+//        }
+//        //规范化时间
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        Date date = new Date(System.currentTimeMillis());
+//
+//        try {
+//            PublicKey publicKey = RSAEncrypt.getPublicKey(RSAEncrypt.PUBLIC_KEY) ;
+//            ContentValues contentValues = new ContentValues();
+//            contentValues.put(LoginhistorySql.ID, "" + TEST_ID++);
+//            contentValues.put(LoginhistorySql.PASSWORD, RSAEncrypt.encrypt("" + TEST_ID , publicKey));
+//            contentValues.put(LoginhistorySql.ISTOPLOGIN, "false");
+//            contentValues.put(LoginhistorySql.LASTUPDATETIME, simpleDateFormat.format(date));
+//            database.insertOrThrow(LoginhistorySql.TABLE_NAME, null, contentValues);
+//            tiet_PasswordEdit.getText().toString();
+//            Log.d(TAG, "setBt_loginBtb: miwen is :" +  RSAEncrypt.encrypt("" + TEST_ID , publicKey));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
-        try {
-            PublicKey publicKey = RSAEncrypt.getPublicKey(RSAEncrypt.PUBLIC_KEY) ;
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(LoginhistorySql.ID, "" + TEST_ID++);
-            contentValues.put(LoginhistorySql.PASSWORD, RSAEncrypt.encrypt("" + TEST_ID , publicKey));
-            contentValues.put(LoginhistorySql.ISTOPLOGIN, "false");
-            contentValues.put(LoginhistorySql.LASTUPDATETIME, simpleDateFormat.format(date));
-            database.insertOrThrow(LoginhistorySql.TABLE_NAME, null, contentValues);
-            tiet_PasswordEdit.getText().toString();
-            Log.d(TAG, "setBt_loginBtb: miwen is :" +  RSAEncrypt.encrypt("" + TEST_ID , publicKey));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        startActivity(new Intent(LoginActivity.this , IndexActivity.class));
 
 
     }

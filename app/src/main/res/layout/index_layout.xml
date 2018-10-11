@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -12,5 +12,83 @@
         android:gravity="center_horizontal"
 
         />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/ll_indexbottomLayout"
+        android:layout_alignParentBottom="true"
+        >
+        <com.example.xkfeng.mycat.IndexBottom.IndexBottomLayout
+            android:id="@+id/ib_indexBottomMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            app:bigIconSrc="@drawable/pre_bubble_big"
+            app:smallIconSrc="@drawable/pre_bubble_small"
+            app:iconHeight="50dp"
+            app:iconWidth="50dp"
+            app:range="1.2"
+            android:onClick="bottomLayoutClick"
 
-</LinearLayout>
+
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="消息"
+                android:textSize="12sp"
+                />
+
+        </com.example.xkfeng.mycat.IndexBottom.IndexBottomLayout>
+
+
+        <com.example.xkfeng.mycat.IndexBottom.IndexBottomLayout
+            android:id="@+id/ib_indexBottomFriend"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            app:bigIconSrc="@drawable/pre_person_big"
+            app:smallIconSrc="@drawable/pre_person_small"
+            app:iconHeight="50dp"
+            app:iconWidth="50dp"
+            app:range="1.2"
+            android:onClick="bottomLayoutClick"
+
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="好友"
+                android:textSize="12sp"
+                />
+
+        </com.example.xkfeng.mycat.IndexBottom.IndexBottomLayout>
+        <com.example.xkfeng.mycat.IndexBottom.IndexBottomLayout
+            android:id="@+id/ib_indexBottomDynamic"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            app:bigIconSrc="@drawable/pre_star_big"
+            app:smallIconSrc="@drawable/pre_star_small"
+            app:iconHeight="50dp"
+            app:iconWidth="50dp"
+            app:range="1.2"
+            android:onClick="bottomLayoutClick"
+
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="动态"
+                android:textSize="12sp"
+                />
+
+        </com.example.xkfeng.mycat.IndexBottom.IndexBottomLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

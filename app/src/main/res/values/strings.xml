@@ -6,4 +6,11 @@
     <dimen name="distance_size_8">8</dimen>
     <dimen name="distance_size_split_line">2dp</dimen>
 
+    <declare-styleable name="IndexBottomLayout"  >
+        <attr name="bigIconSrc" format="reference" />
+        <attr name="smallIconSrc" format="reference" />
+        <attr name="iconWidth" format="dimension" />
+        <attr name="iconHeight" format="dimension" />
+        <attr name="range" format="float" />
+    </declare-styleable>
 </resources>
