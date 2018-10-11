@@ -316,6 +316,9 @@ public class IndexBottomLayout extends LinearLayout {
     }
 
 
+    /*
+       设置图片向左
+     */
     public void lookLeft() {
 //        mBigIconView.setX((float) (mBigIconView.getLeft() + (float) mBigRadius * Math.cos(180)));
 //        mBigIconView.setY((float) (mBigIconView.getTop() + mBigRadius * Math.sin(0)));
@@ -325,6 +328,9 @@ public class IndexBottomLayout extends LinearLayout {
 
     }
 
+    /*
+       设置图片向右
+     */
     public void lookRight() {
 //        mBigIconView.setX((float) (mBigIconView.getLeft() + (float) mBigRadius * Math.cos(0)));
 //        mBigIconView.setY((float) (mBigIconView.getTop() + mBigRadius * Math.sin(0)));

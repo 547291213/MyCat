@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.xkfeng.mycat.IndexBottom.IndexBottomLayout;
+import com.example.xkfeng.mycat.Util.ITosast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -166,7 +167,7 @@ public class IndexActivity extends BaseActivity {
         setIbIndexBottomImage(ibIndexBottomMessage , ibIndexBottomFriend , ibIndexBottomDynamic) ;
         //为当前选中的状态设置图片缩放的动画
         ((IndexBottomLayout)view).setImageScale();
-        Toast.makeText(IndexActivity.this, "Click", Toast.LENGTH_SHORT).show();
+        ITosast.show(this , "Click" , Toast.LENGTH_SHORT);
 
     }
 }
