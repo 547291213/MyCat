@@ -1,4 +1,4 @@
-package com.example.xkfeng.mycat.IndexBottom;
+package com.example.xkfeng.mycat.DrawableView;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -19,8 +19,6 @@ import android.widget.LinearLayout;
 
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
-
-import butterknife.internal.Utils;
 
 /**
  * Created by initializing on 2018/10/8.

@@ -1,6 +1,5 @@
-package com.example.xkfeng.mycat.QuickAdapter;
+package com.example.xkfeng.mycat.RecyclerDefine;
 
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -10,8 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.example.xkfeng.mycat.R;
 
 import java.util.List;
 

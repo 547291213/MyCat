@@ -60,7 +60,7 @@
             app:hintEnabled="true"
             app:errorEnabled="true"
             >
-            <com.example.xkfeng.mycat.DrawableText.DrawableTextEdit
+            <com.example.xkfeng.mycat.DrawableView.DrawableTextEdit
                 android:id="@+id/tiet_userEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
             app:errorEnabled="true"
             >
 
-            <com.example.xkfeng.mycat.DrawableText.DrawableTextEdit
+            <com.example.xkfeng.mycat.DrawableView.DrawableTextEdit
                 android:id="@+id/tiet_passwordEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

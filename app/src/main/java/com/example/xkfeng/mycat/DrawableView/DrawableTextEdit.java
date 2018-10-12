@@ -1,20 +1,13 @@
-package com.example.xkfeng.mycat.DrawableText;
+package com.example.xkfeng.mycat.DrawableView;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.TextInputEditText;
-import android.text.Layout;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
-
-import com.example.xkfeng.mycat.R;
 
 /**
  * Created by initializing on 2018/10/5.

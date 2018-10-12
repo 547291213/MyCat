@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.xkfeng.mycat.IndexBottom.IndexBottomLayout;
+import com.example.xkfeng.mycat.DrawableView.IndexBottomLayout;
 import com.example.xkfeng.mycat.Util.ITosast;
 
 import butterknife.BindView;

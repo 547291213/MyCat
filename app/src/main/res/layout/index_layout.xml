@@ -19,7 +19,7 @@
         android:id="@+id/ll_indexbottomLayout"
         android:layout_alignParentBottom="true"
         >
-        <com.example.xkfeng.mycat.IndexBottom.IndexBottomLayout
+        <com.example.xkfeng.mycat.DrawableView.IndexBottomLayout
             android:id="@+id/ib_indexBottomMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -41,10 +41,10 @@
                 android:textSize="12sp"
                 />
 
-        </com.example.xkfeng.mycat.IndexBottom.IndexBottomLayout>
+        </com.example.xkfeng.mycat.DrawableView.IndexBottomLayout>
 
 
-        <com.example.xkfeng.mycat.IndexBottom.IndexBottomLayout
+        <com.example.xkfeng.mycat.DrawableView.IndexBottomLayout
             android:id="@+id/ib_indexBottomFriend"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -65,8 +65,8 @@
                 android:textSize="12sp"
                 />
 
-        </com.example.xkfeng.mycat.IndexBottom.IndexBottomLayout>
-        <com.example.xkfeng.mycat.IndexBottom.IndexBottomLayout
+        </com.example.xkfeng.mycat.DrawableView.IndexBottomLayout>
+        <com.example.xkfeng.mycat.DrawableView.IndexBottomLayout
             android:id="@+id/ib_indexBottomDynamic"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -87,7 +87,7 @@
                 android:textSize="12sp"
                 />
 
-        </com.example.xkfeng.mycat.IndexBottom.IndexBottomLayout>
+        </com.example.xkfeng.mycat.DrawableView.IndexBottomLayout>
 
     </LinearLayout>
 

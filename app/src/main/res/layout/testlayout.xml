@@ -4,14 +4,14 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
-    <com.example.xkfeng.mycat.DrawableText.LoginInputLayout
+    <com.example.xkfeng.mycat.DrawableView.LoginInputLayout
         android:id="@+id/lil_inputAccount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         >
 
 
-    </com.example.xkfeng.mycat.DrawableText.LoginInputLayout>
+    </com.example.xkfeng.mycat.DrawableView.LoginInputLayout>
 
 
 </LinearLayout>

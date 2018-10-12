@@ -1,6 +1,5 @@
 package com.example.xkfeng.mycat;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -8,7 +7,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
@@ -19,22 +17,16 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.MultiAutoCompleteTextView;
 import android.widget.PopupWindow;
-import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-import com.example.xkfeng.mycat.DrawableText.DrawableTextEdit;
-import com.example.xkfeng.mycat.Model.LoginModel;
-import com.example.xkfeng.mycat.QuickAdapter.QuickAdapter;
+import com.example.xkfeng.mycat.DrawableView.DrawableTextEdit;
+import com.example.xkfeng.mycat.RecyclerDefine.QuickAdapter;
 import com.example.xkfeng.mycat.SqlHelper.LoginhistorySql;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

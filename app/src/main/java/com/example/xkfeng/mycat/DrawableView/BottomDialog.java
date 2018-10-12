@@ -1,4 +1,4 @@
-package com.example.xkfeng.mycat.Dialog;
+package com.example.xkfeng.mycat.DrawableView;
 
 import android.app.Dialog;
 import android.content.Context;
