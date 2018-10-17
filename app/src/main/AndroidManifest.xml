@@ -12,20 +12,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".Activity.MainActivity">
 
 
         </activity>
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".Activity.LoginActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             >
 
         </activity>
 
         <activity
-            android:name=".StartMovieActivity"
+            android:name=".Activity.StartMovieActivity"
             android:noHistory="true"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             >
@@ -36,14 +36,14 @@
         </activity>
 
         <activity
-            android:name=".ProtocolActivity"
+            android:name=".Activity.ProtocolActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             >
 
 
         </activity>
 
-        <activity android:name=".IndexActivity">
+        <activity android:name=".Activity.IndexActivity">
 
 
         </activity>

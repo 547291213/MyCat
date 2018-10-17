@@ -1,12 +1,12 @@
-package com.example.xkfeng.mycat;
+package com.example.xkfeng.mycat.Activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.view.MenuItem;
-import android.widget.TextView;
+
+import com.example.xkfeng.mycat.Activity.BaseActivity;
+import com.example.xkfeng.mycat.R;
 
 import org.sufficientlysecure.htmltextview.HtmlTextView;
 

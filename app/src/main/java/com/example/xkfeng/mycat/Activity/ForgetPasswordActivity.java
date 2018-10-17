@@ -1,4 +1,4 @@
-package com.example.xkfeng.mycat;
+package com.example.xkfeng.mycat.Activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

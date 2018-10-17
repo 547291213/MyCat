@@ -1,4 +1,4 @@
-package com.example.xkfeng.mycat;
+package com.example.xkfeng.mycat.Activity;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;

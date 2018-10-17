@@ -1,4 +1,4 @@
-package com.example.xkfeng.mycat;
+package com.example.xkfeng.mycat.Activity;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -23,6 +23,7 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.example.xkfeng.mycat.DrawableView.DrawableTextEdit;
+import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.RecyclerDefine.QuickAdapter;
 import com.example.xkfeng.mycat.SqlHelper.LoginhistorySql;
 

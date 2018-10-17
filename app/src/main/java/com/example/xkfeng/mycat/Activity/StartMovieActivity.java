@@ -1,4 +1,4 @@
-package com.example.xkfeng.mycat;
+package com.example.xkfeng.mycat.Activity;
 
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -11,6 +11,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 
+import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.VideoMovie.StartMovieView;
 
 import butterknife.BindView;

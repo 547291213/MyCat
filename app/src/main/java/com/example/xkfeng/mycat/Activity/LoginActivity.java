@@ -1,4 +1,4 @@
-package com.example.xkfeng.mycat;
+package com.example.xkfeng.mycat.Activity;
 
 import android.Manifest;
 import android.annotation.TargetApi;
@@ -42,6 +42,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.DrawableView.BottomDialog;
 import com.example.xkfeng.mycat.DrawableView.DrawableTextEdit;
+import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.RecyclerDefine.QuickAdapter;
 import com.example.xkfeng.mycat.SqlHelper.LoginhistorySql;
 import com.example.xkfeng.mycat.Util.RSAEncrypt;

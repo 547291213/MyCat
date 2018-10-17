@@ -1,11 +1,15 @@
-package com.example.xkfeng.mycat;
+package com.example.xkfeng.mycat.Activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.xkfeng.mycat.Activity.BaseActivity;
 import com.example.xkfeng.mycat.DrawableView.IndexBottomLayout;
+import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
+import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.ITosast;
 
 import butterknife.BindView;
@@ -43,6 +47,14 @@ public class IndexActivity extends BaseActivity {
         ibIndexBottomMessage.setmBigBitmapSrc(getResources().getDrawable(R.drawable.bubble_big));
         ibIndexBottomMessage.setmSmallBitmapSrc(getResources().getDrawable(R.drawable.bubble_small));
         ibIndexBottomMessage.setmCheckSate(IndexBottomLayout.CHECKED);
+
+        /**
+         * 注意对于需要实现拖拽效果的view需要单独指定一个布局文件，并且次布局最好不能有viewGroup，
+         * 否则view上面显示的文字可能在拖拽时不能识别，这样一是为了方便，二是为了减少消耗
+         * 布局方式请参考xml文件
+         */
+        TextView textView = findViewById(R.id.tv_mDragView) ;
+        RedPointViewHelper stickyViewHelper = new RedPointViewHelper(this, textView,R.layout.item_drag_view);
 
     }
 
