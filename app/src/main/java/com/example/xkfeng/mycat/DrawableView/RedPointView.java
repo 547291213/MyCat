@@ -106,11 +106,7 @@ public class RedPointView extends android.support.v7.widget.AppCompatTextView {
         mDragView.measure(1, 1);
         mDragViewHeight = mDragView.getMeasuredHeight() / 2;
         mDragViewWidth = mDragView.getMeasuredWidth() / 2 ;
-        Log.d(TAG, "RedPointView: " +mDragView.getMeasuredHeight() + " " + mDragView.getMeasuredWidth() );
-
         mDragCircleRadius = Math.min(mDragViewHeight, mDragViewWidth);
-//        Log.d(TAG, "RedPointView: " + mDragCircleRadius);
-//        mDragCircleRadius = DensityUtil.dip2px(mContext , mDragCircleRadius) ;
 
 
         mParams = new WindowManager.LayoutParams();
@@ -185,11 +181,6 @@ public class RedPointView extends android.support.v7.widget.AppCompatTextView {
                 } else {
 
                     overShootAnimator();
-
-
-
-
-
                 }
 //                invalidate();
                 break;

@@ -44,6 +44,7 @@ import com.example.xkfeng.mycat.DrawableView.BottomDialog;
 import com.example.xkfeng.mycat.DrawableView.DrawableTextEdit;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.RecyclerDefine.QuickAdapter;
+import com.example.xkfeng.mycat.SqlHelper.LoginSQLDao;
 import com.example.xkfeng.mycat.SqlHelper.LoginhistorySql;
 import com.example.xkfeng.mycat.Util.RSAEncrypt;
 
@@ -108,6 +109,8 @@ public class LoginActivity extends BaseActivity {
     private RecyclerView recyclerView;
     private QuickAdapter<String> quickAdapter;
     private PopupWindow window;
+
+    private LoginSQLDao loginSQLDao ;
 
 
     private static int TEST_ID = 123456;
@@ -465,36 +468,45 @@ public class LoginActivity extends BaseActivity {
 
     //Sql 和RecyclerView的初始化
     private void sqlRecyclerViewDataInit() {
-        //完成数据库的创建和调用
-        sql = new LoginhistorySql(this, "login.db", null, 1);
-        database = sql.getWritableDatabase();
 
+        /*
+            提供数据库通用DAO层设计来实现数据操作。
+            在JAVA业务代码中只需要调用相关的方法即可
+         */
+        loginSQLDao = new LoginSQLDao(this) ;
         lists = new ArrayList<>();
         mapList = new ArrayList<>();
-        /*
-          在子线程中获取数据库的数据
-         */
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Cursor cursor = null;
-                cursor = database.query(LoginhistorySql.TABLE_NAME,
-                        null, null, null, null, null, null);
-                cursor.moveToFirst();
-                while (cursor.moveToNext()) {
-                    Log.d(TAG, "onClick: " + cursor.getString(cursor.getColumnIndex("id")));
-                    Map<String, String> map = new HashMap<>();
-                    map.put("id", cursor.getString(cursor.getColumnIndex(LoginhistorySql.ID)));
-                    map.put("password", cursor.getString(cursor.getColumnIndex(LoginhistorySql.PASSWORD)));
-                    map.put("isTopLogin", cursor.getString(cursor.getColumnIndex(LoginhistorySql.ISTOPLOGIN)));
-                    map.put("lastUpdateTime", cursor.getString(cursor.getColumnIndex(LoginhistorySql.LASTUPDATETIME)));
-                    mapList.add(map);
-                    lists.add(cursor.getString(cursor.getColumnIndex("id")));
+        lists = loginSQLDao.queryAllData(mapList) ;
 
-                }
-                cursor.close();
-            }
-        }).start();
+//        //完成数据库的创建和调用
+//        sql = new LoginhistorySql(this, "login.db", null, 1);
+//        database = sql.getWritableDatabase();
+//
+
+//        /*
+//          在子线程中获取数据库的数据
+//         */
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Cursor cursor = null;
+//                cursor = database.query(LoginhistorySql.TABLE_NAME,
+//                        null, null, null, null, null, null);
+//                cursor.moveToFirst();
+//                while (cursor.moveToNext()) {
+//                    Log.d(TAG, "onClick: " + cursor.getString(cursor.getColumnIndex("id")));
+//                    Map<String, String> map = new HashMap<>();
+//                    map.put("id", cursor.getString(cursor.getColumnIndex(LoginhistorySql.ID)));
+//                    map.put("password", cursor.getString(cursor.getColumnIndex(LoginhistorySql.PASSWORD)));
+//                    map.put("isTopLogin", cursor.getString(cursor.getColumnIndex(LoginhistorySql.ISTOPLOGIN)));
+//                    map.put("lastUpdateTime", cursor.getString(cursor.getColumnIndex(LoginhistorySql.LASTUPDATETIME)));
+//                    mapList.add(map);
+//                    lists.add(cursor.getString(cursor.getColumnIndex("id")));
+//
+//                }
+//                cursor.close();
+//            }
+//        }).start();
 
 
         /*
