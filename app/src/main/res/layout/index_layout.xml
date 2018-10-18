@@ -13,13 +13,27 @@
 
         <!--/>-->
 
-
-    <Button
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/et_searchEdit"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="searcherBtn"
+        android:text="搜索"
         android:onClick="intoSearchView"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:layout_margin="5dp"
+        android:background="@color/gray"
+
+
+
         />
+
+    <!--<Button-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="searcherBtn"-->
+        <!--android:onClick="intoSearchView"-->
+        <!--/>-->
 
     <LinearLayout
         android:id="@+id/ll_indexbottomLayout"
