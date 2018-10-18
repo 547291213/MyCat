@@ -1,5 +1,6 @@
 package com.example.xkfeng.mycat.Activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
@@ -181,5 +182,13 @@ public class IndexActivity extends BaseActivity {
         ((IndexBottomLayout)view).setImageScale();
         ITosast.show(this , "Click" , Toast.LENGTH_SHORT);
 
+    }
+
+    /*
+       转到搜索界面
+     */
+    public void intoSearchView(View view){
+
+        startActivity(new Intent(IndexActivity.this , SearchActivity.class));
     }
 }

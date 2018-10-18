@@ -51,6 +51,12 @@ public abstract class QuickAdapter<T> extends RecyclerView.Adapter<QuickAdapter.
         return super.getItemViewType(position);
     }
 
+    public void setList(List<T> list){
+        this.list = list ;
+        //重置
+        getItemCount() ;
+    }
+
     public static class VH extends RecyclerView.ViewHolder
     {
         private SparseArray<View> sparseArray ;
