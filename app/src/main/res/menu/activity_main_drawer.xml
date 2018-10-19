@@ -12,16 +12,23 @@
             android:id="@+id/nav_csdn"
             android:icon="@drawable/csdn"
             android:title="Csdn" />
-        <item
-            android:id="@+id/nav_city"
-            android:icon="@drawable/city"
-            android:title="城市" />
-        <item
-            android:id="@+id/nav_weather"
-            android:icon="@drawable/weather"
-            android:title="天气" />
+
     </group>
 
+
+
+    <item android:title="城市信息">
+      <menu>
+          <item
+              android:id="@+id/nav_city"
+              android:icon="@drawable/city"
+              android:title="城市" />
+          <item
+              android:id="@+id/nav_weather"
+              android:icon="@drawable/weather"
+              android:title="天气" />
+      </menu>
+    </item>
     <item android:title="其它">
         <menu>
             <item
@@ -40,5 +47,6 @@
 
         </menu>
     </item>
+
 
 </menu>

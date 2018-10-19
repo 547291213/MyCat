@@ -60,9 +60,7 @@ public class MessageFragment extends Fragment {
          /*
             设置搜索栏相关属性
          */
-
         setEtSearchEdit();
-
 
          /*
            设置顶部标题栏相关属性
@@ -82,17 +80,16 @@ public class MessageFragment extends Fragment {
         etSearchEdit.setCompoundDrawablePadding(-left.getIntrinsicWidth() / 2 + 5);
         etSearchEdit.setCompoundDrawables(left, null, null, null);
         etSearchEdit.setAlpha((float) 0.6);
+        //点击转到搜索页面
+        etSearchEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(mContext, SearchActivity.class));
+            }
+        });
 
     }
 
-
-    /*
-       转到搜索界面
-     */
-    public void intoSearchView(View view) {
-
-        startActivity(new Intent(mContext, SearchActivity.class));
-    }
 
     /**
      * 设置顶部标题栏相关属性
