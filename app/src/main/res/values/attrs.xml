@@ -12,4 +12,21 @@
         <item name="android:windowAnimationStyle">@style/ActionSheetDialogAnimation</item><!--动画-->
 
     </style>
+
+
+    <declare-styleable name="IndexTitleStyle" >
+        <attr name="leftBackground" format="reference" />
+        <attr name="leftText" format="string" />
+        <attr name="leftTextColor" format="color" />
+
+        <attr name="middleText" format="string" />
+        <attr name="middleTextColor" format="color" />
+
+        <attr name="rightBackground" format="reference" />
+        <attr name="rightText" format="string" />
+        <attr name="rightTextColor" format="color" />
+
+        <attr name="layoutBackground" format="reference" />
+
+    </declare-styleable>
 </resources>

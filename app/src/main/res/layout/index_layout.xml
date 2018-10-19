@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    >
     <!--<com.example.xkfeng.mycat.DrawableView.RedPointView-->
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="100dp"-->
@@ -13,17 +14,33 @@
 
         <!--/>-->
 
+    <com.example.xkfeng.mycat.DrawableView.IndexTitleLayout
+        android:id="@+id/indexTitleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+
+        app:leftBackground="@drawable/contacts_gray"
+        app:middleText="消息"
+        app:middleTextColor="@color/light_blue"
+        app:rightBackground="@drawable/plus"
+        app:layoutBackground="@drawable/title_gradient"
+
+        />
+
     <TextView
         android:id="@+id/et_searchEdit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="搜索"
         android:onClick="intoSearchView"
-        android:textSize="18sp"
+        android:textSize="14sp"
         android:gravity="center"
         android:layout_margin="5dp"
         android:background="@color/gray"
-
+        android:paddingBottom="2dp"
+        android:paddingTop="2dp"
+        android:layout_below="@id/indexTitleLayout"
 
 
         />

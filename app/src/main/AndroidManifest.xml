@@ -43,13 +43,16 @@
 
         </activity>
 
-        <activity android:name=".Activity.IndexActivity">
+        <activity android:name=".Activity.IndexActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+
+            >
 
 
         </activity>
 
         <activity android:name=".Activity.SearchActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
 
             >
 

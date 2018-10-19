@@ -43,6 +43,7 @@ public class DensityUtil {
 
     /**
      * 计算两点之间的距离
+     *
      * @param pointF
      * @param pointF1
      * @return 距离
@@ -50,7 +51,7 @@ public class DensityUtil {
     public static float getDistance(PointF pointF, PointF pointF1) {
         float distance = (float) Math.sqrt(Math.pow(pointF.y - pointF1.y, 2)
                 + Math.pow(pointF.x - pointF1.x, 2));
-        return distance ;
+        return distance;
     }
 
     /**
@@ -83,27 +84,31 @@ public class DensityUtil {
     /**
      * Get point between p1 and p2 by percent.
      * 根据百分比获取两点之间的某个点坐标
+     *
      * @param p1
      * @param p2
      * @param percent
      * @return
      */
     public static PointF getPointByPercent(PointF p1, PointF p2, float percent) {
-        return new PointF(evaluateValue(percent, p1.x , p2.x), evaluateValue(percent, p1.y , p2.y));
+        return new PointF(evaluateValue(percent, p1.x, p2.x), evaluateValue(percent, p1.y, p2.y));
     }
 
     /**
      * 根据分度值，计算从start到end中，fraction位置的值。fraction范围为0 -> 1
+     *
      * @param fraction
      * @param start
      * @param end
      * @return
      */
-    public static float evaluateValue(float fraction, Number start, Number end){
+    public static float evaluateValue(float fraction, Number start, Number end) {
         return start.floatValue() + (end.floatValue() - start.floatValue()) * fraction;
     }
 
-    /** 获取状态栏高度
+    /**
+     * 获取状态栏高度
+     *
      * @param v
      * @return
      */
@@ -114,6 +119,25 @@ public class DensityUtil {
         Rect frame = new Rect();
         v.getWindowVisibleDisplayFrame(frame);
         return frame.top;
+    }
+
+
+    /**
+     * 获取手机状态栏高度
+     * @param context
+     * @return 状态栏高度
+     */
+    public static int getStatusHeight(Context context) {
+        int statusHeight = -1;
+        try {
+            Class clazz = Class.forName("com.android.internal.R$dimen");
+            Object object = clazz.newInstance();
+            int height = Integer.parseInt(clazz.getField("status_bar_height").get(object).toString());
+            statusHeight = context.getResources().getDimensionPixelSize(height);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return statusHeight;
     }
 
 }
