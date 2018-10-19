@@ -1,24 +1,32 @@
 package com.example.xkfeng.mycat.Activity;
 
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.util.DisplayMetrics;
-import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.xkfeng.mycat.DrawableView.IndexBottomLayout;
-import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
+import com.example.xkfeng.mycat.Fragment.DynamicFragment;
+import com.example.xkfeng.mycat.Fragment.FriendFragment;
+import com.example.xkfeng.mycat.Fragment.MessageFragment;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
@@ -38,13 +46,23 @@ public class IndexActivity extends BaseActivity {
     IndexBottomLayout ibIndexBottomFriend;
     @BindView(R.id.ib_indexBottomDynamic)
     IndexBottomLayout ibIndexBottomDynamic;
-    @BindView(R.id.et_searchEdit)
-    TextView etSearchEdit;
+
 
     private static final String TAG = "IndexActivity";
-    @BindView(R.id.indexTitleLayout)
-    IndexTitleLayout indexTitleLayout;
+    @BindView(R.id.nav_view)
+    NavigationView navView;
+    @BindView(R.id.drawer_layout)
+    DrawerLayout drawerLayout;
     private DisplayMetrics metrics;
+
+    private FrameLayout frameLayout ;
+    private MessageFragment messageFragment;
+    private FriendFragment friendFragment;
+    private DynamicFragment dynamicFragment;
+    private android.support.v4.app.FragmentManager fragmentManager ;
+
+    private static final String PROJECT_GITHUB = "https://github.com/547291213/MyCat";
+    private static final String PROJECT_CSDN = "https://blog.csdn.net/qq_29989087/article/details/82962296";
 
 
     @Override
@@ -65,15 +83,69 @@ public class IndexActivity extends BaseActivity {
 
         //沉浸式View
         fullScreen(this);
+
+        //抽屉设置
+        setNavView();
+
         //初始化布局
         initView();
+
 
 
     }
 
     /**
+     * 设置抽屉属性
+     * 1 点击事件处理
+     */
+    private void setNavView() {
+        navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.nav_github:
+
+                        /**
+                         * 打开项目GITHUB
+                         */
+                        Intent intent = new Intent();
+                        intent.setData(Uri.parse(PROJECT_GITHUB));
+                        intent.setAction(Intent.ACTION_VIEW);
+                        startActivity(intent);
+                        break;
+
+                    case R.id.nav_csdn:
+                        /**
+                         * 打开项目CSDN
+                         */
+                        Intent intent1 = new Intent();
+                        intent1.setData(Uri.parse(PROJECT_CSDN));
+                        intent1.setAction(Intent.ACTION_VIEW);
+                        startActivity(intent1);
+                        break;
+
+                    case R.id.nav_setting:
+
+                        break;
+
+                    case R.id.nav_clear:
+
+                        break;
+
+                    case R.id.nav_about:
+
+                        break;
+
+                }
+                return true;
+            }
+        });
+    }
+
+    /**
      * 沉浸式状态栏
      * 并且状态栏颜色跟随顶部View的颜色，追随渐变
+     *
      * @param activity
      */
     private void fullScreen(Activity activity) {
@@ -90,17 +162,6 @@ public class IndexActivity extends BaseActivity {
                 //导航栏颜色也可以正常设置
                 // window.setNavigationBarColor(Color.TRANSPARENT);
 
-                /*
-                   设置内边距
-                   其中left right bottom都用现有的
-                   top设置为现在的topPadding+状态栏的高度
-                   表现为将indexTitleLayout显示的数据放到状态栏下面
-                 */
-                indexTitleLayout.setPadding(indexTitleLayout.getPaddingLeft(),
-                        indexTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(this),
-                        indexTitleLayout.getPaddingRight(),
-                        indexTitleLayout.getPaddingBottom());
-
             } else {
                 Window window = activity.getWindow();
                 WindowManager.LayoutParams attributes = window.getAttributes();
@@ -109,17 +170,6 @@ public class IndexActivity extends BaseActivity {
                 attributes.flags |= flagTranslucentStatus;
                 // attributes.flags |= flagTranslucentNavigation;
                 window.setAttributes(attributes);
-            /*
-                   设置内边距
-                   其中left right bottom都用现有的
-                   top设置为现在的topPadding+状态栏的高度
-                   表现为将indexTitleLayout显示的数据放到状态栏下面
-                 */
-                indexTitleLayout.setPadding(indexTitleLayout.getPaddingLeft() ,
-                        indexTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(this) ,
-                        indexTitleLayout.getPaddingRight() ,
-                        indexTitleLayout.getPaddingBottom());
-
             }
         }
     }
@@ -142,15 +192,16 @@ public class IndexActivity extends BaseActivity {
         TextView textView = findViewById(R.id.tv_mDragView);
         RedPointViewHelper stickyViewHelper = new RedPointViewHelper(this, textView, R.layout.item_drag_view);
 
-        /*
-            设置搜索栏相关属性
-         */
-        setEtSearchEdit();
 
-        /*
-           设置顶部标题栏相关属性
-         */
-        setIndexTitleLayout();
+        frameLayout = findViewById(R.id.fg_indexFragment) ;
+
+        if (messageFragment == null){
+            messageFragment = new MessageFragment() ;
+        }
+        fragmentManager = getSupportFragmentManager() ;
+        android.support.v4.app.FragmentTransaction transaction =  fragmentManager.beginTransaction() ;
+        transaction.replace(R.id.fg_indexFragment ,messageFragment) ;
+        transaction.commit() ;
 
 
     }
@@ -276,49 +327,4 @@ public class IndexActivity extends BaseActivity {
     }
 
 
-    /**
-     * 设置顶部标题栏相关属性
-     */
-    private void setIndexTitleLayout(){
-
-        indexTitleLayout.setTitleItemClickListener(new IndexTitleLayout.TitleItemClickListener() {
-            @Override
-            public void leftViewClick(View view) {
-                Toast.makeText(IndexActivity.this, "LeftClick", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void middleViewClick(View view) {
-
-            }
-
-            @Override
-            public void rightViewClick(View view) {
-                Toast.makeText(IndexActivity.this, "RightClick", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    /*
-       转到搜索界面
-     */
-    public void intoSearchView(View view) {
-
-        startActivity(new Intent(IndexActivity.this, SearchActivity.class));
-    }
-
-    /*
-      设置搜索栏属性
-      Drawable
-     */
-    private void setEtSearchEdit() {
-        Drawable left = getResources().getDrawable(R.drawable.searcher);
-        left.setBounds(metrics.widthPixels / 2 - DensityUtil.dip2px(this, 10 + 14 * 2), 0,
-                50 + metrics.widthPixels / 2 - DensityUtil.dip2px(this, 10 + 14 * 2), 30);
-        Log.d(TAG, "setEtSearchEdit: " + metrics.widthPixels);
-        etSearchEdit.setCompoundDrawablePadding(-left.getIntrinsicWidth() / 2);
-        etSearchEdit.setCompoundDrawables(left, null, null, null);
-        etSearchEdit.setAlpha((float) 0.6);
-
-    }
 }

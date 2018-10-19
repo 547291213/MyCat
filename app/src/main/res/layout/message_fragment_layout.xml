@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+    <com.example.xkfeng.mycat.DrawableView.IndexTitleLayout
+        android:id="@+id/indexTitleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+
+        app:leftBackground="@drawable/contacts_gray"
+        app:middleText="消息"
+        app:middleTextColor="@color/light_blue"
+        app:rightBackground="@drawable/plus"
+        app:layoutBackground="@drawable/title_gradient"
+
+        />
+
+    <TextView
+        android:id="@+id/et_searchEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="搜索"
+        android:onClick="intoSearchView"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_margin="5dp"
+        android:background="@color/gray"
+        android:paddingBottom="2dp"
+        android:paddingTop="2dp"
+        android:layout_below="@id/indexTitleLayout"
+
+
+        />
+</RelativeLayout>

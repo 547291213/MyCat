@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_github"
+            android:icon="@drawable/github"
+            android:title="Github" />
+        <item
+            android:id="@+id/nav_csdn"
+            android:icon="@drawable/csdn"
+            android:title="Csdn" />
+        <item
+            android:id="@+id/nav_city"
+            android:icon="@drawable/city"
+            android:title="城市" />
+        <item
+            android:id="@+id/nav_weather"
+            android:icon="@drawable/weather"
+            android:title="天气" />
+    </group>
+
+    <item android:title="其它">
+        <menu>
+            <item
+                android:id="@+id/nav_setting"
+                android:icon="@drawable/setting"
+                android:title="设置" />
+            <item
+                android:id="@+id/nav_clear"
+                android:icon="@drawable/clear"
+                android:title="清空缓存"
+                />
+            <item
+                android:id="@+id/nav_about"
+                android:icon="@drawable/about"
+                android:title="关于我们" />
+
+        </menu>
+    </item>
+
+</menu>

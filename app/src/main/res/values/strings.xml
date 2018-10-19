@@ -13,4 +13,12 @@
         <attr name="iconHeight" format="dimension" />
         <attr name="range" format="float" />
     </declare-styleable>
+
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">Author affiliation：xp134525@gmail.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
 </resources>

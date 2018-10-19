@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    >
+    <!--<com.example.xkfeng.mycat.DrawableView.RedPointView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="100dp"-->
+        <!--android:text="100"-->
+        <!--android:textSize="22sp"-->
+        <!--android:gravity="center_horizontal"-->
+
+        <!--/>-->
+
+    <FrameLayout
+        android:id="@+id/fg_indexFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        />
+
+    <!--<Button-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="searcherBtn"-->
+        <!--android:onClick="intoSearchView"-->
+        <!--/>-->
+
+    <LinearLayout
+        android:id="@+id/ll_indexbottomLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="11dp"
+        android:orientation="horizontal">
+
+        <com.example.xkfeng.mycat.DrawableView.IndexBottomLayout
+            android:id="@+id/ib_indexBottomMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="bottomLayoutClick"
+            app:bigIconSrc="@drawable/pre_bubble_big"
+            app:iconHeight="50dp"
+            app:iconWidth="50dp"
+            app:range="1.2"
+            app:smallIconSrc="@drawable/pre_bubble_small"
+
+
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="消息"
+                android:textSize="12sp" />
+
+        </com.example.xkfeng.mycat.DrawableView.IndexBottomLayout>
+
+
+        <com.example.xkfeng.mycat.DrawableView.IndexBottomLayout
+            android:id="@+id/ib_indexBottomFriend"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="bottomLayoutClick"
+            app:bigIconSrc="@drawable/pre_person_big"
+            app:iconHeight="50dp"
+            app:iconWidth="50dp"
+            app:range="1.2"
+            app:smallIconSrc="@drawable/pre_person_small"
+
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="好友"
+                android:textSize="12sp" />
+
+        </com.example.xkfeng.mycat.DrawableView.IndexBottomLayout>
+
+        <com.example.xkfeng.mycat.DrawableView.IndexBottomLayout
+            android:id="@+id/ib_indexBottomDynamic"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="bottomLayoutClick"
+            app:bigIconSrc="@drawable/pre_star_big"
+            app:iconHeight="50dp"
+            app:iconWidth="50dp"
+            app:range="1.2"
+            app:smallIconSrc="@drawable/pre_star_small"
+
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="动态"
+                android:textSize="12sp" />
+
+        </com.example.xkfeng.mycat.DrawableView.IndexBottomLayout>
+
+    </LinearLayout>
+    <include
+        android:layout_height="20dp"
+        android:layout_width="20dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/ll_indexbottomLayout"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="5dp"
+        layout="@layout/item_drag_view"
+        />
+
+</RelativeLayout>
