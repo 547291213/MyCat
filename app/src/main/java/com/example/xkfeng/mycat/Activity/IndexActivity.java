@@ -55,11 +55,11 @@ public class IndexActivity extends BaseActivity {
     DrawerLayout drawerLayout;
     private DisplayMetrics metrics;
 
-    private FrameLayout frameLayout ;
+    private FrameLayout frameLayout;
     private MessageFragment messageFragment;
     private FriendFragment friendFragment;
     private DynamicFragment dynamicFragment;
-    private android.support.v4.app.FragmentManager fragmentManager ;
+    private android.support.v4.app.FragmentManager fragmentManager;
 
     private static final String PROJECT_GITHUB = "https://github.com/547291213/MyCat";
     private static final String PROJECT_CSDN = "https://blog.csdn.net/qq_29989087/article/details/82962296";
@@ -89,7 +89,6 @@ public class IndexActivity extends BaseActivity {
 
         //初始化布局
         initView();
-
 
 
     }
@@ -193,15 +192,18 @@ public class IndexActivity extends BaseActivity {
         RedPointViewHelper stickyViewHelper = new RedPointViewHelper(this, textView, R.layout.item_drag_view);
 
 
-        frameLayout = findViewById(R.id.fg_indexFragment) ;
+        frameLayout = findViewById(R.id.fg_indexFragment);
 
-        if (messageFragment == null){
-            messageFragment = new MessageFragment() ;
+        if (messageFragment == null) {
+            messageFragment = new MessageFragment();
         }
-        fragmentManager = getSupportFragmentManager() ;
-        android.support.v4.app.FragmentTransaction transaction =  fragmentManager.beginTransaction() ;
-        transaction.replace(R.id.fg_indexFragment ,messageFragment) ;
-        transaction.commit() ;
+        /*
+          初始用Message Fragment显示
+         */
+        fragmentManager = getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fg_indexFragment, messageFragment);
+        transaction.commit();
 
 
     }
@@ -283,8 +285,11 @@ public class IndexActivity extends BaseActivity {
                     setIbIndexBottomCheckState_UnChecked(ibIndexBottomDynamic);
                     //将当前View设置为选中状态
                     setIbIndexBottomCheckState_Checked(ibIndexBottomMessage);
-                    //页面切换
 
+                    //页面切换
+                    android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    transaction.replace(R.id.fg_indexFragment, messageFragment);
+                    transaction.commit();
                 }
                 break;
             case R.id.ib_indexBottomFriend:
@@ -298,8 +303,14 @@ public class IndexActivity extends BaseActivity {
                     setIbIndexBottomCheckState_UnChecked(ibIndexBottomDynamic);
                     //将当前View设置为选中状态
                     setIbIndexBottomCheckState_Checked(ibIndexBottomFriend);
-                    //页面切换
 
+                    //页面切换
+                    android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    if (friendFragment == null) {
+                        friendFragment = new FriendFragment() ;
+                    }
+                    transaction.replace(R.id.fg_indexFragment, friendFragment);
+                    transaction.commit();
                 }
                 break;
             case R.id.ib_indexBottomDynamic:
@@ -314,7 +325,12 @@ public class IndexActivity extends BaseActivity {
                     //将当前View设置为选中状态
                     setIbIndexBottomCheckState_Checked(ibIndexBottomDynamic);
                     //页面切换
-
+                    android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    if (dynamicFragment == null) {
+                        dynamicFragment = new DynamicFragment() ;
+                    }
+                    transaction.replace(R.id.fg_indexFragment, dynamicFragment);
+                    transaction.commit();
                 }
                 break;
         }

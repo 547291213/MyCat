@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.example.xkfeng.mycat.DrawableView.IndexTitleLayout
+        android:id="@+id/indexTitleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:leftBackground="@drawable/contacts_gray"
+        app:middleText="联系人"
+        app:middleTextColor="@color/light_blue"
+        app:layoutBackground="@drawable/title_gradient"
+        app:rightText="添加"
+        app:rightTextColor="@color/white"
+        />
+
+</RelativeLayout>
