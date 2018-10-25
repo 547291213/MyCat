@@ -1,8 +1,6 @@
 package com.example.xkfeng.mycat.Activity;
 
 import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -11,7 +9,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.util.DisplayMetrics;
 import android.view.MenuItem;
@@ -19,6 +18,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,7 +28,6 @@ import com.example.xkfeng.mycat.Fragment.DynamicFragment;
 import com.example.xkfeng.mycat.Fragment.FriendFragment;
 import com.example.xkfeng.mycat.Fragment.MessageFragment;
 import com.example.xkfeng.mycat.R;
-import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
 
 import butterknife.BindView;
@@ -53,13 +52,15 @@ public class IndexActivity extends BaseActivity {
     NavigationView navView;
     @BindView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
+    @BindView(R.id.rl_indexMainLayout)
+    RelativeLayout rlIndexMainLayout;
     private DisplayMetrics metrics;
 
     private FrameLayout frameLayout;
     private MessageFragment messageFragment;
     private FriendFragment friendFragment;
     private DynamicFragment dynamicFragment;
-    private android.support.v4.app.FragmentManager fragmentManager;
+    private FragmentManager fragmentManager;
 
     private static final String PROJECT_GITHUB = "https://github.com/547291213/MyCat";
     private static final String PROJECT_CSDN = "https://blog.csdn.net/qq_29989087/article/details/82962296";
@@ -95,9 +96,11 @@ public class IndexActivity extends BaseActivity {
 
     /**
      * 设置抽屉属性
-     * 1 点击事件处理
+     * 一 点击事件处理
+     * 二 挤压抽屉实现
      */
     private void setNavView() {
+        //点击事件处理
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -137,6 +140,57 @@ public class IndexActivity extends BaseActivity {
 
                 }
                 return true;
+            }
+        });
+
+
+        /**
+         *挤压式抽屉实现
+         * 1 主布局的Layoutchange监听，用Laout方法重新布局主布局
+         */
+        rlIndexMainLayout.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                rlIndexMainLayout.layout(navView.getRight(),0,
+                        navView.getRight() + metrics.widthPixels, metrics.heightPixels+100);
+
+            }
+        });
+
+        /**
+         * 2 对抽屉事件进行监听，
+         * 在抽屉滑动的时候完成主布局的重新布局
+         * 主布局的重新布局需要借助当前抽屉拖出的宽度。
+         * 根据当前抽屉拖出的宽度来设置主布局的位置
+         */
+        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+                rlIndexMainLayout.layout(navView.getRight(),rlIndexMainLayout.getTop(),
+                        rlIndexMainLayout.getRight()+navView.getRight(),
+                        rlIndexMainLayout.getBottom());
+
+
+
+            }
+
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {
+
+                rlIndexMainLayout.layout(0,rlIndexMainLayout.getTop(),
+                        rlIndexMainLayout.getRight(),
+                        rlIndexMainLayout.getBottom());
+
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
             }
         });
     }
@@ -201,7 +255,7 @@ public class IndexActivity extends BaseActivity {
           初始用Message Fragment显示
          */
         fragmentManager = getSupportFragmentManager();
-        android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.fg_indexFragment, messageFragment);
         transaction.commit();
 
@@ -287,7 +341,7 @@ public class IndexActivity extends BaseActivity {
                     setIbIndexBottomCheckState_Checked(ibIndexBottomMessage);
 
                     //页面切换
-                    android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
                     transaction.replace(R.id.fg_indexFragment, messageFragment);
                     transaction.commit();
                 }
@@ -305,9 +359,9 @@ public class IndexActivity extends BaseActivity {
                     setIbIndexBottomCheckState_Checked(ibIndexBottomFriend);
 
                     //页面切换
-                    android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
                     if (friendFragment == null) {
-                        friendFragment = new FriendFragment() ;
+                        friendFragment = new FriendFragment();
                     }
                     transaction.replace(R.id.fg_indexFragment, friendFragment);
                     transaction.commit();
@@ -325,9 +379,9 @@ public class IndexActivity extends BaseActivity {
                     //将当前View设置为选中状态
                     setIbIndexBottomCheckState_Checked(ibIndexBottomDynamic);
                     //页面切换
-                    android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
                     if (dynamicFragment == null) {
-                        dynamicFragment = new DynamicFragment() ;
+                        dynamicFragment = new DynamicFragment();
                     }
                     transaction.replace(R.id.fg_indexFragment, dynamicFragment);
                     transaction.commit();

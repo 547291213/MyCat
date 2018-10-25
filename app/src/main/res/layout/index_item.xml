@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:id="@+id/rl_indexMainLayout"
     >
     <!--<com.example.xkfeng.mycat.DrawableView.RedPointView-->
         <!--android:layout_width="match_parent"-->
