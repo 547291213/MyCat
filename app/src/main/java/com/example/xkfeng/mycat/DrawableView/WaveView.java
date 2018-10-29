@@ -143,9 +143,13 @@ public class WaveView extends View {
         Rect bounds = region.getBounds();
         // Log.i("WAVEVIEW" , "THE BOUNDS RIGHT IS : "+mBitmap.getWidth() + "  " + mBitmap.getHeight())  ;
         Paint paint2 = new Paint();
+        //抗锯齿
         paint2.setAntiAlias(true);
+        //透明度
+        paint2.setAlpha((int) (0.5*255));
 
         Matrix matrix = new Matrix();
+
 
         // 让画布随着图片的中心旋转
         // 效果为图片旋转
@@ -155,7 +159,8 @@ public class WaveView extends View {
                 matrix.setRotate(degrees , width / 2  , bounds.top - BITMAP_HEIGHT /2 - DensityUtil.dip2px(mContext , 5) );
                 canvas.setMatrix(matrix);
                 //在指定绘制图片
-                canvas.drawBitmap(mBitmap, width / 2 - BITMAP_WIDTH / 2, bounds.top - BITMAP_HEIGHT - DensityUtil.dip2px(mContext , 5), paint2);
+                canvas.drawBitmap(mBitmap, width / 2 - BITMAP_WIDTH / 2,
+                        bounds.top - BITMAP_HEIGHT - DensityUtil.dip2px(mContext , 5), paint2);
             } else {
                 //画布随图片中心旋转
                 matrix.setRotate(degrees , width / 2  , bounds.bottom - BITMAP_HEIGHT /2 - DensityUtil.dip2px(mContext , 5) );

@@ -16,6 +16,26 @@
         app:layoutBackground="@drawable/title_gradient"
 
         />
+    <TextView
+        android:id="@+id/tv_aboutAuthorTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/indexTitleLayout"
+        android:layout_margin="5dp"
+        android:textSize="18sp"
+
+        />
+
+    <TextView
+        android:id="@+id/tv_aboutAuthorTextView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_aboutAuthorTextView"
+        android:layout_margin="5dp"
+        android:textSize="18sp"
+
+        />
+
 
     <LinearLayout
         android:id="@+id/lineLayoutId"
@@ -28,7 +48,7 @@
             android:id="@+id/waveViewId"
 
             android:layout_width="match_parent"
-            android:layout_height="400dp"
+            android:layout_height="450dp"
             />
     </LinearLayout>
 
