@@ -43,6 +43,17 @@ dependencies {
     //okHttp
     implementation 'com.squareup.okhttp3:okhttp:3.11.0'
 
+    //Rxjava
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
+// Because RxAndroid releases are few and far between, it is recommended you also
+// explicitly depend on RxJava's latest version for bug fixes and new features.
+// (see https://github.com/ReactiveX/RxJava/releases for latest 2.x.x version)
+//    implementation 'io.reactivex.rxjava2:rxjava:2.1.0'
+    implementation "io.reactivex.rxjava2:rxjava:2.x.y"
+
+    //Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+
     //RecyclerViw  and design
     implementation 'com.android.support:recyclerview-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'

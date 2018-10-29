@@ -135,7 +135,8 @@ public class IndexActivity extends BaseActivity {
                         break;
 
                     case R.id.nav_about:
-
+                        //启动到关于我们界面
+                        startActivity(new Intent(IndexActivity.this ,AboutActivity.class));
                         break;
 
                 }

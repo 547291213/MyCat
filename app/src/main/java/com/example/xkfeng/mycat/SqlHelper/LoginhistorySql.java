@@ -3,6 +3,9 @@ package com.example.xkfeng.mycat.SqlHelper;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import static android.support.constraint.Constraints.TAG;
 
 /**
  * Created by initializing on 2018/10/7.
@@ -39,6 +42,10 @@ public class LoginhistorySql extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        if (newVersion > oldVersion){
+            db.execSQL("drop table if exists login_history ");
+            onCreate(db);
+            Log.d(TAG, "onUpgrade: db ");
+        }
     }
 }

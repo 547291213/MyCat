@@ -42,7 +42,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        IntentFilter intentFilter = new IntentFilter() ;
+        IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("com.example.xkfeng.forceofflinereceiver");
         receiver = new ForceOfflineReceiver() ;
         registerReceiver(receiver , intentFilter) ;

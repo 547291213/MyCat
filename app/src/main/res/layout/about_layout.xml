@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.example.xkfeng.mycat.DrawableView.IndexTitleLayout
+        android:id="@+id/indexTitleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+
+        app:leftBackground="@drawable/back_white"
+        app:middleText="关于我们"
+        app:middleTextColor="@color/light_blue"
+        app:rightBackground="@drawable/share_right"
+        app:layoutBackground="@drawable/title_gradient"
+
+        />
+
+    <LinearLayout
+        android:id="@+id/lineLayoutId"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.example.xkfeng.mycat.DrawableView.WaveView
+            android:id="@+id/waveViewId"
+
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            />
+    </LinearLayout>
+
+
+</RelativeLayout>

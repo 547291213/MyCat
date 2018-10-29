@@ -8,10 +8,10 @@
 
     <Button
         android:id="@+id/bt_titleLeftBtn"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="31dp"
+        android:layout_height="31dp"
         android:layout_alignParentLeft="true"
-        android:layout_margin="5dp"
+        android:layout_margin="7dp"
         android:gravity="center"
         />
 
@@ -27,9 +27,9 @@
 
     <Button
         android:id="@+id/bt_titleRightBtn"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_margin="5dp"
+        android:layout_width="31dp"
+        android:layout_height="31dp"
+        android:layout_margin="7dp"
         android:layout_alignParentRight="true"
         android:textSize="20sp"
         android:gravity="center_vertical"

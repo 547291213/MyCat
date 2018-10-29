@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -111,7 +112,6 @@ public class LoginActivity extends BaseActivity {
     private PopupWindow window;
 
     private LoginSQLDao loginSQLDao ;
-
 
     private static int TEST_ID = 123456;
 
@@ -319,17 +319,21 @@ public class LoginActivity extends BaseActivity {
                 if (flag) {
                     //数据的更新
                     editor.putBoolean("show", false);
-                    editor.apply();
+                    editor.commit();
                     //设置数据为密码的输入样式
-                    tiet_PasswordEdit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CUPCAKE) {
+                        tiet_PasswordEdit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    }
                     //设置右边图片的样式
                     tiet_PasswordEdit.setCompoundDrawables(left, null, drawableNotshow, null);
                     //设置光标到尾部
                     tiet_PasswordEdit.setSelection(tiet_PasswordEdit.getText().toString().length());
                 } else {
                     editor.putBoolean("show", true);
-                    editor.apply();
-                    tiet_PasswordEdit.setInputType(InputType.TYPE_CLASS_TEXT);
+                    editor.commit();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CUPCAKE) {
+                        tiet_PasswordEdit.setInputType(InputType.TYPE_CLASS_TEXT);
+                    }
                     tiet_PasswordEdit.setCompoundDrawables(left, null, drawableShow, null);
                     tiet_PasswordEdit.setSelection(tiet_PasswordEdit.getText().toString().length());
 
@@ -352,13 +356,17 @@ public class LoginActivity extends BaseActivity {
                 //如果不唯空对null和空指的双重判断。
                 if (!TextUtils.isEmpty(charSequence)) {
                     if (flag) {
-                        tiet_PasswordEdit.setInputType(InputType.TYPE_CLASS_TEXT);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CUPCAKE) {
+                            tiet_PasswordEdit.setInputType(InputType.TYPE_CLASS_TEXT);
+                        }
                         tiet_PasswordEdit.setCompoundDrawables(left, null, drawableShow, null);
                         tiet_PasswordEdit.setSelection(tiet_PasswordEdit.getText().toString().length());
 
                     } else {
 
-                        tiet_PasswordEdit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CUPCAKE) {
+                            tiet_PasswordEdit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                        }
                         tiet_PasswordEdit.setCompoundDrawables(left, null, drawableNotshow, null);
                         tiet_PasswordEdit.setSelection(tiet_PasswordEdit.getText().toString().length());
 
@@ -413,9 +421,13 @@ public class LoginActivity extends BaseActivity {
                     // 设置PopupWindow的背景
                     window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                     // 设置PopupWindow是否能响应外部点击事件
-                    window.setOutsideTouchable(true);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CUPCAKE) {
+                        window.setOutsideTouchable(true);
+                    }
                     // 设置PopupWindow是否能响应点击事件
-                    window.setTouchable(true);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CUPCAKE) {
+                        window.setTouchable(true);
+                    }
                     // 显示PopupWindow，其中：
                     // 第一个参数是PopupWindow的锚点，第二和第三个参数分别是PopupWindow相对锚点的x、y偏移
                     window.showAsDropDown(tiet_UserEdit, 0, 0);
@@ -449,7 +461,9 @@ public class LoginActivity extends BaseActivity {
                 final Boolean flag = false;
                 //如果不唯空对null和空指的双重判断。
                 if (!TextUtils.isEmpty(charSequence)) {
-                    tiet_UserEdit.setInputType(InputType.TYPE_CLASS_TEXT);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CUPCAKE) {
+                        tiet_UserEdit.setInputType(InputType.TYPE_CLASS_TEXT);
+                    }
                     tiet_UserEdit.setCompoundDrawables(left, null, drawableAccountHead, null);
                     tiet_UserEdit.setSelection(tiet_UserEdit.getText().toString().length());
 
@@ -568,6 +582,10 @@ public class LoginActivity extends BaseActivity {
      */
     private void init() {
 
+        //申请权限
+        checkPermission();
+
+
         //加载背景图片
         Glide.with(LoginActivity.this).load(getResources().getDrawable(R.drawable.background)).into(iv_backImage);
 
@@ -599,17 +617,38 @@ public class LoginActivity extends BaseActivity {
                 Toast.makeText(this, "请开通相关权限，否则无法正常使用本应用！", Toast.LENGTH_SHORT).show();
             }
             //申请权限
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
 
         } else {
             Toast.makeText(this, "授权成功！", Toast.LENGTH_SHORT).show();
         }
 
+        int permissionCheck = ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.WRITE_APN_SETTINGS);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            //requesting permission
+            ActivityCompat.requestPermissions(LoginActivity.this, new String[]{Manifest.permission.WRITE_APN_SETTINGS}, 1);
+        } else {
+            //permission is granted and you can change APN settings
+        }
+
+
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //premission granted by user
 
+                    Toast.makeText(this, "已有权限", Toast.LENGTH_SHORT).show();
+                } else {
+                    //permission denied by user
+                    Toast.makeText(this, "没有权限", Toast.LENGTH_SHORT).show();
+                }
+            }
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 }
