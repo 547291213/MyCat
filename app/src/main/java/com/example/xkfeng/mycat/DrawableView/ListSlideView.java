@@ -1,7 +1,9 @@
 package com.example.xkfeng.mycat.DrawableView;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -50,7 +52,10 @@ public class ListSlideView extends HorizontalScrollView {
 
     public ListSlideView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        mContext =  context ;
         this.setOverScrollMode(OVER_SCROLL_NEVER);
+
 
     }
 
@@ -64,11 +69,27 @@ public class ListSlideView extends HorizontalScrollView {
 
         if (!once) {
 
+            /**
+             * 获取屏幕宽度
+             */
+            Resources resources = mContext.getResources();
+            DisplayMetrics dm = resources.getDisplayMetrics();
+            float density1 = dm.density;
+            int width = dm.widthPixels;
+//            Log.d(TAG, "onMeasure: width " + width);
+
+            /**
+             * 设置View宽度为屏幕宽度
+             */
             tv_testView = (TextView)findViewById(R.id.tv_testView) ;
             ViewGroup.LayoutParams lp = tv_testView.getLayoutParams() ;
-            lp.width = 1080;
+            //lp.width = 1080;
+            lp.width = width;
             tv_testView.setLayoutParams(lp);
 
+            /**
+             * 点击事件用接口回调方式传出
+             */
             topView = (TextView) findViewById(R.id.tv_topSlideView);
             topView.setOnClickListener(new OnClickListener() {
                 @Override

@@ -11,6 +11,8 @@ import android.widget.Toast;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.WaveView;
 import com.example.xkfeng.mycat.R;
+import com.tencent.connect.share.QQShare;
+import com.tencent.tauth.Tencent;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,6 +45,7 @@ public class AboutActivity extends BaseActivity {
      * 界面效果的初始化
      * 标题栏的初始化
      * 水波纹动画的启动
+     * 作者自述
      */
     private void initView() {
 
@@ -53,6 +56,10 @@ public class AboutActivity extends BaseActivity {
         setTvAboutAuthorTextView();
     }
 
+    /**
+     * 作者自述
+     * 艺术字体实现
+     */
     private void setTvAboutAuthorTextView() {
 
         String fonts = "fonts/font_1.ttf";
@@ -84,6 +91,7 @@ public class AboutActivity extends BaseActivity {
         tvAboutAuthorTextView.setTypeface(typeface);
         tvAboutAuthorTextView1.setTypeface(typeface);
     }
+
 
     /**
      * 标题的初始化

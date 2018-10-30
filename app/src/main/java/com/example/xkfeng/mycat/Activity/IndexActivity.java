@@ -397,5 +397,20 @@ public class IndexActivity extends BaseActivity {
 
     }
 
+    /**
+     * 获取抽屉对象
+     * 用于在Fragment中打开抽屉
+     * @return 抽屉对象
+     */
+    public DrawerLayout getDrawerLayout() throws Exception {
+        /**
+         * 对空对象进行判断和报错
+         */
+        if(drawerLayout == null)
+        {
+            throw  new Exception("drawLayout is a null object .") ;
+        }
+        return drawerLayout ;
+    }
 
 }

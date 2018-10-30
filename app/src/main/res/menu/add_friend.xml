@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    >
+    <item
+        android:id="@+id/menuCreateGroupChat"
+        android:title="创建群聊"
+        android:icon="@drawable/create_group_chat"
+
+        />
+
+    <item
+        android:id="@+id/menuAddBuddy"
+        android:icon="@drawable/addbuddy"
+        android:title="加好友/群"
+
+        />
+
+    <item
+        android:id="@+id/menuScan"
+        android:icon="@drawable/scan"
+        android:title="扫一扫"
+
+        />
+
+</menu>

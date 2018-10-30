@@ -125,7 +125,11 @@ public class IndexTitleLayout extends RelativeLayout {
         leftBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                titleItemClickListener.leftViewClick(v);
+                try {
+                    titleItemClickListener.leftViewClick(v);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -189,7 +193,7 @@ public class IndexTitleLayout extends RelativeLayout {
      */
     public interface TitleItemClickListener {
 
-        public void leftViewClick(View view);
+        public void leftViewClick(View view) throws Exception;
 
         public void middleViewClick(View view);
 
