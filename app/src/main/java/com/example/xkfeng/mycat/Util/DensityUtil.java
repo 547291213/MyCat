@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.support.annotation.DrawableRes;
+import android.util.DisplayMetrics;
 import android.view.View;
 
 /**
@@ -140,4 +141,19 @@ public class DensityUtil {
         return statusHeight;
     }
 
+    /**
+     * 获取屏幕宽度
+     * @param mContext 内容
+     * @return 屏幕宽度
+     */
+    public static int getScreenWidth(Context mContext){
+        /**
+         * 获取屏幕宽度
+         */
+        Resources resources = mContext.getResources();
+        DisplayMetrics dm = resources.getDisplayMetrics();
+        float density1 = dm.density;
+        int width = dm.widthPixels;
+        return width ;
+    }
 }

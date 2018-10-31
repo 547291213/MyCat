@@ -10,6 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.xkfeng.mycat.R;
+
+import java.nio.InvalidMarkException;
 import java.util.List;
 
 /**
@@ -46,16 +49,20 @@ public abstract class QuickAdapter<T> extends RecyclerView.Adapter<QuickAdapter.
         return list.size();
     }
 
+
+
     @Override
     public int getItemViewType(int position) {
         return super.getItemViewType(position);
     }
+
 
     public void setList(List<T> list){
         this.list = list ;
         //重置
         getItemCount() ;
     }
+
 
     public static class VH extends RecyclerView.ViewHolder
     {
@@ -95,6 +102,11 @@ public abstract class QuickAdapter<T> extends RecyclerView.Adapter<QuickAdapter.
         {
             ImageView imageView = getView(id) ;
             imageView.setImageDrawable(drawable);
+        }
+
+        public void setImage(int id , int drawable){
+            ImageView imageView = getView(id) ;
+            imageView.setImageResource(drawable);
         }
     }
 }

@@ -12,6 +12,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.Util.DensityUtil;
 
 public class ListSlideView extends HorizontalScrollView {
 
@@ -69,13 +70,8 @@ public class ListSlideView extends HorizontalScrollView {
 
         if (!once) {
 
-            /**
-             * 获取屏幕宽度
-             */
-            Resources resources = mContext.getResources();
-            DisplayMetrics dm = resources.getDisplayMetrics();
-            float density1 = dm.density;
-            int width = dm.widthPixels;
+
+            int width = DensityUtil.getScreenWidth(mContext) ;
 //            Log.d(TAG, "onMeasure: width " + width);
 
             /**

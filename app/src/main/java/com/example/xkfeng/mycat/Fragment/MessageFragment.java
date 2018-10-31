@@ -26,11 +26,14 @@ import android.widget.Toast;
 import com.example.xkfeng.mycat.Activity.IndexActivity;
 import com.example.xkfeng.mycat.Activity.SearchActivity;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
+import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -49,6 +52,7 @@ public class MessageFragment extends Fragment {
     private DisplayMetrics metrics;
     private Context mContext;
 
+    private PopupMenuLayout popupMenuLayout ;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -136,39 +140,51 @@ public class MessageFragment extends Fragment {
             @Override
             public void rightViewClick(View view) {
                 Toast.makeText(mContext, "RightClick", Toast.LENGTH_SHORT).show();
-                //创建弹出式菜单对象（最低版本11）
-                PopupMenu popup = new PopupMenu(getContext(), view);//第二个参数是绑定的那个view
+//                //创建弹出式菜单对象（最低版本11）
+//                PopupMenu popup = new PopupMenu(getContext(), view);//第二个参数是绑定的那个view
+//
+//
+//                popup.getMenu().add("创建群聊").setIcon(R.drawable.create_group_chat);
+//
+//                //获取菜单填充器
+//                MenuInflater inflater = popup.getMenuInflater();
+//                //填充菜单
+//                inflater.inflate(R.menu.add_friend, popup.getMenu());
+//
+//                //绑定菜单项的点击事件
+//                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+//                    @Override
+//                    public boolean onMenuItemClick(MenuItem item) {
+//                        return false;
+//                    }
+//                });
+//
+//                //使用反射，强制显示菜单图标
+//                try {
+//                    Field field = popup.getClass().getDeclaredField("mPopup");
+//                    field.setAccessible(true);
+//                    MenuPopupHelper mHelper = (MenuPopupHelper) field.get(popup);
+//                    mHelper.setForceShowIcon(true);
+//                } catch (IllegalAccessException e) {
+//                    e.printStackTrace();
+//                } catch (NoSuchFieldException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                //显示(这一行代码不要忘记了)
+//                popup.show();
 
+                List<String> list = new ArrayList<>() ;
+                list.add("创建群聊") ;
+                list.add("加好友/群") ;
+                list.add("扫一扫") ;
+                popupMenuLayout =  new PopupMenuLayout(getContext() , list , PopupMenuLayout.MENU_POPUP) ;
+//                popupMenuLayout.setContentView(indexTitleLayout);
+//                Log.d(TAG, "rightViewClick: " + indexTitleLayout.getChildCount());
+                popupMenuLayout.showAsDropDown(indexTitleLayout , DensityUtil.getScreenWidth(getContext())
+                                - popupMenuLayout.getWidth() -DensityUtil.dip2px(getContext() ,5)
+                        , DensityUtil.dip2px(getContext() , 5) );
 
-                popup.getMenu().add("创建群聊").setIcon(R.drawable.create_group_chat);
-
-                //获取菜单填充器
-                MenuInflater inflater = popup.getMenuInflater();
-                //填充菜单
-                inflater.inflate(R.menu.add_friend, popup.getMenu());
-
-                //绑定菜单项的点击事件
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        return false;
-                    }
-                });
-
-                //使用反射，强制显示菜单图标
-                try {
-                    Field field = popup.getClass().getDeclaredField("mPopup");
-                    field.setAccessible(true);
-                    MenuPopupHelper mHelper = (MenuPopupHelper) field.get(popup);
-                    mHelper.setForceShowIcon(true);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (NoSuchFieldException e) {
-                    e.printStackTrace();
-                }
-
-                //显示(这一行代码不要忘记了)
-                popup.show();
             }
         });
     }
