@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.support.annotation.DrawableRes;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * Created by initializing on 2018/10/5.
@@ -156,4 +157,21 @@ public class DensityUtil {
         int width = dm.widthPixels;
         return width ;
     }
+
+    /**
+     * 根据测量参数，得到View的具体大小
+     * @param measureSpec  测量参数
+     * @return 宽和高的值
+     */
+    @SuppressWarnings("ResourceType")
+    public static int makeDropDownMeasureSpec(int measureSpec) {
+        int mode;
+        if (measureSpec == ViewGroup.LayoutParams.WRAP_CONTENT) {
+            mode = View.MeasureSpec.UNSPECIFIED;
+        } else {
+            mode = View.MeasureSpec.EXACTLY;
+        }
+        return View.MeasureSpec.makeMeasureSpec(View.MeasureSpec.getSize(measureSpec), mode);
+    }
+
 }

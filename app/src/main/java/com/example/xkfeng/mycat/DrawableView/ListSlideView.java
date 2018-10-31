@@ -1,6 +1,7 @@
 package com.example.xkfeng.mycat.DrawableView;
 
 import android.content.Context;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -82,6 +83,26 @@ public class ListSlideView extends HorizontalScrollView {
             //lp.width = 1080;
             lp.width = width;
             tv_testView.setLayoutParams(lp);
+
+            tv_testView.setOnLongClickListener(new OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (slideViewClickListener != null){
+                        slideViewClickListener.contentViewLongClick(v);
+                        return true ;
+                    }
+                    return false ;
+
+                }
+            });
+            tv_testView.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (slideViewClickListener != null){
+                        slideViewClickListener.contentViewClick(v);
+                    }
+                }
+            });
 
             /**
              * 点击事件用接口回调方式传出
@@ -223,6 +244,9 @@ public class ListSlideView extends HorizontalScrollView {
         //点击删除View
         public void deleteViewClick(View view) ;
 
+        public void contentViewLongClick(View view) ;
+
+        public void contentViewClick(View view) ;
     }
 
 }

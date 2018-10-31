@@ -65,6 +65,17 @@
 
         <activity android:name=".Activity.AboutActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+
+            />
+
+        <activity android:name=".Activity.CreateGroupChatActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+
+            />
+
+        <activity android:name=".Activity.AddBuddyGroupActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+
             />
 
     </application>
