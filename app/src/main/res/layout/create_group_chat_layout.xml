@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    >
+    <com.example.xkfeng.mycat.DrawableView.IndexTitleLayout
+        android:id="@+id/indexTitleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        app:leftText="取消"
+        app:leftTextColor="@color/light_blue"
+        app:middleText="创建群聊"
+        app:middleTextColor="@color/light_blue"
+        app:layoutBackground="@drawable/title_gradient"
+        />
+
+    <LinearLayout
+        android:id="@+id/ll_linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@id/indexTitleLayout"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:background="@android:color/white"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp">
+
+
+        <TextView
+            android:id="@+id/tv_selectPersonCreate"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="right|center_vertical"
+            android:text="选人创建"
+            android:textColor="@color/black"
+            android:textSize="16dp"
+            android:layout_marginRight="5dp"
+            />
+
+        <TextView
+            android:id="@+id/tv_classified"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="left|center_vertical"
+            android:text="分类创建"
+            android:textColor="@color/black"
+            android:textSize="16dp"
+            android:layout_marginLeft="5dp"
+            />
+
+
+    </LinearLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_createGroupPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/ll_linearLayout"
+        >
+
+    </android.support.v4.view.ViewPager>
+
+</RelativeLayout>

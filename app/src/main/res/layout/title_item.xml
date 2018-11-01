@@ -12,7 +12,9 @@
         android:layout_height="31dp"
         android:layout_alignParentLeft="true"
         android:layout_margin="7dp"
-        android:gravity="center"
+        android:gravity="center_vertical"
+        android:textSize="20sp"
+
         />
 
     <TextView

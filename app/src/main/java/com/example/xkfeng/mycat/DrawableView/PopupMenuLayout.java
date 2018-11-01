@@ -2,6 +2,7 @@ package com.example.xkfeng.mycat.DrawableView;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -21,7 +22,9 @@ import android.view.ViewGroup;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.xkfeng.mycat.Activity.CreateGroupChatActivity;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.RecyclerDefine.QuickAdapter;
 
@@ -109,10 +112,32 @@ public class PopupMenuLayout extends PopupWindow {
             }
 
             @Override
-            public void convert(VH vh, String data, int position) {
+            public void convert(VH vh, String data, final int position) {
                 if (getItemViewType(position) == MENU_POPUP) {
                     vh.setText(R.id.popupMenuTextView, data);
                     vh.setImage(R.id.iv_popupMenuImageView, Images[position]);
+
+                    vh.getView(R.id.popupMenuTextView).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            switch (position)
+                            {
+                                case 0 :
+
+                                    mContext.startActivity(new Intent(mContext , CreateGroupChatActivity.class));
+                                    break ;
+                                case 1 :
+
+                                    Toast.makeText(mContext, "AddBuddy", Toast.LENGTH_SHORT).show();
+                                    break ;
+
+                                case 2 :
+
+                                    Toast.makeText(mContext, "Scan", Toast.LENGTH_SHORT).show();
+                                    break ;
+                            }
+                        }
+                    });
                 } else if (getItemViewType(position) == CONTENT_POPUP) {
                     vh.setText(R.id.tv_popupContentTextView, data);
                     ((TextView) vh.getView(R.id.tv_popupContentTextView)).setTextColor(Color.WHITE);
@@ -163,7 +188,7 @@ public class PopupMenuLayout extends PopupWindow {
                         mDivider.setBounds(left, top, right, bottom);
                         mDivider.draw(c);
 
-                        Log.d("HelloWorld", "drawHorizontal: " + left + "   " + right + "   " + top + "   " + bottom);
+//                        Log.d("HelloWorld", "drawHorizontal: " + left + "   " + right + "   " + top + "   " + bottom);
                     }
                 }
             }

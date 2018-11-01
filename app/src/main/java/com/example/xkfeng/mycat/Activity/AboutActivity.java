@@ -3,6 +3,9 @@ package com.example.xkfeng.mycat.Activity;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -10,9 +13,13 @@ import android.widget.Toast;
 
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.WaveView;
+import com.example.xkfeng.mycat.Fragment.ClassfiedFragment;
+import com.example.xkfeng.mycat.Fragment.SelectedPersonFragment;
 import com.example.xkfeng.mycat.R;
 import com.tencent.connect.share.QQShare;
 import com.tencent.tauth.Tencent;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

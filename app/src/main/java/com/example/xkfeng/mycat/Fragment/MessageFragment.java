@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.example.xkfeng.mycat.Activity.IndexActivity;
 import com.example.xkfeng.mycat.Activity.SearchActivity;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
+import com.example.xkfeng.mycat.DrawableView.ListSlideView;
 import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
@@ -51,8 +52,10 @@ public class MessageFragment extends Fragment {
 
     private DisplayMetrics metrics;
     private Context mContext;
+    private ListSlideView listSlideView ;
 
-    private PopupMenuLayout popupMenuLayout ;
+    private PopupMenuLayout popupMenuLayout_CONTENT ;
+    private PopupMenuLayout popupMenuLayout_MENU ;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -81,6 +84,13 @@ public class MessageFragment extends Fragment {
            设置顶部标题栏相关属性
          */
         setIndexTitleLayout();
+
+        /*
+         设置侧滑消息栏属性
+         */
+        setSlideView();
+
+
     }
 
     /*
@@ -178,17 +188,70 @@ public class MessageFragment extends Fragment {
                 list.add("创建群聊") ;
                 list.add("加好友/群") ;
                 list.add("扫一扫") ;
-                popupMenuLayout =  new PopupMenuLayout(getContext() , list , PopupMenuLayout.MENU_POPUP) ;
-//                popupMenuLayout.setContentView(indexTitleLayout);
+                popupMenuLayout_MENU =  new PopupMenuLayout(getContext() , list , PopupMenuLayout.MENU_POPUP) ;
+//                popupMenuLayout_MENU.setContentView(indexTitleLayout);
 //                Log.d(TAG, "rightViewClick: " + indexTitleLayout.getChildCount());
-                popupMenuLayout.showAsDropDown(indexTitleLayout , DensityUtil.getScreenWidth(getContext())
-                                - popupMenuLayout.getWidth() -DensityUtil.dip2px(getContext() ,5)
+                popupMenuLayout_MENU.showAsDropDown(indexTitleLayout , DensityUtil.getScreenWidth(getContext())
+                                - popupMenuLayout_MENU.getWidth() -DensityUtil.dip2px(getContext() ,5)
                         , DensityUtil.dip2px(getContext() , 5) );
+
+                
 
             }
         });
     }
 
+
+    /**
+     * 设置滑动View的相关属性
+     */
+    private void setSlideView(){
+
+        List<String> list = new ArrayList<>() ;
+        list.add("设置为置顶消息");
+        list.add("删除") ;
+        popupMenuLayout_CONTENT = new PopupMenuLayout(mContext ,list , PopupMenuLayout.CONTENT_POPUP) ;
+
+        listSlideView = (ListSlideView)view.findViewById(R.id.listlide) ;
+        listSlideView.setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
+            @Override
+            public void topViewClick(View view) {
+
+                Toast.makeText(mContext, "topViewClick", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void flagViewClick(View view) {
+                Toast.makeText(mContext, "flagViewClick", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void deleteViewClick(View view) {
+                Toast.makeText(mContext, "deleteViewClick", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void contentViewLongClick(View view) {
+
+                /**
+                 * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
+                 * 由于contentView还未绘制，这时候的width、height都是0。
+                 * 因此需要通过measure测量出contentView的大小，才能进行计算。
+                 */
+                popupMenuLayout_CONTENT.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getWidth()) ,
+                        DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getHeight())); ;
+                popupMenuLayout_CONTENT.showAsDropDown(view ,
+                        DensityUtil.getScreenWidth(getContext())/2 - popupMenuLayout_CONTENT.getContentView().getMeasuredWidth()/2
+                        ,-view.getHeight()-popupMenuLayout_CONTENT.getContentView().getMeasuredHeight() );
+
+            }
+
+            @Override
+            public void contentViewClick(View view) {
+
+            }
+        });
+    }
 
 
     @Override

@@ -32,19 +32,7 @@ public class FriendFragment extends Fragment {
     @BindView(R.id.indexTitleLayout)
     IndexTitleLayout indexTitleLayout;
     Unbinder unbinder;
-    @BindView(R.id.tv_testView)
-    TextView tvTestView;
-    @BindView(R.id.rl_contentLayout)
-    RelativeLayout rlContentLayout;
-    @BindView(R.id.tv_topSlideView)
-    TextView tvTopSlideView;
-    @BindView(R.id.tv_flagSlideView)
-    TextView tvFlagSlideView;
-    @BindView(R.id.tv_deleteSlideView)
-    TextView tvDeleteSlideView;
 
-    private ListSlideView listSlideView ;
-    private PopupMenuLayout popupMenuLayout;
     private View view ;
     private Context mContext;
     private static final String TAG = "FriendFragment";
@@ -70,64 +58,9 @@ public class FriendFragment extends Fragment {
          */
         setIndexTitleLayout();
 
-        /*
-          设置滑动View的相关属性
-         */
-        setSlideView();
     }
 
 
-    /**
-     * 设置滑动View的相关属性
-     */
-    private void setSlideView(){
-
-        List<String> list = new ArrayList<>() ;
-        list.add("设置为置顶消息");
-        list.add("删除") ;
-        popupMenuLayout = new PopupMenuLayout(mContext ,list , PopupMenuLayout.CONTENT_POPUP) ;
-
-        listSlideView = (ListSlideView)view.findViewById(R.id.listlide) ;
-        listSlideView.setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
-            @Override
-            public void topViewClick(View view) {
-
-                Toast.makeText(mContext, "topViewClick", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void flagViewClick(View view) {
-                Toast.makeText(mContext, "flagViewClick", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void deleteViewClick(View view) {
-                Toast.makeText(mContext, "deleteViewClick", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void contentViewLongClick(View view) {
-
-
-                /**
-                 * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
-                 * 由于contentView还未绘制，这时候的width、height都是0。
-                 * 因此需要通过measure测量出contentView的大小，才能进行计算。
-                 */
-                popupMenuLayout.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayout.getWidth()) ,
-                        DensityUtil.makeDropDownMeasureSpec(popupMenuLayout.getHeight())); ;
-                popupMenuLayout.showAsDropDown(view ,
-                        DensityUtil.getScreenWidth(getContext())/2 - popupMenuLayout.getContentView().getMeasuredWidth()/2
-                        ,-view.getWidth());
-
-            }
-
-            @Override
-            public void contentViewClick(View view) {
-
-            }
-        });
-    }
 
     /**
      * 设置顶部标题栏相关属性

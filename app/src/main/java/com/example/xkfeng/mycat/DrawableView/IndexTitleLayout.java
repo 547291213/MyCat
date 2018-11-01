@@ -111,7 +111,7 @@ public class IndexTitleLayout extends RelativeLayout {
             lp.height = LayoutParams.WRAP_CONTENT ;
             lp.setMargins(-3,-3,-3,-3);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                leftBtn.setTextAlignment(TEXT_ALIGNMENT_VIEW_END);
+                leftBtn.setTextAlignment(TEXT_ALIGNMENT_VIEW_START);
             }
             leftBtn.setLayoutParams(lp);
             leftBtn.setText(leftText);
