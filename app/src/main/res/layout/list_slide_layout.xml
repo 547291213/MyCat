@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.example.xkfeng.mycat.DrawableView.ListSlideView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
-    android:layout_marginBottom="1dp"
+    android:layout_height="60dp"
+    android:paddingBottom="1dp"
+    android:scrollbars="none"
     >
 
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <RelativeLayout
             android:id="@+id/rl_contentLayout"
@@ -20,9 +21,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="Hello world!"
-                android:textSize="50dp"
+                android:textSize="24dp"
                 android:textColor="#dde65b05"
-                android:gravity="center_horizontal"
+                android:gravity="center"
                 />
 
         </RelativeLayout>
@@ -30,33 +31,29 @@
 
         <TextView
             android:id="@+id/tv_topSlideView"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
             android:layout_toRightOf="@id/rl_contentLayout"
             android:text="置顶"
-            android:textSize="36sp"
-            android:gravity="center"
+            android:background="@color/gray"
+
+            style="@style/SlideTextViewStyle"
+
             />
 
         <TextView
             android:id="@+id/tv_flagSlideView"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
             android:layout_toRightOf="@id/tv_topSlideView"
             android:text="标记未读"
-            android:textSize="36sp"
-            android:gravity="center"
+            android:background="@color/orange"
+            style="@style/SlideTextViewStyle"
 
             />
         <TextView
             android:id="@+id/tv_deleteSlideView"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
             android:layout_toRightOf="@id/tv_flagSlideView"
             android:text="删除"
-            android:textSize="36sp"
-            android:gravity="center"
+            android:background="@color/red"
 
+            style="@style/SlideTextViewStyle"
             />
 
 

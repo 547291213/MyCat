@@ -38,7 +38,7 @@
         layout="@layout/list_slide_layout"
 
         android:layout_below="@id/et_searchEdit"
-        android:layout_height="100dp"
+        android:layout_height="60dp"
         android:layout_width="match_parent"
         />
 </RelativeLayout>

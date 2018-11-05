@@ -15,6 +15,8 @@ import android.widget.TextView;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 
+import butterknife.internal.ListenerClass;
+
 public class ListSlideView extends HorizontalScrollView {
 
     //内容
