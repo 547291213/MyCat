@@ -62,6 +62,10 @@ public class IndexActivity extends BaseActivity {
     private DynamicFragment dynamicFragment;
     private FragmentManager fragmentManager;
 
+    private View redPointMessage ;
+    private View redPointFriend ;
+    private View redPointDynamic ;
+
     private static final String PROJECT_GITHUB = "https://github.com/547291213/MyCat";
     private static final String PROJECT_CSDN = "https://blog.csdn.net/qq_29989087/article/details/82962296";
 
@@ -243,8 +247,22 @@ public class IndexActivity extends BaseActivity {
          * 否则view上面显示的文字可能在拖拽时不能识别，这样一是为了方便，二是为了减少消耗
          * 布局方式请参考xml文件
          */
-        TextView textView = findViewById(R.id.tv_mDragView);
-        RedPointViewHelper stickyViewHelper = new RedPointViewHelper(this, textView, R.layout.item_drag_view);
+//        View view = findViewById(R.id.redpoint_view) ;
+//        TextView textView = findViewById(R.id.tv_mDragView);
+
+        /**
+         * 需要对每一个红点进行设置
+         */
+        redPointMessage = ibIndexBottomMessage.findViewById(R.id.redpoint_view) ;
+        RedPointViewHelper stickyViewHelper = new RedPointViewHelper(this, redPointMessage, R.layout.item_drag_view);
+
+        redPointFriend = ibIndexBottomFriend.findViewById(R.id.redpoint_view) ;
+        RedPointViewHelper stickyViewHelper1 = new RedPointViewHelper(this , redPointFriend , R.layout.item_drag_view) ;
+
+        redPointDynamic  = ibIndexBottomDynamic.findViewById(R.id.redpoint_view) ;
+        RedPointViewHelper stickyViewHelper2 = new RedPointViewHelper(this , redPointDynamic , R.layout.item_drag_view) ;
+
+
 
 
         frameLayout = findViewById(R.id.fg_indexFragment);

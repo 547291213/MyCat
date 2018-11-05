@@ -57,7 +57,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="消息"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+
+                />
 
         </com.example.xkfeng.mycat.DrawableView.IndexBottomLayout>
 
@@ -81,7 +83,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="好友"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+
+                />
 
         </com.example.xkfeng.mycat.DrawableView.IndexBottomLayout>
 
@@ -104,20 +108,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="动态"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+
+                />
 
         </com.example.xkfeng.mycat.DrawableView.IndexBottomLayout>
 
     </LinearLayout>
-    <include
-        android:layout_height="20dp"
-        android:layout_width="20dp"
-        android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@id/ll_indexbottomLayout"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="5dp"
-        layout="@layout/item_drag_view"
-        />
+
 
 </RelativeLayout>

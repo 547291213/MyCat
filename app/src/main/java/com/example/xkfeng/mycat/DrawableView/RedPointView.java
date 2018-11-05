@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.WindowManager;
 import android.view.animation.BounceInterpolator;
@@ -28,6 +29,8 @@ import android.widget.TextView;
 
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
+
+import java.util.Map;
 
 import static android.support.constraint.Constraints.TAG;
 
@@ -104,15 +107,23 @@ public class RedPointView extends android.support.v7.widget.AppCompatTextView {
 //
 ////      需要手动测量
         mDragView.measure(1, 1);
-        mDragViewHeight = mDragView.getMeasuredHeight() / 2;
-        mDragViewWidth = mDragView.getMeasuredWidth() / 2 ;
+        ViewGroup.LayoutParams lp = mDragView.getLayoutParams() ;
+        lp.width=DensityUtil.dip2px(mContext,5);
+        lp.height=DensityUtil.dip2px(mContext,5);
+        mDragView.setLayoutParams(lp);
+
+        mDragViewHeight = mDragView.getMeasuredHeight() / 4;
+        mDragViewWidth = mDragView.getMeasuredWidth() / 4 ;
+        Log.d(TAG, "RedPointView: " + mDragViewWidth + "  " + mDragViewHeight);
         mDragCircleRadius = Math.min(mDragViewHeight, mDragViewWidth);
 
 
         mParams = new WindowManager.LayoutParams();
         mParams.format = PixelFormat.TRANSLUCENT;
-        mParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        mParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        mParams.width = DensityUtil.dip2px(mContext , mDragCircleRadius) ;
+        mParams.height = DensityUtil.dip2px(mContext , mDragCircleRadius) ;
+//        mParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+//        mParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
         mParams.gravity = Gravity.TOP | Gravity.LEFT;
 
         paintInit();
