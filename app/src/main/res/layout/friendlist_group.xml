@@ -11,7 +11,9 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_marginLeft="35dip"
         android:gravity="center_vertical"
-        android:singleLine="true" />
+        android:singleLine="true"
+
+        />
 
     <TextView
         android:id="@+id/tv_groupCount"
@@ -20,6 +22,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_marginLeft="5dip"
         android:gravity="center_vertical"
-        android:singleLine="true"/>
+        android:singleLine="true"
+        />
 
 </LinearLayout>

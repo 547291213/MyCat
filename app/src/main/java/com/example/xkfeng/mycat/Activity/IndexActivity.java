@@ -242,6 +242,31 @@ public class IndexActivity extends BaseActivity {
         ibIndexBottomMessage.setmSmallBitmapSrc(getResources().getDrawable(R.drawable.bubble_small));
         ibIndexBottomMessage.setmCheckSate(IndexBottomLayout.CHECKED);
 
+
+        //红点拖拽
+        setRedPointDrag() ;
+
+
+        frameLayout = findViewById(R.id.fg_indexFragment);
+
+        if (messageFragment == null) {
+            messageFragment = new MessageFragment();
+        }
+        /*
+          初始用Message Fragment显示
+         */
+        fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fg_indexFragment, messageFragment);
+        transaction.commit();
+
+
+    }
+
+    /**
+     * 红点拖拽效果绑定
+     */
+    private void setRedPointDrag(){
         /**
          * 注意对于需要实现拖拽效果的view需要单独指定一个布局文件，并且次布局最好不能有viewGroup，
          * 否则view上面显示的文字可能在拖拽时不能识别，这样一是为了方便，二是为了减少消耗
@@ -261,22 +286,6 @@ public class IndexActivity extends BaseActivity {
 
         redPointDynamic  = ibIndexBottomDynamic.findViewById(R.id.redpoint_view) ;
         RedPointViewHelper stickyViewHelper2 = new RedPointViewHelper(this , redPointDynamic , R.layout.item_drag_view) ;
-
-
-
-
-        frameLayout = findViewById(R.id.fg_indexFragment);
-
-        if (messageFragment == null) {
-            messageFragment = new MessageFragment();
-        }
-        /*
-          初始用Message Fragment显示
-         */
-        fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.fg_indexFragment, messageFragment);
-        transaction.commit();
 
 
     }

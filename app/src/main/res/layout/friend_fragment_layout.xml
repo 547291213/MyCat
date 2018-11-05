@@ -16,6 +16,14 @@
         app:rightTextColor="@color/white"
         />
 
+    <ExpandableListView
+        android:id="@+id/elv_friendList"
+        android:layout_below="@id/indexTitleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </ExpandableListView>
+
 
 
 </RelativeLayout>
