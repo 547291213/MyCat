@@ -56,8 +56,7 @@ public class RedPointViewHelper implements View.OnTouchListener ,RedPointView.Dr
     @Override
     public boolean onTouch(View v, MotionEvent event) {
 
-
-        int action = MotionEventCompat.getActionMasked(event);
+        int action = event.getAction();
         if (action == MotionEvent.ACTION_DOWN) {
             ViewParent parent = v.getParent();
             if (parent == null) {

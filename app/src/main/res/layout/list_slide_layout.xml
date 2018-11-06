@@ -16,17 +16,29 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/tv_testView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="Hello world!"
-                android:textSize="24dp"
-                android:textColor="#dde65b05"
-                android:gravity="center"
-                />
+            <include
+                android:id="@+id/messageItem"
+                layout="@layout/message_item"
 
+                />
         </RelativeLayout>
+
+        <!--<RelativeLayout-->
+            <!--android:id="@+id/rl_contentLayout"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent">-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/tv_testView"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:text="Hello world!"-->
+                <!--android:textSize="24dp"-->
+                <!--android:textColor="#dde65b05"-->
+                <!--android:gravity="center"-->
+                <!--/>-->
+
+        <!--</RelativeLayout>-->
 
 
         <TextView

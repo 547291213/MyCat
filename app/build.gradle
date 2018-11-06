@@ -95,4 +95,7 @@ dependencies {
 
     //GreendDao
     implementation 'org.greenrobot:greendao:3.2.2' // add library
+
+    //圆形图片
+    implementation 'de.hdodenhof:circleimageview:2.2.0'
 }

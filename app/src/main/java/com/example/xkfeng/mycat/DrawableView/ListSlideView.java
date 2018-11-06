@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.xkfeng.mycat.R;
@@ -20,7 +21,7 @@ import butterknife.internal.ListenerClass;
 public class ListSlideView extends HorizontalScrollView {
 
     //内容
-    private TextView tv_testView  ;
+    private RelativeLayout relativeLayout;
 
     //置顶
     private TextView topView;
@@ -44,7 +45,7 @@ public class ListSlideView extends HorizontalScrollView {
     private Boolean once = false;
 
     //自定义接口，将事件传递出去
-    private SlideViewClickListener slideViewClickListener ;
+    private SlideViewClickListener slideViewClickListener;
 
 
     private static final String TAG = "ListSlideView";
@@ -57,7 +58,7 @@ public class ListSlideView extends HorizontalScrollView {
     public ListSlideView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        mContext =  context ;
+        mContext = context;
         this.setOverScrollMode(OVER_SCROLL_NEVER);
 
 
@@ -74,33 +75,41 @@ public class ListSlideView extends HorizontalScrollView {
         if (!once) {
 
 
-            int width = DensityUtil.getScreenWidth(mContext) ;
+            int width = DensityUtil.getScreenWidth(mContext);
 //            Log.d(TAG, "onMeasure: width " + width);
 
             /**
              * 设置View宽度为屏幕宽度
              */
-            tv_testView = (TextView)findViewById(R.id.tv_testView) ;
-            ViewGroup.LayoutParams lp = tv_testView.getLayoutParams() ;
+            relativeLayout = (RelativeLayout) findViewById(R.id.rl_contentLayout);
+
+            /**
+             * 设置红顶啊拖拽
+             */
+            View redPointMessage = relativeLayout.findViewById(R.id.redpoint_view);
+            RedPointViewHelper stickyViewHelper = new RedPointViewHelper(mContext, redPointMessage, R.layout.item_drag_view);
+
+            ViewGroup.LayoutParams lp = relativeLayout.getLayoutParams();
             //lp.width = 1080;
             lp.width = width;
-            tv_testView.setLayoutParams(lp);
+            relativeLayout.setLayoutParams(lp);
 
-            tv_testView.setOnLongClickListener(new OnLongClickListener() {
+
+            relativeLayout.setOnLongClickListener(new OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (slideViewClickListener != null){
+                    if (slideViewClickListener != null) {
                         slideViewClickListener.contentViewLongClick(v);
-                        return true ;
+                        return true;
                     }
-                    return false ;
+                    return false;
 
                 }
             });
-            tv_testView.setOnClickListener(new OnClickListener() {
+            relativeLayout.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (slideViewClickListener != null){
+                    if (slideViewClickListener != null) {
                         slideViewClickListener.contentViewClick(v);
                     }
                 }
@@ -113,7 +122,7 @@ public class ListSlideView extends HorizontalScrollView {
             topView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (slideViewClickListener != null){
+                    if (slideViewClickListener != null) {
                         slideViewClickListener.topViewClick(v);
                     }
                 }
@@ -123,7 +132,7 @@ public class ListSlideView extends HorizontalScrollView {
             markReadView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (slideViewClickListener != null){
+                    if (slideViewClickListener != null) {
                         slideViewClickListener.flagViewClick(v);
                     }
                 }
@@ -134,7 +143,7 @@ public class ListSlideView extends HorizontalScrollView {
                 @Override
                 public void onClick(View v) {
                     if (slideViewClickListener != null)
-                    slideViewClickListener.deleteViewClick(v);
+                        slideViewClickListener.deleteViewClick(v);
                 }
             });
 
@@ -194,7 +203,7 @@ public class ListSlideView extends HorizontalScrollView {
             default:
                 break;
         }
-        super.onTouchEvent(ev) ;
+        super.onTouchEvent(ev);
         return true;
     }
 
@@ -208,25 +217,27 @@ public class ListSlideView extends HorizontalScrollView {
 
     public void changeScrollX() {
         Log.d(TAG, "changeScrollX: ");
-        if (getScrollX() >= (mScrollWidth/2) ) {
+        if (getScrollX() >= (mScrollWidth / 2)) {
             this.smoothScrollTo(mScrollWidth, 0);
             isOpen = true;
         } else {
             this.smoothScrollTo(0, 0);
-            isOpen = false ;
+            isOpen = false;
         }
     }
 
     /**
      * 外部调用
+     *
      * @return 拖动菜单是否处于打开状态
      */
-    public Boolean getIsOpen(){
-        return isOpen ;
+    public Boolean getIsOpen() {
+        return isOpen;
     }
 
     /**
      * 外部调用设置接口
+     *
      * @param slideViewClickListener
      */
     public void setSlideViewClickListener(SlideViewClickListener slideViewClickListener) {
@@ -236,19 +247,19 @@ public class ListSlideView extends HorizontalScrollView {
     /**
      * 自定义接口
      */
-    public interface SlideViewClickListener{
+    public interface SlideViewClickListener {
         //点击置顶View
-        public void topViewClick(View view) ;
+        public void topViewClick(View view);
 
         //点击标志View
-        public void flagViewClick(View view) ;
+        public void flagViewClick(View view);
 
         //点击删除View
-        public void deleteViewClick(View view) ;
+        public void deleteViewClick(View view);
 
-        public void contentViewLongClick(View view) ;
+        public void contentViewLongClick(View view);
 
-        public void contentViewClick(View view) ;
+        public void contentViewClick(View view);
     }
 
 }
