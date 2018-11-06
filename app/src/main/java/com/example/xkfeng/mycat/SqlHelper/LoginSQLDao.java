@@ -52,6 +52,7 @@ public class LoginSQLDao {
         mapList.clear();
         //搜索
         Cursor cursor = null;
+
         cursor = loginhistorySql.getReadableDatabase().query(LoginhistorySql.TABLE_NAME,
                 null, null, null, null, null, null);
         cursor.moveToFirst();
@@ -73,11 +74,22 @@ public class LoginSQLDao {
     /**
      * 插入数据
      * 只需要提供用户名和密码，其他数据自动生成，其中密码由RSA加密算法加密
-     *
+     * 每次插入之前需要进行判断，默认只存储三条记录
+     * 如果当前已经有三条记录，那么删除最近未修改的一条记录
      * @param id       用户名
      * @param password 用户密码
      */
     public void insertData(String id, String password) {
+
+        //搜索
+        Cursor cursor = null;
+        //遍历整个数据库表
+        cursor = loginhistorySql.getReadableDatabase().query(LoginhistorySql.TABLE_NAME,
+                null, null, null, null, null, null);
+        //根据数据的条目进行处理
+        if (cursor.getCount() >= 3) {
+            deleteLastModify();
+        }
         //        //规范化时间
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date(System.currentTimeMillis());
@@ -141,6 +153,7 @@ public class LoginSQLDao {
 
     /**
      * 更新指定ID的最近修改时间
+     *
      * @param id
      * @return
      */
@@ -161,7 +174,7 @@ public class LoginSQLDao {
             flag = loginhistorySql.getWritableDatabase().update(LoginhistorySql.TABLE_NAME, contentValues, "id = ?", new String[]{id});
         }
 
-        return flag ;
+        return flag;
     }
 
 

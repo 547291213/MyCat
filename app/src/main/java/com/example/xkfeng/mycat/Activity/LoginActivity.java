@@ -130,7 +130,8 @@ public class LoginActivity extends BaseActivity {
      */
     @OnClick(R.id.tv_registerUserTv)
     public void setTv_registerUserTv(View view) {
-        Toast.makeText(this, "注册", Toast.LENGTH_SHORT).show();
+        //启动注册界面
+        startActivity(new Intent(LoginActivity.this , RegisterActivity.class));
     }
 
     /*
