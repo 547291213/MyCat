@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,6 +55,7 @@ public class IndexActivity extends BaseActivity {
     DrawerLayout drawerLayout;
     @BindView(R.id.rl_indexMainLayout)
     RelativeLayout rlIndexMainLayout;
+
     private DisplayMetrics metrics;
 
     private FrameLayout frameLayout;
@@ -62,13 +64,14 @@ public class IndexActivity extends BaseActivity {
     private DynamicFragment dynamicFragment;
     private FragmentManager fragmentManager;
 
-    private View redPointMessage ;
-    private View redPointFriend ;
-    private View redPointDynamic ;
+    private View redPointMessage;
+    private View redPointFriend;
+    private View redPointDynamic;
 
     private static final String PROJECT_GITHUB = "https://github.com/547291213/MyCat";
     private static final String PROJECT_CSDN = "https://blog.csdn.net/qq_29989087/article/details/82962296";
 
+    private ImageView ivNavigationHeaderImage ;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -104,6 +107,14 @@ public class IndexActivity extends BaseActivity {
      * 二 挤压抽屉实现
      */
     private void setNavView() {
+
+        navView.getHeaderView(0).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(IndexActivity.this, "Image", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         //点击事件处理
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -140,7 +151,7 @@ public class IndexActivity extends BaseActivity {
 
                     case R.id.nav_about:
                         //启动到关于我们界面
-                        startActivity(new Intent(IndexActivity.this ,AboutActivity.class));
+                        startActivity(new Intent(IndexActivity.this, AboutActivity.class));
                         break;
 
                 }
@@ -156,8 +167,8 @@ public class IndexActivity extends BaseActivity {
         rlIndexMainLayout.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                rlIndexMainLayout.layout(navView.getRight(),0,
-                        navView.getRight() + metrics.widthPixels, metrics.heightPixels+100);
+                rlIndexMainLayout.layout(navView.getRight(), 0,
+                        navView.getRight() + metrics.widthPixels, metrics.heightPixels + 100);
 
             }
         });
@@ -171,10 +182,9 @@ public class IndexActivity extends BaseActivity {
         drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
-                rlIndexMainLayout.layout(navView.getRight(),rlIndexMainLayout.getTop(),
-                        rlIndexMainLayout.getRight()+navView.getRight(),
+                rlIndexMainLayout.layout(navView.getRight(), rlIndexMainLayout.getTop(),
+                        rlIndexMainLayout.getRight() + navView.getRight(),
                         rlIndexMainLayout.getBottom());
-
 
 
             }
@@ -187,7 +197,7 @@ public class IndexActivity extends BaseActivity {
             @Override
             public void onDrawerClosed(@NonNull View drawerView) {
 
-                rlIndexMainLayout.layout(0,rlIndexMainLayout.getTop(),
+                rlIndexMainLayout.layout(0, rlIndexMainLayout.getTop(),
                         rlIndexMainLayout.getRight(),
                         rlIndexMainLayout.getBottom());
 
@@ -235,6 +245,7 @@ public class IndexActivity extends BaseActivity {
 
     private void initView() {
 
+
         /*
            对Message这一Fragment进行一些处理
          */
@@ -244,7 +255,7 @@ public class IndexActivity extends BaseActivity {
 
 
         //红点拖拽
-        setRedPointDrag() ;
+        setRedPointDrag();
 
 
         frameLayout = findViewById(R.id.fg_indexFragment);
@@ -266,7 +277,7 @@ public class IndexActivity extends BaseActivity {
     /**
      * 红点拖拽效果绑定
      */
-    private void setRedPointDrag(){
+    private void setRedPointDrag() {
         /**
          * 注意对于需要实现拖拽效果的view需要单独指定一个布局文件，并且次布局最好不能有viewGroup，
          * 否则view上面显示的文字可能在拖拽时不能识别，这样一是为了方便，二是为了减少消耗
@@ -278,14 +289,14 @@ public class IndexActivity extends BaseActivity {
         /**
          * 需要对每一个红点进行设置
          */
-        redPointMessage = ibIndexBottomMessage.findViewById(R.id.redpoint_view) ;
+        redPointMessage = ibIndexBottomMessage.findViewById(R.id.redpoint_view);
         RedPointViewHelper stickyViewHelper = new RedPointViewHelper(this, redPointMessage, R.layout.item_drag_view);
 
-        redPointFriend = ibIndexBottomFriend.findViewById(R.id.redpoint_view) ;
-        RedPointViewHelper stickyViewHelper1 = new RedPointViewHelper(this , redPointFriend , R.layout.item_drag_view) ;
+        redPointFriend = ibIndexBottomFriend.findViewById(R.id.redpoint_view);
+        RedPointViewHelper stickyViewHelper1 = new RedPointViewHelper(this, redPointFriend, R.layout.item_drag_view);
 
-        redPointDynamic  = ibIndexBottomDynamic.findViewById(R.id.redpoint_view) ;
-        RedPointViewHelper stickyViewHelper2 = new RedPointViewHelper(this , redPointDynamic , R.layout.item_drag_view) ;
+        redPointDynamic = ibIndexBottomDynamic.findViewById(R.id.redpoint_view);
+        RedPointViewHelper stickyViewHelper2 = new RedPointViewHelper(this, redPointDynamic, R.layout.item_drag_view);
 
 
     }
@@ -427,17 +438,17 @@ public class IndexActivity extends BaseActivity {
     /**
      * 获取抽屉对象
      * 用于在Fragment中打开抽屉
+     *
      * @return 抽屉对象
      */
     public DrawerLayout getDrawerLayout() throws Exception {
         /**
          * 对空对象进行判断和报错
          */
-        if(drawerLayout == null)
-        {
-            throw  new Exception("drawLayout is a null object .") ;
+        if (drawerLayout == null) {
+            throw new Exception("drawLayout is a null object .");
         }
-        return drawerLayout ;
+        return drawerLayout;
     }
 
 }
