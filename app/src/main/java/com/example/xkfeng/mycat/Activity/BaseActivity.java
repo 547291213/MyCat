@@ -12,6 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.example.xkfeng.mycat.Util.ActivityController;
 
+import cn.jpush.im.android.api.JMessageClient;
+
 /**
  * Created by initializing on 2018/10/5.
  */
@@ -24,6 +26,10 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        /*
+          极光SDK初始化
+         */
+        JMessageClient.init(this, false) ;
         ActivityController.addActivity(this);
     }
 

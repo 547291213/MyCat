@@ -30,6 +30,7 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -43,10 +44,15 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.DrawableView.BottomDialog;
 import com.example.xkfeng.mycat.DrawableView.DrawableTextEdit;
+import com.example.xkfeng.mycat.Model.DaoMaster;
+import com.example.xkfeng.mycat.Model.DaoSession;
+import com.example.xkfeng.mycat.Model.UserDao;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.RecyclerDefine.QuickAdapter;
 import com.example.xkfeng.mycat.SqlHelper.LoginSQLDao;
 import com.example.xkfeng.mycat.SqlHelper.LoginhistorySql;
+import com.example.xkfeng.mycat.Util.ActivityController;
+import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.RSAEncrypt;
 
 
@@ -111,7 +117,7 @@ public class LoginActivity extends BaseActivity {
     private QuickAdapter<String> quickAdapter;
     private PopupWindow window;
 
-    private LoginSQLDao loginSQLDao ;
+    private LoginSQLDao loginSQLDao;
 
     private static int TEST_ID = 123456;
 
@@ -131,7 +137,7 @@ public class LoginActivity extends BaseActivity {
     @OnClick(R.id.tv_registerUserTv)
     public void setTv_registerUserTv(View view) {
         //启动注册界面
-        startActivity(new Intent(LoginActivity.this , RegisterActivity.class));
+        startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
     }
 
     /*
@@ -194,7 +200,16 @@ public class LoginActivity extends BaseActivity {
 //            e.printStackTrace();
 //        }
 
-        startActivity(new Intent(LoginActivity.this , IndexActivity.class));
+        /**
+         *   当用户可以实现登陆时候
+         *   就将未登陆界面的所有Activity都给移除TASK
+         *
+         */
+        ActivityController.finishAll();
+        /**
+         *   跳转到用户登陆后的首页
+         */
+        startActivity(new Intent(LoginActivity.this, IndexActivity.class));
 
 
     }
@@ -484,14 +499,22 @@ public class LoginActivity extends BaseActivity {
     //Sql 和RecyclerView的初始化
     private void sqlRecyclerViewDataInit() {
 
+        /**
+         *   GreenDao数据库初始化
+         */
+//        DaoMaster.DevOpenHelper devOpenHelper = new DaoMaster.DevOpenHelper(getApplicationContext(), "user.db", null);
+//        DaoMaster daoMaster = new DaoMaster(devOpenHelper.getWritableDb());
+//        DaoSession daoSession = daoMaster.newSession();
+
+
         /*
             提供数据库通用DAO层设计来实现数据操作。
             在JAVA业务代码中只需要调用相关的方法即可
          */
-        loginSQLDao = new LoginSQLDao(this) ;
+        loginSQLDao = new LoginSQLDao(this);
         lists = new ArrayList<>();
         mapList = new ArrayList<>();
-        lists = loginSQLDao.queryAllData(mapList) ;
+        lists = loginSQLDao.queryAllData(mapList);
 
 //        //完成数据库的创建和调用
 //        sql = new LoginhistorySql(this, "login.db", null, 1);
@@ -546,8 +569,8 @@ public class LoginActivity extends BaseActivity {
                         //设置密码输入栏的数据为数据库保存的数据
                         //密码字段需要经过RSA解密
                         try {
-                            PrivateKey privateKey = RSAEncrypt.getPrivateKey(RSAEncrypt.PRIVATE_KEY) ;
-                            tiet_PasswordEdit.setText(RSAEncrypt.decrypt(mapList.get(position).get(LoginhistorySql.PASSWORD) , privateKey));
+                            PrivateKey privateKey = RSAEncrypt.getPrivateKey(RSAEncrypt.PRIVATE_KEY);
+                            tiet_PasswordEdit.setText(RSAEncrypt.decrypt(mapList.get(position).get(LoginhistorySql.PASSWORD), privateKey));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -635,6 +658,7 @@ public class LoginActivity extends BaseActivity {
 
     }
 
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
@@ -652,4 +676,5 @@ public class LoginActivity extends BaseActivity {
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
+
 }

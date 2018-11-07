@@ -13,6 +13,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -29,6 +31,7 @@ import com.example.xkfeng.mycat.Fragment.DynamicFragment;
 import com.example.xkfeng.mycat.Fragment.FriendFragment;
 import com.example.xkfeng.mycat.Fragment.MessageFragment;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.Util.ActivityController;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
 
@@ -72,8 +75,12 @@ public class IndexActivity extends BaseActivity {
     private static final String PROJECT_GITHUB = "https://github.com/547291213/MyCat";
     private static final String PROJECT_CSDN = "https://blog.csdn.net/qq_29989087/article/details/82962296";
 
-    private ImageView ivNavigationHeaderImage;
+    //用户最近一次点击Back的事件
+    //用于实现在相近时间内两次点击Back退出程序
+    private static long lastExitTime = 0;
 
+    //两次点击退出的时间间隔
+    private static final int MAX_EXIT_TIME = 2000;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -419,6 +426,31 @@ public class IndexActivity extends BaseActivity {
             throw new Exception("drawLayout is a null object .");
         }
         return drawerLayout;
+    }
+
+    /**
+     * 捕捉按键实现在相近时间内来两次点击Back退出程序
+     *
+     * @param keyCode 按键
+     * @param event   事件
+     * @return super or true
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        Log.d(TAG, "onKeyDown: " + keyCode);
+
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            if ( (System.currentTimeMillis() - lastExitTime) > MAX_EXIT_TIME) {
+                ITosast.showShort(IndexActivity.this, "再按一次退出程序");
+                lastExitTime = System.currentTimeMillis() ;
+            } else {
+                //退出程序
+                ActivityController.finishAll();
+            }
+            return true ;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
 }
