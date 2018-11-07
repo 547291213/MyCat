@@ -145,7 +145,7 @@ public class SearchActivity extends BaseActivity {
             etSearchEdit.setText("");
 
         }else {
-            ITosast.showShort(this , "请输入数据");
+            ITosast.showShort(this , "请输入数据").show();
         }
     }
 

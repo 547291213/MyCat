@@ -53,6 +53,7 @@ import com.example.xkfeng.mycat.RecyclerDefine.QuickAdapter;
 import com.example.xkfeng.mycat.SqlHelper.LoginSQLDao;
 import com.example.xkfeng.mycat.SqlHelper.LoginhistorySql;
 import com.example.xkfeng.mycat.Util.ActivityController;
+import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.RSAEncrypt;
 
@@ -206,7 +207,10 @@ public class LoginActivity extends BaseActivity {
 //        }
 
         if (TextUtils.isEmpty(tiet_UserEdit.getText()) || TextUtils.isEmpty(tiet_PasswordEdit.getText())) {
-            ITosast.showShort(LoginActivity.this, "用户名或者密码不能为空");
+            ITosast.showShort(LoginActivity.this, "用户名或者密码不能为空")
+                    .setTextColor(getResources().getColor(R.color.transparent))
+                    .setTextSize(20)
+                    .show();
 
         } else {
             //正在登陆
@@ -224,16 +228,16 @@ public class LoginActivity extends BaseActivity {
                     dialog.dismiss();
                     switch (i) {
                         case 801003:
-                            ITosast.showShort(LoginActivity.this, "用户名不存在");
+                            ITosast.showShort(LoginActivity.this, "用户名不存在").show();
                             break;
                         case 871301:
-                            ITosast.showShort(LoginActivity.this, "密码格式错误");
+                            ITosast.showShort(LoginActivity.this, "密码格式错误").show();
                             break;
                         case 801004:
-                            ITosast.showShort(LoginActivity.this, "密码错误");
+                            ITosast.showShort(LoginActivity.this, "密码错误").show();
                             break;
                         case 0:
-                            ITosast.showShort(LoginActivity.this, "登陆成功");
+                            ITosast.showShort(LoginActivity.this, "登陆成功").show();
                             /**
                              * 账号信息本地存储
                              * 下次系统自动登陆
@@ -246,7 +250,7 @@ public class LoginActivity extends BaseActivity {
 
                             break;
                         default:
-                            ITosast.showShort(LoginActivity.this, s);
+                            ITosast.showShort(LoginActivity.this, s).show();
                             break;
                     }
 

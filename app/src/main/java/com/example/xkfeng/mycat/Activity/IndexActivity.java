@@ -408,7 +408,6 @@ public class IndexActivity extends BaseActivity {
         setIbIndexBottomImage(ibIndexBottomMessage, ibIndexBottomFriend, ibIndexBottomDynamic);
         //为当前选中的状态设置图片缩放的动画
         ((IndexBottomLayout) view).setImageScale();
-        ITosast.show(this, "Click", Toast.LENGTH_SHORT);
 
     }
 
@@ -442,7 +441,7 @@ public class IndexActivity extends BaseActivity {
 
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
             if ( (System.currentTimeMillis() - lastExitTime) > MAX_EXIT_TIME) {
-                ITosast.showShort(IndexActivity.this, "再按一次退出程序");
+                ITosast.showShort(IndexActivity.this, "再按一次退出程序").show();
                 lastExitTime = System.currentTimeMillis() ;
             } else {
                 //退出程序

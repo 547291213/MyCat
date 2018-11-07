@@ -67,7 +67,7 @@ public class RegisterActivity extends BaseActivity {
 
         if (!tilPasswrod.getEditText().getText().toString().equals(tilRePasswrod.getEditText().getText().toString()))
         {
-            ITosast.showShort(this , "请检测密码输入的合法性");
+            ITosast.showShort(this , "请检测密码输入的合法性").show();
         }
         else {
             Log.d(TAG, "onViewClicked: " + tilUser.getEditText().toString());
@@ -76,24 +76,24 @@ public class RegisterActivity extends BaseActivity {
                 public void gotResult(int i, String s) {
                     switch (i){
                         case 0:
-                            ITosast.showShort(RegisterActivity.this, "注册成功");
+                            ITosast.showShort(RegisterActivity.this, "注册成功").show();
 //                            Toast.makeText(this, "注册成功", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent() ;
                             intent.setClass(RegisterActivity.this , LoginActivity.class) ;
                             startActivity(intent);
                             break;
                         case 898001:
-                            ITosast.showShort(RegisterActivity.this, "用户名已经存在");
+                            ITosast.showShort(RegisterActivity.this, "用户名已经存在").show();
                             break;
                         case 871301:
-                            ITosast.showShort(RegisterActivity.this, "密码格式错误");
+                            ITosast.showShort(RegisterActivity.this, "密码格式错误").show();
                             break;
                         case 871304:
-                            ITosast.showShort(RegisterActivity.this, "密码错误");
+                            ITosast.showShort(RegisterActivity.this, "密码错误").show();
                             break;
                         default:
                             Log.d(TAG, "gotResult: " + s);
-                            ITosast.showShort(RegisterActivity.this, s);
+                            ITosast.showShort(RegisterActivity.this, s).show();
                             break;
 
                     }
