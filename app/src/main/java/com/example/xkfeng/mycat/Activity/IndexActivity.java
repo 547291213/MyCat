@@ -29,6 +29,7 @@ import com.example.xkfeng.mycat.Fragment.DynamicFragment;
 import com.example.xkfeng.mycat.Fragment.FriendFragment;
 import com.example.xkfeng.mycat.Fragment.MessageFragment;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
 
 import butterknife.BindView;
@@ -71,7 +72,7 @@ public class IndexActivity extends BaseActivity {
     private static final String PROJECT_GITHUB = "https://github.com/547291213/MyCat";
     private static final String PROJECT_CSDN = "https://blog.csdn.net/qq_29989087/article/details/82962296";
 
-    private ImageView ivNavigationHeaderImage ;
+    private ImageView ivNavigationHeaderImage;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,7 +91,7 @@ public class IndexActivity extends BaseActivity {
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
         //沉浸式View
-        fullScreen(this);
+        DensityUtil.fullScreen(this);
 
         //抽屉设置
         setNavView();
@@ -142,7 +143,10 @@ public class IndexActivity extends BaseActivity {
                         break;
 
                     case R.id.nav_setting:
-
+                        /**
+                         * 打开设置界面
+                         */
+                        startActivity(new Intent(IndexActivity.this, SettingActivity.class));
                         break;
 
                     case R.id.nav_clear:
@@ -210,41 +214,7 @@ public class IndexActivity extends BaseActivity {
         });
     }
 
-    /**
-     * 沉浸式状态栏
-     * 并且状态栏颜色跟随顶部View的颜色，追随渐变
-     *
-     * @param activity
-     */
-    private void fullScreen(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                //5.x开始需要把颜色设置透明，否则导航栏会呈现系统默认的浅灰色
-                Window window = activity.getWindow();
-                View decorView = window.getDecorView();
-                //两个 flag 要结合使用，表示让应用的主体内容占用系统状态栏的空间
-                int option = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-                decorView.setSystemUiVisibility(option);
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                window.setStatusBarColor(Color.TRANSPARENT);
-                //导航栏颜色也可以正常设置
-                // window.setNavigationBarColor(Color.TRANSPARENT);
-
-            } else {
-                Window window = activity.getWindow();
-                WindowManager.LayoutParams attributes = window.getAttributes();
-                int flagTranslucentStatus = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
-                int flagTranslucentNavigation = WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
-                attributes.flags |= flagTranslucentStatus;
-                // attributes.flags |= flagTranslucentNavigation;
-                window.setAttributes(attributes);
-            }
-        }
-    }
-
-
     private void initView() {
-
 
         /*
            对Message这一Fragment进行一些处理

@@ -38,6 +38,7 @@
 
         </activity>
 
+
         <activity
             android:name=".Activity.StartMovieActivity"
             android:noHistory="true"
@@ -76,6 +77,12 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
 
             />
+
+        <activity android:name=".Activity.SettingActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            >
+
+        </activity>
 
         <activity android:name=".Activity.CreateGroupChatActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"

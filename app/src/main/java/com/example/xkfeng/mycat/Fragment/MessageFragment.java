@@ -249,6 +249,7 @@ public class MessageFragment extends Fragment {
             @Override
             public void contentViewClick(View view) {
 
+                Toast.makeText(getContext(), "Message Click", Toast.LENGTH_SHORT).show();
             }
         });
     }

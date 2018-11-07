@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:attr="http://schemas.android.com/tools">
+
+    <com.example.xkfeng.mycat.DrawableView.IndexTitleLayout
+        android:id="@+id/indexTitleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        app:leftBackground="@drawable/back_white"
+        app:middleText="设置"
+        app:middleTextColor="@color/light_blue"
+        app:layoutBackground="@drawable/title_gradient"
+
+        />
+
+    <TextView
+        android:id="@+id/tv_vibrationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="开启震动"
+        android:textSize="20sp"
+        android:layout_below="@id/indexTitleLayout"
+        android:textColor="@color/black"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="5dp"
+        />
+
+    <com.suke.widget.SwitchButton
+        android:id="@+id/sb_vibrationBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/indexTitleLayout"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
+        attr:sb_checked_color="@Color/blue"
+
+        />
+
+    <TextView
+        android:id="@+id/tv_promptText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="开启提示音"
+        android:textSize="20sp"
+        android:layout_below="@id/tv_vibrationText"
+        android:textColor="@color/black"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="5dp"
+        />
+
+    <com.suke.widget.SwitchButton
+        android:id="@+id/sb_promptBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/tv_vibrationText"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
+        attr:sb_checked_color="@Color/blue"
+
+        />
+
+    <TextView
+        android:id="@+id/tv_noDisturbText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="免打扰模式"
+        android:textSize="20sp"
+        android:layout_below="@id/tv_promptText"
+        android:textColor="@color/black"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="5dp"
+        />
+
+    <com.suke.widget.SwitchButton
+        android:id="@+id/sb_noDisturbBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/tv_promptText"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
+        attr:sb_checked_color="@Color/blue"
+
+        />
+
+    <TextView
+        android:id="@+id/tv_roamingText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="漫游模式"
+        android:textSize="20sp"
+        android:layout_below="@id/tv_noDisturbText"
+        android:textColor="@color/black"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="5dp"
+        />
+
+    <com.suke.widget.SwitchButton
+        android:id="@+id/sb_roamingBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/tv_noDisturbText"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
+        attr:sb_checked_color="@Color/blue"
+
+        />
+
+    <View
+        android:id="@+id/view_divideView"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/tv_roamingText"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/title_gradient"
+
+        />
+
+    <TextView
+        android:id="@+id/tv_modifyPasswordText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="修改密码"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:layout_below="@id/view_divideView"
+        />
+
+    <TextView
+        android:id="@+id/tv_exitCurrentAccount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="退出当前帐号"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:layout_below="@id/tv_modifyPasswordText"
+        />
+
+
+</RelativeLayout>
