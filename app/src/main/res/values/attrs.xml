@@ -2,13 +2,14 @@
 <resources>
     <style name="BottomDialog" parent="@android:style/Theme.Dialog">
         <item name="android:windowFrame">@null</item> <!-- 无边框-->
+        <item name="android:backgroundDimAmount">0.5</item>
         <item name="android:windowIsFloating">true</item> <!-- 悬浮在Activity之上 -->
+
         <item name="android:windowNoTitle">true</item>  <!-- 无标题 -->
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowIsTranslucent">false</item>
         <item name="android:windowBackground">@color/transparent</item>
         <item name="android:background">@color/transparent</item>
-        <item name="android:backgroundDimAmount">0.5</item>
         <item name="android:windowAnimationStyle">@style/ActionSheetDialogAnimation</item><!--动画-->
 
     </style>

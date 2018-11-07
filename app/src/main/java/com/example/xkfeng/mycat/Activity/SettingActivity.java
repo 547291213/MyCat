@@ -1,6 +1,7 @@
 package com.example.xkfeng.mycat.Activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Gravity;
@@ -8,9 +9,11 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.xkfeng.mycat.DrawableView.BottomDialog;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.Util.ActivityController;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.suke.widget.SwitchButton;
 import com.tencent.connect.UserInfo;
@@ -20,6 +23,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import cn.jpush.android.api.JPushMessage;
 import cn.jpush.im.android.api.JMessageClient;
 
@@ -65,6 +69,45 @@ public class SettingActivity extends BaseActivity {
     private void initView() {
 
         setIndexTitleLayout();
+
+
+    }
+
+    @OnClick(R.id.tv_exitCurrentAccount)
+    public void setTvExitCurrentAccountClick(View view){
+
+        final String item1 = "";
+        final String item2 = "确定退出";
+        final String item3 = "取消";
+        final BottomDialog dialog = new BottomDialog(SettingActivity.this, item1, item2, item3);
+        dialog.setItemClickListener(new BottomDialog.ItemClickListener() {
+            @Override
+            public void onItem1Click(View view) {
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onItem2Click(View view) {
+                //极光账号登出
+                JMessageClient.logout();
+
+                //将当前所有Activity退栈
+                ActivityController.finishAll();
+
+                //转换到登陆界面
+                startActivity(new Intent(SettingActivity.this , LoginActivity.class));
+
+                //关闭弹出窗口
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onItem3Click(View view) {
+
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
     }
 
     /**
@@ -109,4 +152,74 @@ public class SettingActivity extends BaseActivity {
     }
 
 
+//    @OnClick({R.id.sb_vibrationBtn , R.id.sb_promptBtn , R.id.sb_noDisturbBtn ,
+//    R.id.sb_roamingBtn , R.id.tv_modifyPasswordText , R.id.tv_exitCurrentAccount})
+//    public void settingBtnTextClick(View view){
+//        switch (view.getId()){
+////            case R.id.sb_vibrationBtn :
+////
+////                Toast.makeText(this, "震动", Toast.LENGTH_SHORT).show();
+////                break ;
+////
+////            case R.id.sb_promptBtn :
+////
+////
+////                Toast.makeText(this, "提示音", Toast.LENGTH_SHORT).show();
+////                break ;
+////
+////            case R.id.sb_noDisturbBtn :
+////
+////
+////                Toast.makeText(this, "免打扰", Toast.LENGTH_SHORT).show();
+////                break ;
+////
+////            case R.id.sb_roamingBtn :
+////
+////
+////                Toast.makeText(this, "漫游", Toast.LENGTH_SHORT).show();
+////                break ;
+//
+//            case R.id.tv_modifyPasswordText :
+//
+//
+//                Toast.makeText(this, "修改密码", Toast.LENGTH_SHORT).show();
+//                break ;
+//
+//            case R.id.tv_exitCurrentAccount :
+//
+//                final String item1 = "";
+//                final String item2 = "确定退出";
+//                final String item3 = "取消";
+//                final BottomDialog dialog = new BottomDialog(SettingActivity.this, item1, item2, item3);
+//                dialog.setItemClickListener(new BottomDialog.ItemClickListener() {
+//                    @Override
+//                    public void onItem1Click(View view) {
+//                        dialog.dismiss();
+//                    }
+//
+//                    @Override
+//                    public void onItem2Click(View view) {
+//                        //极光账号登出
+//                        JMessageClient.logout();
+//
+//                        //将当前所有Activity退栈
+//                        ActivityController.finishAll();
+//
+//                        //转换到登陆界面
+//                        startActivity(new Intent(SettingActivity.this , LoginActivity.class));
+//
+//                        //关闭弹出窗口
+//                        dialog.dismiss();
+//                    }
+//
+//                    @Override
+//                    public void onItem3Click(View view) {
+//
+//                        dialog.dismiss();
+//                    }
+//                });
+//                dialog.show();
+//                break ;
+//        }
+//    }
 }

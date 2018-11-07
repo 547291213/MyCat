@@ -2,9 +2,12 @@ package com.example.xkfeng.mycat.DrawableView;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.text.style.LineHeightSpan;
+import android.util.Log;
 import android.view.CollapsibleActionView;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -29,6 +32,7 @@ public class BottomDialog extends Dialog {
     private ItemClickListener itemClickListener ;
     private ClickListener clickListener = new ClickListener() ;
     private String item1 , item2 , item3 ;
+    private static final String TAG = "BottomDialog";
 
     public BottomDialog(@NonNull Context context , String item1 , String item2 , String item3 ) {
         super(context , R.style.BottomDialog);
@@ -45,6 +49,8 @@ public class BottomDialog extends Dialog {
     {
         //加载布局
         View view = LayoutInflater.from(context).inflate(R.layout.bottomdialog_layout , null , false) ;
+
+
         //设置Dialog的样式  让其位于底部
         Window window = this.getWindow() ;
         if (window!=null)
@@ -54,20 +60,38 @@ public class BottomDialog extends Dialog {
             lp.y = DensityUtil.dip2px(context , 10) ;
             window.setAttributes(lp);
         }
+
+
+
         textView1 = (TextView)view.findViewById(R.id.tv_item1) ;
         textView2 = (TextView)view.findViewById(R.id.tv_item2) ;
         textView3 = (TextView)view.findViewById(R.id.tv_item3) ;
-
-        //设置布局
-        setContentView(view);
-        textView1.setText(item1);
-        textView2.setText(item2);
-        textView3.setText(item3);
 
         //设置监听事件
         textView1.setOnClickListener(clickListener);
         textView2.setOnClickListener(clickListener);
         textView3.setOnClickListener(clickListener);
+
+
+        textView1.setText(item1);
+        textView2.setText(item2);
+        textView3.setText(item3);
+
+
+        //设置布局
+        setContentView(view);
+
+        /**
+         * 某些情况只需要两个Item
+         * 此时Item1 做特殊处理
+         * 字体设置为白色
+         */
+        if (TextUtils.isEmpty(item1)){
+            textView1.setVisibility(View.GONE);
+
+            textView2.setTextColor(Color.WHITE);
+            textView3.setTextColor(Color.WHITE);
+        }
 
 
     }
