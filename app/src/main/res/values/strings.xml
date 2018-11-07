@@ -21,4 +21,6 @@
     <string name="nav_header_subtitle">Author affiliation：xp134525@gmail.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+
+    <string name="loading">正在加载</string>
 </resources>

@@ -43,6 +43,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.DrawableView.BottomDialog;
+import com.example.xkfeng.mycat.DrawableView.CustomDialog;
 import com.example.xkfeng.mycat.DrawableView.DrawableTextEdit;
 import com.example.xkfeng.mycat.Model.DaoMaster;
 import com.example.xkfeng.mycat.Model.DaoSession;
@@ -69,6 +70,10 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.api.BasicCallback;
 import top.zibin.luban.Luban;
 import top.zibin.luban.OnCompressListener;
 
@@ -200,17 +205,85 @@ public class LoginActivity extends BaseActivity {
 //            e.printStackTrace();
 //        }
 
-        /**
-         *   当用户可以实现登陆时候
-         *   就将未登陆界面的所有Activity都给移除TASK
-         *
-         */
-        ActivityController.finishAll();
-        /**
-         *   跳转到用户登陆后的首页
-         */
-        startActivity(new Intent(LoginActivity.this, IndexActivity.class));
+        if (TextUtils.isEmpty(tiet_UserEdit.getText()) || TextUtils.isEmpty(tiet_PasswordEdit.getText())) {
+            ITosast.showShort(LoginActivity.this, "用户名或者密码不能为空");
 
+        } else {
+            //正在登陆
+            final CustomDialog dialog = new CustomDialog(this, R.style.CustomDialog);
+            dialog.setText("正在登陆");
+            dialog.show();
+
+            /**
+             * 调用极光进行登陆处理
+             */
+            JMessageClient.login(tiet_UserEdit.getText().toString(), tiet_PasswordEdit.getText().toString(), new BasicCallback() {
+                @Override
+                public void gotResult(int i, String s) {
+                    //关闭加载对话框
+                    dialog.dismiss();
+                    switch (i) {
+                        case 801003:
+                            ITosast.showShort(LoginActivity.this, "用户名不存在");
+                            break;
+                        case 871301:
+                            ITosast.showShort(LoginActivity.this, "密码格式错误");
+                            break;
+                        case 801004:
+                            ITosast.showShort(LoginActivity.this, "密码错误");
+                            break;
+                        case 0:
+                            ITosast.showShort(LoginActivity.this, "登陆成功");
+                            /**
+                             * 账号信息本地存储
+                             * 下次系统自动登陆
+                             */
+
+                            /**
+                             * 初始化用户数据
+                             */
+                            initUserInfo(tiet_UserEdit.getText().toString());
+
+                            break;
+                        default:
+                            ITosast.showShort(LoginActivity.this, s);
+                            break;
+                    }
+
+                }
+            });
+
+        }
+
+
+    }
+
+    private void initUserInfo(String id) {
+        //初始化数据对话框
+        final CustomDialog dialog = new CustomDialog(this, R.style.CustomDialog);
+        dialog.setText("正在初始化");
+        dialog.show();
+
+        JMessageClient.getUserInfo(id, new GetUserInfoCallback() {
+            @Override
+            public void gotResult(int i, String s, UserInfo userInfo) {
+
+                //关闭对话框
+                dialog.dismiss();
+
+                /**
+                 *   当用户可以实现登陆时候
+                 *   就将未登陆界面的所有Activity都给移除TASK
+                 *
+                 */
+                ActivityController.finishAll();
+
+                //启动到用户界面
+                Intent intent = new Intent(LoginActivity.this
+                        , IndexActivity.class);
+                startActivity(intent);
+            }
+        });
 
     }
 
