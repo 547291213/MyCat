@@ -35,6 +35,11 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (receiver!=null)
+        {
+            unregisterReceiver(receiver);
+            receiver = null ;
+        }
         ActivityController.removeActivity(this);
 
     }
@@ -45,22 +50,24 @@ public class BaseActivity extends AppCompatActivity {
      */
     @Override
     protected void onResume() {
-        super.onResume();
+
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("com.example.xkfeng.forceofflinereceiver");
         receiver = new ForceOfflineReceiver() ;
         registerReceiver(receiver , intentFilter) ;
+        super.onResume();
     }
 
     @Override
     protected void onStop() {
-        super.onStop();
+
         if (receiver!=null)
         {
             unregisterReceiver(receiver);
             receiver = null ;
         }
+        super.onStop();
     }
 
     public class ForceOfflineReceiver extends BroadcastReceiver

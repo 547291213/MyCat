@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.xkfeng.mycat.Util.RSAEncrypt;
@@ -32,7 +33,7 @@ public class LoginSQLDao {
     private void init() {
 
         //实例化数据库
-        loginhistorySql = new LoginhistorySql(mContext, "login.db", null, 2);
+        loginhistorySql = new LoginhistorySql(mContext, "login.db", null, 5);
         //第一次进入的时候初始化数据库操作对象
         db = loginhistorySql.getReadableDatabase();
 
@@ -55,12 +56,12 @@ public class LoginSQLDao {
 
         cursor = loginhistorySql.getReadableDatabase().query(LoginhistorySql.TABLE_NAME,
                 null, null, null, null, null, null);
-        cursor.moveToFirst();
+        Log.d("LoginActivity", "queryAllData: count:" + cursor.getCount());
+        //cursor.moveToFirst();
         while (cursor.moveToNext()) {
             Map<String, String> map = new HashMap<>();
             map.put("id", cursor.getString(cursor.getColumnIndex(LoginhistorySql.ID)));
             map.put("password", cursor.getString(cursor.getColumnIndex(LoginhistorySql.PASSWORD)));
-            map.put("isTopLogin", cursor.getString(cursor.getColumnIndex(LoginhistorySql.ISTOPLOGIN)));
             map.put("lastUpdateTime", cursor.getString(cursor.getColumnIndex(LoginhistorySql.LASTUPDATETIME)));
             mapList.add(map);
             list.add(cursor.getString(cursor.getColumnIndex("id")));
@@ -76,12 +77,25 @@ public class LoginSQLDao {
      * 只需要提供用户名和密码，其他数据自动生成，其中密码由RSA加密算法加密
      * 每次插入之前需要进行判断，默认只存储三条记录
      * 如果当前已经有三条记录，那么删除最近未修改的一条记录
+     *
      * @param id       用户名
      * @param password 用户密码
      */
     public void insertData(String id, String password) {
 
-        //搜索
+        /**
+         * 判断数据库中是否存在当前用户数据
+         * 有则直接返回
+         */
+        if (hasData(id)) {
+            Log.d("LoginActivity", "insertData: Data is exist");
+            return;
+        }
+        /**
+         * 默认只存储三条数据
+         * 如果当前已经存在了三条数据
+         * 那么就删除最近最不常用了一条数据
+         */
         Cursor cursor = null;
         //遍历整个数据库表
         cursor = loginhistorySql.getReadableDatabase().query(LoginhistorySql.TABLE_NAME,
@@ -98,13 +112,16 @@ public class LoginSQLDao {
             PublicKey publicKey = RSAEncrypt.getPublicKey(RSAEncrypt.PUBLIC_KEY);
             ContentValues contentValues = new ContentValues();
             contentValues.put(LoginhistorySql.ID, id);
-            contentValues.put(LoginhistorySql.PASSWORD, RSAEncrypt.encrypt("" + password, publicKey));
-            contentValues.put(LoginhistorySql.ISTOPLOGIN, "false");
+            contentValues.put(LoginhistorySql.PASSWORD, RSAEncrypt.encrypt(password, publicKey));
             contentValues.put(LoginhistorySql.LASTUPDATETIME, simpleDateFormat.format(date));
             db.insertOrThrow(LoginhistorySql.TABLE_NAME, null, contentValues);
+          //  db.insert()
         } catch (Exception e) {
+            Log.d("LoginActivity", "insertDataERROR: ");
+
             e.printStackTrace();
         }
+        Log.d("LoginActivity", "insertData: ");
     }
 
     /**
@@ -150,6 +167,7 @@ public class LoginSQLDao {
         cursor.close();
         return flag;
     }
+
 
     /**
      * 更新指定ID的最近修改时间

@@ -2,6 +2,7 @@ package com.example.xkfeng.mycat.Activity;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -64,7 +65,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +130,7 @@ public class LoginActivity extends BaseActivity {
 
     private LoginSQLDao loginSQLDao;
 
-    private UserAutoLoginHelper userAutoLoginHelper ;
+    private UserAutoLoginHelper userAutoLoginHelper;
 
     private static int TEST_ID = 123456;
 
@@ -187,27 +191,7 @@ public class LoginActivity extends BaseActivity {
      */
     @OnClick(R.id.bt_loginBtn)
     public void setBt_loginBtb(View view) {
-//        Toast.makeText(this, "BtnClick", Toast.LENGTH_SHORT).show();
-//        if (database == null) {
-//            new Exception("database is null object");
-//        }
-//        //规范化时间
-//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        Date date = new Date(System.currentTimeMillis());
-//
-//        try {
-//            PublicKey publicKey = RSAEncrypt.getPublicKey(RSAEncrypt.PUBLIC_KEY) ;
-//            ContentValues contentValues = new ContentValues();
-//            contentValues.put(LoginhistorySql.ID, "" + TEST_ID++);
-//            contentValues.put(LoginhistorySql.PASSWORD, RSAEncrypt.encrypt("" + TEST_ID , publicKey));
-//            contentValues.put(LoginhistorySql.ISTOPLOGIN, "false");
-//            contentValues.put(LoginhistorySql.LASTUPDATETIME, simpleDateFormat.format(date));
-//            database.insertOrThrow(LoginhistorySql.TABLE_NAME, null, contentValues);
-//            tiet_PasswordEdit.getText().toString();
-//            Log.d(TAG, "setBt_loginBtb: miwen is :" +  RSAEncrypt.encrypt("" + TEST_ID , publicKey));
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+
 
         if (TextUtils.isEmpty(tiet_UserEdit.getText()) || TextUtils.isEmpty(tiet_PasswordEdit.getText())) {
             ITosast.showShort(LoginActivity.this, "用户名或者密码不能为空")
@@ -241,18 +225,47 @@ public class LoginActivity extends BaseActivity {
                             break;
                         case 0:
                             ITosast.showShort(LoginActivity.this, "登陆成功").show();
-                            /**
-                             * 账号信息本地存储
-                             * 下次系统自动登陆
-                             */
-                            userAutoLoginHelper = UserAutoLoginHelper.getUserAutoLoginHelper(LoginActivity.this) ;
-                            userAutoLoginHelper.setUserName(tiet_UserEdit.getText().toString());
-                            userAutoLoginHelper.setUserPassword(tiet_PasswordEdit.getText().toString());
-                            Log.d(TAG, "gotResult: user:"+tiet_UserEdit.getText().toString() + "  password:"
-                                    +tiet_PasswordEdit.getText().toString());
+                            if (database == null) {
+                                new Exception("database is null object");
+                            }
 
-                            Log.d(TAG, "gotResult: getuser:"+userAutoLoginHelper.getUserName() + "  getpassword:"
-                                    +userAutoLoginHelper.getUserPassword());
+                            try {
+//                                PublicKey publicKey = RSAEncrypt.getPublicKey(RSAEncrypt.PUBLIC_KEY);
+//                                ContentValues contentValues = new ContentValues();
+//                                contentValues.put(LoginhistorySql.ID, "" + tiet_UserEdit.getText().toString());
+//                                contentValues.put(LoginhistorySql.PASSWORD, RSAEncrypt.encrypt("" + TEST_ID, publicKey));
+//                                contentValues.put(LoginhistorySql.ISTOPLOGIN, "false");
+//                                contentValues.put(LoginhistorySql.LASTUPDATETIME, simpleDateFormat.format(date));
+//                                database.insertOrThrow(LoginhistorySql.TABLE_NAME, null, contentValues);
+//                                tiet_PasswordEdit.getText().toString();
+                                /**
+                                 * 插入数据
+                                 */
+                                loginSQLDao.insertData(tiet_UserEdit.getText().toString() , tiet_PasswordEdit.getText().toString());
+
+                                Toast.makeText(LoginActivity.this, "LOGIN", Toast.LENGTH_SHORT).show();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            try {
+                                /**
+                                 * 账号信息本地存储
+                                 * 下次系统自动登陆
+                                 * 用户名直接录入
+                                 * 密码用RSA加密
+                                 */
+                                PublicKey publicKey = RSAEncrypt.getPublicKey(RSAEncrypt.PUBLIC_KEY);
+                                userAutoLoginHelper = UserAutoLoginHelper.getUserAutoLoginHelper(LoginActivity.this);
+                                userAutoLoginHelper.setUserName(tiet_UserEdit.getText().toString());
+                                userAutoLoginHelper.setUserPassword(RSAEncrypt.encrypt(tiet_PasswordEdit.getText().toString(), publicKey));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            Log.d(TAG, "gotResult: user:" + tiet_UserEdit.getText().toString() + "  password:"
+                                    + tiet_PasswordEdit.getText().toString());
+
+                            Log.d(TAG, "gotResult: getuser:" + userAutoLoginHelper.getUserName() + "  getpassword:"
+                                    + userAutoLoginHelper.getUserPassword());
 
                             /**
                              * 初始化用户数据
@@ -635,6 +648,7 @@ public class LoginActivity extends BaseActivity {
 //        }).start();
 
 
+        Toast.makeText(this, "list SIZE" + lists.size(), Toast.LENGTH_SHORT).show();
         /*
           利用万能适配器实现RecyclerView
          */

@@ -18,12 +18,15 @@ import android.widget.Toast;
 import com.example.xkfeng.mycat.DrawableView.CustomDialog;
 import com.example.xkfeng.mycat.DrawableView.SpecialProgressBarView;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.SqlHelper.LoginhistorySql;
 import com.example.xkfeng.mycat.Util.ActivityController;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
+import com.example.xkfeng.mycat.Util.RSAEncrypt;
 import com.example.xkfeng.mycat.Util.UserAutoLoginHelper;
 
 import java.lang.ref.WeakReference;
+import java.security.PrivateKey;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -159,27 +162,42 @@ public class IsFirstActivity extends BaseActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        startActivity(new Intent(IsFirstActivity.this, LoginActivity.class));
-                        JMessageClient.login(userAutoLoginHelper.getUserName(), userAutoLoginHelper.getUserPassword(), new BasicCallback() {
-                            @Override
-                            public void gotResult(int i, String s) {
-                                if (i == 0) {
-                                    initUserInfo();
-                                    Intent intent = new Intent(getApplication(), IndexActivity.class);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                    startActivity(intent);
-                                    //终止当前Activity
-                                    IsFirstActivity.this.finish();
-                                } else {
-                                    /**
-                                     * 登陆失败
-                                     * 进入到登陆界面
-                                     */
-                                    startActivity(new Intent(IsFirstActivity.this, LoginActivity.class));
+                        PrivateKey privateKey = null;
+                        try {
+                            /**
+                             * 用户名直接获取
+                             * 密码需要用RSA解密
+                             */
+                            privateKey = RSAEncrypt.getPrivateKey(RSAEncrypt.PRIVATE_KEY);
+                            JMessageClient.login(userAutoLoginHelper.getUserName(),RSAEncrypt.decrypt(userAutoLoginHelper.getUserPassword() , privateKey) , new BasicCallback() {
+                                @Override
+                                public void gotResult(int i, String s) {
+                                    if (i == 0) {
+                                        initUserInfo();
+                                        Intent intent = new Intent(getApplication(), IndexActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        startActivity(intent);
+                                        //终止当前Activity
+                                        IsFirstActivity.this.finish();
+                                    } else {
+                                        /**
+                                         * 登陆失败
+                                         * 进入到登陆界面
+                                         */
+                                        startActivity(new Intent(IsFirstActivity.this, LoginActivity.class));
 
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        } catch (Exception e) {
+                            /**
+                             * 登陆失败
+                             * 进入到登陆界面
+                             */
+                            startActivity(new Intent(IsFirstActivity.this, LoginActivity.class));
+                            e.printStackTrace();
+                        }
+
                     }
                 }, TIME);
 

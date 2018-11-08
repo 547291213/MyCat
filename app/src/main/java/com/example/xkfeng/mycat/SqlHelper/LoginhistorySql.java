@@ -21,7 +21,6 @@ public class LoginhistorySql extends SQLiteOpenHelper {
 
     public final static String CREATE_DB = "create table "+TABLE_NAME +" (" + ID +
             " text primary key , " + PASSWORD +
-            " text ," + ISTOPLOGIN +
             " text , " + LASTUPDATETIME +
             " text) " ;
     private Context context ;
