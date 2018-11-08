@@ -89,7 +89,7 @@ public class IsFirstActivity extends BaseActivity {
             /**
              * 首次使用引导页
              */
-            Log.d(TAG, "onCreate: user:" + userAutoLoginHelper.getUserName() + "  password:"+userAutoLoginHelper.getUserPassword());
+            Log.d(TAG, "onCreate: user:" + userAutoLoginHelper.getUserName() + "  password:" + userAutoLoginHelper.getUserPassword());
             startActivity(new Intent(IsFirstActivity.this, StartMovieActivity.class));
         } else {
             // 如果不是第一次启动app，则正常显示启动屏
@@ -169,21 +169,24 @@ public class IsFirstActivity extends BaseActivity {
                              * 密码需要用RSA解密
                              */
                             privateKey = RSAEncrypt.getPrivateKey(RSAEncrypt.PRIVATE_KEY);
-                            JMessageClient.login(userAutoLoginHelper.getUserName(),RSAEncrypt.decrypt(userAutoLoginHelper.getUserPassword() , privateKey) , new BasicCallback() {
+                            JMessageClient.login(userAutoLoginHelper.getUserName(), RSAEncrypt.decrypt(userAutoLoginHelper.getUserPassword(), privateKey), new BasicCallback() {
                                 @Override
                                 public void gotResult(int i, String s) {
                                     if (i == 0) {
+
+
                                         initUserInfo();
                                         Intent intent = new Intent(getApplication(), IndexActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                         startActivity(intent);
-                                        //终止当前Activity
-                                        IsFirstActivity.this.finish();
+
                                     } else {
                                         /**
                                          * 登陆失败
                                          * 进入到登陆界面
                                          */
+                                        ITosast.showShort(IsFirstActivity.this, "登陆失败")
+                                                .show();
                                         startActivity(new Intent(IsFirstActivity.this, LoginActivity.class));
 
                                     }

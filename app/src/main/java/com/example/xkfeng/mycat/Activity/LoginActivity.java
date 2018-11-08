@@ -145,6 +145,30 @@ public class LoginActivity extends BaseActivity {
     }
 
     /*
+  完成初始化工作
+ */
+    private void init() {
+
+        //申请权限
+        checkPermission();
+
+
+        //加载背景图片
+        Glide.with(LoginActivity.this).load(getResources().getDrawable(R.drawable.background)).into(iv_backImage);
+
+        //sql和RecyclerView的数据初始化
+        sqlRecyclerViewDataInit();
+
+        //用户drawabkeTextEdit的功能实现
+        userEditInit();
+
+        //密码drawableTextEdit的功能实现
+        passwordEditInit();
+
+
+    }
+
+    /*
        注册按钮点击事件功能实现
      */
     @OnClick(R.id.tv_registerUserTv)
@@ -647,8 +671,6 @@ public class LoginActivity extends BaseActivity {
 //            }
 //        }).start();
 
-
-        Toast.makeText(this, "list SIZE" + lists.size(), Toast.LENGTH_SHORT).show();
         /*
           利用万能适配器实现RecyclerView
          */
@@ -689,10 +711,18 @@ public class LoginActivity extends BaseActivity {
                     @Override
                     public void onClick(View v) {
 
+                        /**
+                         * 将数据从数据列表删除
+                         */
                         mapList.remove(position);
                         lists.remove(position);
                         quickAdapter.notifyDataSetChanged();
-                        Toast.makeText(LoginActivity.this, "Click CLose" + position, Toast.LENGTH_SHORT).show();
+
+                        /**
+                         * 将数据从数据库中删除
+                         */
+                        loginSQLDao.deleteById(data);
+                        Toast.makeText(LoginActivity.this, "Click CLose : " + data, Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -703,29 +733,7 @@ public class LoginActivity extends BaseActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
 
-    /*
-      完成初始化工作
-     */
-    private void init() {
 
-        //申请权限
-        checkPermission();
-
-
-        //加载背景图片
-        Glide.with(LoginActivity.this).load(getResources().getDrawable(R.drawable.background)).into(iv_backImage);
-
-        //sql和RecyclerView的数据初始化
-        sqlRecyclerViewDataInit();
-
-        //用户drawabkeTextEdit的功能实现
-        userEditInit();
-
-        //密码drawableTextEdit的功能实现
-        passwordEditInit();
-
-
-    }
 
     /*
          权限检查

@@ -22,6 +22,7 @@ public class LoginSQLDao {
     private Context mContext;
     private LoginhistorySql loginhistorySql;
     private SQLiteDatabase db;
+    private static final String TAG = "LoginSQLDao";
 
     public LoginSQLDao(Context context) {
 
@@ -56,7 +57,7 @@ public class LoginSQLDao {
 
         cursor = loginhistorySql.getReadableDatabase().query(LoginhistorySql.TABLE_NAME,
                 null, null, null, null, null, null);
-        Log.d("LoginActivity", "queryAllData: count:" + cursor.getCount());
+        Log.d(TAG, "queryAllData: count:" + cursor.getCount());
         //cursor.moveToFirst();
         while (cursor.moveToNext()) {
             Map<String, String> map = new HashMap<>();
@@ -85,10 +86,11 @@ public class LoginSQLDao {
 
         /**
          * 判断数据库中是否存在当前用户数据
-         * 有则直接返回
+         * 有则更新其最近修改的时间然后返回
          */
         if (hasData(id)) {
-            Log.d("LoginActivity", "insertData: Data is exist");
+            Log.d(TAG , "insertData: Data is exist");
+            upDataLastModifyTime(id) ;
             return;
         }
         /**
@@ -97,9 +99,13 @@ public class LoginSQLDao {
          * 那么就删除最近最不常用了一条数据
          */
         Cursor cursor = null;
-        //遍历整个数据库表
+        /**
+         *  遍历整个数据库表
+         *  根据最后修改时间进行排序
+         */
+
         cursor = loginhistorySql.getReadableDatabase().query(LoginhistorySql.TABLE_NAME,
-                null, null, null, null, null, null);
+                null, null, null, null, null, LoginhistorySql.LASTUPDATETIME);
         //根据数据的条目进行处理
         if (cursor.getCount() >= 3) {
             deleteLastModify();
@@ -117,11 +123,11 @@ public class LoginSQLDao {
             db.insertOrThrow(LoginhistorySql.TABLE_NAME, null, contentValues);
           //  db.insert()
         } catch (Exception e) {
-            Log.d("LoginActivity", "insertDataERROR: ");
+            Log.d(TAG, "insertDataERROR: ");
 
             e.printStackTrace();
         }
-        Log.d("LoginActivity", "insertData: ");
+        Log.d(TAG, "insertData: ");
     }
 
     /**
@@ -134,6 +140,23 @@ public class LoginSQLDao {
 
     }
 
+    /**
+     * 删除指定ID的用户数据
+     * @param userName  用户ID
+     */
+    public void deleteById(String  userName){
+        //从Record这个表里找到name=tempName的id
+        Cursor cursor = loginhistorySql.getReadableDatabase().
+                rawQuery(" select * from login_history where id = ? " , new String[]{userName}); //判断是否有下一个 return cursor.moveToNext();
+        if (cursor.moveToNext()) {
+             if (cursor.getString(cursor.getColumnIndex(LoginhistorySql.ID)).equals(userName))
+             {
+                 loginhistorySql.getWritableDatabase().delete(LoginhistorySql.TABLE_NAME, "id = ? ", new String[]{userName});
+             }
+        }
+        cursor.close();
+    }
+
 
     /**
      * 删除最晚更新的一条数据
@@ -143,11 +166,13 @@ public class LoginSQLDao {
         Cursor cursor = loginhistorySql.getReadableDatabase().
                 rawQuery("select * from login_history order by lastUpdateTime asc", null); //判断是否有下一个 return cursor.moveToNext();
 
-        cursor.moveToFirst();
         if (cursor.moveToNext()) {
             String id = cursor.getString(cursor.getColumnIndex(LoginhistorySql.ID));
+            Log.d(TAG, "deleteLastModify: time is " + cursor.getString(cursor.getColumnIndex(LoginhistorySql.LASTUPDATETIME)));
             loginhistorySql.getWritableDatabase().delete(LoginhistorySql.TABLE_NAME, "id = ? ", new String[]{id});
+
         }
+        cursor.close();
 
     }
 
@@ -187,10 +212,10 @@ public class LoginSQLDao {
             ContentValues contentValues = new ContentValues();
             contentValues.put(LoginhistorySql.ID, cursor.getString(cursor.getColumnIndex(LoginhistorySql.ID)));
             contentValues.put(LoginhistorySql.PASSWORD, cursor.getString(cursor.getColumnIndex(LoginhistorySql.PASSWORD)));
-            contentValues.put(LoginhistorySql.ISTOPLOGIN, cursor.getString(cursor.getColumnIndex(LoginhistorySql.ISTOPLOGIN)));
             contentValues.put(LoginhistorySql.LASTUPDATETIME, simpleDateFormat.format(date));
             flag = loginhistorySql.getWritableDatabase().update(LoginhistorySql.TABLE_NAME, contentValues, "id = ?", new String[]{id});
         }
+        cursor.close();
 
         return flag;
     }
