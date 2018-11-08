@@ -248,6 +248,11 @@ public class LoginActivity extends BaseActivity {
                             userAutoLoginHelper = UserAutoLoginHelper.getUserAutoLoginHelper(LoginActivity.this) ;
                             userAutoLoginHelper.setUserName(tiet_UserEdit.getText().toString());
                             userAutoLoginHelper.setUserPassword(tiet_PasswordEdit.getText().toString());
+                            Log.d(TAG, "gotResult: user:"+tiet_UserEdit.getText().toString() + "  password:"
+                                    +tiet_PasswordEdit.getText().toString());
+
+                            Log.d(TAG, "gotResult: getuser:"+userAutoLoginHelper.getUserName() + "  getpassword:"
+                                    +userAutoLoginHelper.getUserPassword());
 
                             /**
                              * 初始化用户数据

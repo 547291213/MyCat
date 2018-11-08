@@ -20,7 +20,6 @@ import cn.jpush.im.android.api.JMessageClient;
 
 public class BaseActivity extends AppCompatActivity {
 
-
     private ForceOfflineReceiver receiver ;
 
     @Override

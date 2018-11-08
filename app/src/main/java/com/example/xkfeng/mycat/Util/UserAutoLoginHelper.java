@@ -3,6 +3,8 @@ package com.example.xkfeng.mycat.Util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.xkfeng.mycat.Activity.BaseActivity;
+
 /**
  * 单例设计模式
  * 1 帮助快捷获取自动登陆需要的相关属性
@@ -17,7 +19,8 @@ public class UserAutoLoginHelper {
     private static SharedPreferences sharedPreferences;
 
     private UserAutoLoginHelper(Context context) {
-        sharedPreferences = context.getApplicationContext().getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
+
+        sharedPreferences = context.getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
     }
 
     /**
@@ -38,8 +41,7 @@ public class UserAutoLoginHelper {
      * 用户名
      */
     public void setUserName(String userName) {
-        sharedPreferences.edit().putString("userName", userName);
-        sharedPreferences.edit().apply();
+        sharedPreferences.edit().putString("userName", userName).commit();
     }
 
     public String getUserName() {
@@ -50,8 +52,8 @@ public class UserAutoLoginHelper {
      * 用户密码
      */
     public void setUserPassword(String userPassword) {
-        sharedPreferences.edit().putString("userPassword", userPassword);
-        sharedPreferences.edit().commit();
+        sharedPreferences.edit().putString("userPassword", userPassword).commit();
+
     }
 
     public String getUserPassword() {
