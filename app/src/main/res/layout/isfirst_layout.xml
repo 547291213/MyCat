@@ -1,13 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#EC5745"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ImageView
+    <com.example.xkfeng.mycat.DrawableView.SpecialProgressBarView
+        android:id="@+id/bv_loadingAnimator"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@mipmap/log"
-        android:scaleType="centerCrop"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="20dp"
+        android:layout_centerInParent="true"
+        app:startDrawable="@drawable/ic_file_upload_white_36dp"
+        app:endSuccessDrawable="@mipmap/log"
+        app:textSize="12sp"
+        app:textColorSuccess="#66A269"
+        app:textColorNormal="#491C14"
+        app:textColorError="#BC5246"
+        app:progressBarHeight="4dp"
+        app:progressBarBgColor="#491C14"
+        app:progressBarColor="#ffffff"
+        app:canReBackable="true"
+        app:canDragable="false"
         />
 
-</LinearLayout>
+
+    <TextView
+        android:id="@+id/iv_loadingText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Loading..."
+        android:textSize="30sp"
+        android:textColor="@color/passwordText_blue"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp"
+        />
+
+
+</RelativeLayout>

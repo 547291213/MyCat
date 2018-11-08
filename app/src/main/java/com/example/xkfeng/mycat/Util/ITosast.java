@@ -128,7 +128,7 @@ public class ITosast {
      * @param context  上下文
      * @return  ITosast object
      */
-    public ITosast loadImage(int resource , Context context){
+    public ITosast loadImage(Context context , int resource){
         if (view != null){
             Glide.with(context).load(resource).into(((ImageView) view.findViewById(R.id.iv_toastImage))) ;
         }

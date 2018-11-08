@@ -56,6 +56,7 @@ import com.example.xkfeng.mycat.Util.ActivityController;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.RSAEncrypt;
+import com.example.xkfeng.mycat.Util.UserAutoLoginHelper;
 
 
 import java.io.File;
@@ -124,6 +125,8 @@ public class LoginActivity extends BaseActivity {
     private PopupWindow window;
 
     private LoginSQLDao loginSQLDao;
+
+    private UserAutoLoginHelper userAutoLoginHelper ;
 
     private static int TEST_ID = 123456;
 
@@ -242,6 +245,9 @@ public class LoginActivity extends BaseActivity {
                              * 账号信息本地存储
                              * 下次系统自动登陆
                              */
+                            userAutoLoginHelper = UserAutoLoginHelper.getUserAutoLoginHelper(LoginActivity.this) ;
+                            userAutoLoginHelper.setUserName(tiet_UserEdit.getText().toString());
+                            userAutoLoginHelper.setUserPassword(tiet_PasswordEdit.getText().toString());
 
                             /**
                              * 初始化用户数据

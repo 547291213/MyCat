@@ -5,7 +5,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.example.xkfeng.mycat"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 27
         versionCode 1
         versionName "1.1"
@@ -41,6 +41,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    
 
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
@@ -103,6 +104,11 @@ dependencies {
     //switchButton
     implementation 'com.github.zcweng:switch-button:0.0.3@aar'
 
+
+
+    //水波纹加载动画
+    // 测试为不可用
+    // implementation 'com.race604.waveloading:library:1.1.1'
 
 
 }
