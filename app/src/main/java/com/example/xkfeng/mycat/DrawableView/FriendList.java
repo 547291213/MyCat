@@ -5,7 +5,6 @@ import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -111,7 +110,7 @@ public class FriendList extends BaseExpandableListAdapter {
          * 用了自定义了Drawabel，用于对是否触摸Group View进行判断和颜色变换处理
          */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            convertView.setBackground(mContext.getResources().getDrawable(R.drawable.friend_group_drawable));
+            convertView.setBackground(mContext.getResources().getDrawable(R.drawable.state_pressed_drawable));
         }
         return convertView;
     }

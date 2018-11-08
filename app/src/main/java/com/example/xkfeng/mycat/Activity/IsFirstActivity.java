@@ -35,8 +35,6 @@ import cn.jpush.im.api.BasicCallback;
 
 public class IsFirstActivity extends BaseActivity {
 
-    @BindView(R.id.iv_loadingText)
-    TextView ivLoadingText;
 
     private SpecialProgressBarView specialProgressBarView;
     /**

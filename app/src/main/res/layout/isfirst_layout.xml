@@ -1,42 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EC5745"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="#EC5745">
 
     <com.example.xkfeng.mycat.DrawableView.SpecialProgressBarView
         android:id="@+id/bv_loadingAnimator"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_centerInParent="true"
         android:layout_marginLeft="50dp"
         android:layout_marginTop="20dp"
-        android:layout_centerInParent="true"
-        app:startDrawable="@drawable/ic_file_upload_white_36dp"
+        app:canDragable="false"
+        app:canReBackable="true"
         app:endSuccessDrawable="@mipmap/log"
-        app:textSize="12sp"
-        app:textColorSuccess="#66A269"
-        app:textColorNormal="#491C14"
-        app:textColorError="#BC5246"
-        app:progressBarHeight="4dp"
         app:progressBarBgColor="#491C14"
         app:progressBarColor="#ffffff"
-        app:canReBackable="true"
-        app:canDragable="false"
-        />
+        app:progressBarHeight="4dp"
+        app:startDrawable="@drawable/ic_file_upload_white_36dp"
+        app:textColorError="#BC5246"
+        app:textColorNormal="#491C14"
+        app:textColorSuccess="#66A269"
+        app:textSize="12sp" />
 
 
-    <TextView
+    <com.example.xkfeng.mycat.DrawableView.FlashTextView
         android:id="@+id/iv_loadingText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Loading..."
-        android:textSize="30sp"
-        android:textColor="@color/passwordText_blue"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="50dp"
-        />
+        android:text="Loading..."
+        android:textColor="@color/white"
+        android:textSize="30sp" />
+
+    <!--<TextView-->
+        <!--android:id="@+id/iv_loadingText"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_marginBottom="50dp"-->
+        <!--android:text="Loading..."-->
+        <!--android:textColor="@color/passwordText_blue"-->
+        <!--android:textSize="30sp" />-->
 
 
 </RelativeLayout>
