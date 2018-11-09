@@ -136,7 +136,7 @@ public class MessageFragment extends Fragment {
                 indexTitleLayout.getPaddingRight(),
                 indexTitleLayout.getPaddingBottom());
 
-//        Log.d("ModifyUserInfoActivity", "setIndexTitleLayout: " + indexTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(mContext));
+//        Log.d("UserInfoActivity", "setIndexTitleLayout: " + indexTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(mContext));
         STATUSBAR_PADDING_lEFT = indexTitleLayout.getPaddingLeft() ;
         STATUSBAR_PADDING_TOP = indexTitleLayout.getPaddingTop();
         STATUSBAR_PADDING_RIGHT = indexTitleLayout.getPaddingRight() ;

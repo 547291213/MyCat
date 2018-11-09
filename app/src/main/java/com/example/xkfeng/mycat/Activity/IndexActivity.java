@@ -1,10 +1,7 @@
 package com.example.xkfeng.mycat.Activity;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,13 +15,9 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.xkfeng.mycat.DrawableView.IndexBottomLayout;
 import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
@@ -128,7 +121,7 @@ public class IndexActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
 
-                startActivity(new Intent(IndexActivity.this , ModifyUserInfoActivity.class));
+                startActivity(new Intent(IndexActivity.this , UserInfoActivity.class));
 //                Toast.makeText(IndexActivity.this, "Image", Toast.LENGTH_SHORT).show();
 
             }

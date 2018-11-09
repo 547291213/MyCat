@@ -111,10 +111,16 @@
 
         </activity>
 
-        <!--Activity : modify user's data-->
-        <activity android:name=".Activity.ModifyUserInfoActivity"
+        <!--Activity : show userinfo-->
+        <activity android:name=".Activity.UserInfoActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             >
+
+        </activity>
+
+        <!--Activity : modify userinfo-->
+        <activity android:name=".Activity.ModifyUserInfoActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
         </activity>
 
