@@ -89,10 +89,11 @@ public class SettingActivity extends BaseActivity {
             @Override
             public void onItem2Click(View view) {
 
-                //转换到修改密码界面
-                Toast.makeText(SettingActivity.this, "修改密码", Toast.LENGTH_SHORT).show();
                 //关闭弹出窗口
                 dialog.dismiss();
+
+                //转换到修改密码界面
+                startActivity(new Intent(SettingActivity.this , ModifyPasswordActivity.class));
             }
 
             @Override

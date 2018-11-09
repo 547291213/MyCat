@@ -17,6 +17,16 @@ import android.widget.TextView;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 
+/**
+ * 多么辣鸡的设计
+ * 针对传入不同的值类型根本就无法做到统一设计
+ * 文字，图片显示效果丢帧
+ *
+ * 是后续情况而定做修改
+ * 泛型设计View（ImageView TextView）
+ *
+ * --------BY AUTHOR
+ */
 public class IndexTitleLayout extends RelativeLayout {
 
     private Button leftBtn;
@@ -118,6 +128,7 @@ public class IndexTitleLayout extends RelativeLayout {
         }
         leftBtn.setTextColor(leftTextColor);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+
             leftBtn.setBackground(leftDrawable);
 
         }

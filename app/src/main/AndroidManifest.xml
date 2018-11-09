@@ -18,11 +18,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         >
-        <activity android:name=".Activity.MainActivity">
 
+        <activity android:name=".Activity.MainActivity">
 
         </activity>
 
+        <!--NOT LOGIN IN-->
+        <!--Activity : Register-->
         <activity android:name=".Activity.RegisterActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:launchMode="singleTask"
@@ -30,6 +32,7 @@
 
         </activity>
 
+        <!--Activity : Login-->
         <activity
             android:name=".Activity.LoginActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"
@@ -38,6 +41,7 @@
 
         </activity>
 
+        <!--Activity : Weather it's the first time start app-->
         <activity
             android:name=".Activity.IsFirstActivity"
             android:noHistory="true"
@@ -50,6 +54,8 @@
 
         </activity>
 
+
+        <!--Activity : leading page animation-->
         <activity
             android:name=".Activity.StartMovieActivity"
             android:noHistory="true"
@@ -57,6 +63,7 @@
             >
         </activity>
 
+        <!--Activity : user-protocol-->
         <activity
             android:name=".Activity.ProtocolActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"
@@ -65,6 +72,9 @@
 
         </activity>
 
+
+        <!--LOGIN IN-->
+        <!--Activity : user-index page .-->
         <activity android:name=".Activity.IndexActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
 
@@ -73,6 +83,7 @@
 
         </activity>
 
+        <!--Activity : search data for user-->
         <activity android:name=".Activity.SearchActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
 
@@ -80,22 +91,33 @@
 
         </activity>
 
+        <!--Activity : about the project and the author-->
         <activity android:name=".Activity.AboutActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
 
             />
 
+        <!--Activity : user-setting -->
         <activity android:name=".Activity.SettingActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             >
 
         </activity>
 
+        <!--Activity : modify user's password -->
+        <activity android:name=".Activity.ModifyPasswordActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            >
+
+        </activity>
+
+        <!--Activity : user create group chat-->
         <activity android:name=".Activity.CreateGroupChatActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
 
             />
 
+        <!--Activity : user add buddy group-->
         <activity android:name=".Activity.AddBuddyGroupActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
 
