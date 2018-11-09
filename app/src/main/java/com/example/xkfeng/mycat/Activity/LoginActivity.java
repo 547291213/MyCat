@@ -218,9 +218,9 @@ public class LoginActivity extends BaseActivity {
 
 
         if (TextUtils.isEmpty(tiet_UserEdit.getText()) || TextUtils.isEmpty(tiet_PasswordEdit.getText())) {
-            ITosast.showShort(LoginActivity.this, "用户名或者密码不能为空")
-                    .setTextColor(getResources().getColor(R.color.transparent))
-                    .setTextSize(20)
+            ITosast.showShort(getApplicationContext(), "用户名或者密码不能为空")
+                    .setTextColor(getResources().getColor(R.color.pale_white))
+                    .setTextSize(18)
                     .show();
 
         } else {
@@ -239,16 +239,16 @@ public class LoginActivity extends BaseActivity {
                     dialog.dismiss();
                     switch (i) {
                         case 801003:
-                            ITosast.showShort(LoginActivity.this, "用户名不存在").show();
+                            ITosast.showShort(getApplicationContext(), "用户名不存在").show();
                             break;
                         case 871301:
-                            ITosast.showShort(LoginActivity.this, "密码格式错误").show();
+                            ITosast.showShort(getApplicationContext(), "密码格式错误").show();
                             break;
                         case 801004:
-                            ITosast.showShort(LoginActivity.this, "密码错误").show();
+                            ITosast.showShort(getApplicationContext(), "密码错误").show();
                             break;
                         case 0:
-                            ITosast.showShort(LoginActivity.this, "登陆成功").show();
+                            ITosast.showShort(getApplicationContext(), "登陆成功").show();
                             if (database == null) {
                                 new Exception("database is null object");
                             }
@@ -267,7 +267,6 @@ public class LoginActivity extends BaseActivity {
                                  */
                                 loginSQLDao.insertData(tiet_UserEdit.getText().toString() , tiet_PasswordEdit.getText().toString());
 
-                                Toast.makeText(LoginActivity.this, "LOGIN", Toast.LENGTH_SHORT).show();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -285,11 +284,11 @@ public class LoginActivity extends BaseActivity {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            Log.d(TAG, "gotResult: user:" + tiet_UserEdit.getText().toString() + "  password:"
-                                    + tiet_PasswordEdit.getText().toString());
-
-                            Log.d(TAG, "gotResult: getuser:" + userAutoLoginHelper.getUserName() + "  getpassword:"
-                                    + userAutoLoginHelper.getUserPassword());
+//                            Log.d(TAG, "gotResult: user:" + tiet_UserEdit.getText().toString() + "  password:"
+//                                    + tiet_PasswordEdit.getText().toString());
+//
+//                            Log.d(TAG, "gotResult: getuser:" + userAutoLoginHelper.getUserName() + "  getpassword:"
+//                                    + userAutoLoginHelper.getUserPassword());
 
                             /**
                              * 初始化用户数据
@@ -298,7 +297,7 @@ public class LoginActivity extends BaseActivity {
 
                             break;
                         default:
-                            ITosast.showShort(LoginActivity.this, s).show();
+                            ITosast.showShort(getApplicationContext(), s).show();
                             break;
                     }
 
@@ -316,6 +315,7 @@ public class LoginActivity extends BaseActivity {
         dialog.setText("正在初始化");
         dialog.show();
 
+        //拉取用户数据
         JMessageClient.getUserInfo(id, new GetUserInfoCallback() {
             @Override
             public void gotResult(int i, String s, UserInfo userInfo) {

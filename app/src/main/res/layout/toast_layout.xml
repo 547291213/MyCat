@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ly_toastBackGround"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center"
+    android:background="@drawable/toast_background"
     >
 
     <ImageView
         android:id="@+id/iv_toastImage"
         android:layout_width="30dp"
         android:layout_height="30dp"
+        android:layout_marginLeft="10dp"
         android:scaleType="centerCrop"
         android:src="@mipmap/log"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+
 
         />
 
@@ -19,11 +25,13 @@
         android:id="@+id/tv_toastText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
+        android:textSize="18sp"
+        android:textColor="@color/pale_white"
         android:gravity="center"
-        android:layout_marginTop="2dp"
         android:layout_marginLeft="5dp"
-
+        android:layout_marginRight="10dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
         />
 
 

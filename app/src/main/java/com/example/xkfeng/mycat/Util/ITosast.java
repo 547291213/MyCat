@@ -11,7 +11,9 @@ import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.R;
 
 /**
- * 单例设计模式
+ * 单例设计
+ * 仅仅ITosast对象单例
+ * Toast对象非单例，实现调用处可定制
  */
 public class ITosast {
 
@@ -23,7 +25,7 @@ public class ITosast {
     private ITosast() {
     }
 
-    public static ITosast getInstance() {
+    private static ITosast getInstance() {
         if (instance == null) {
             synchronized (ITosast.class) {
                 if (instance == null) {
@@ -72,6 +74,7 @@ public class ITosast {
         toast = new Toast(context);
         toast.setDuration(time);
         toast.setView(view);
+
         return ITosast.getInstance();
     }
 
