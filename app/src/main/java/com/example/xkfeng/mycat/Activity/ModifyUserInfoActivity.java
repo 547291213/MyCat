@@ -1,12 +1,20 @@
 package com.example.xkfeng.mycat.Activity;
 
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
@@ -21,17 +29,24 @@ import cn.jpush.im.android.api.JMessageClient;
 
 public class ModifyUserInfoActivity extends BaseActivity {
 
-    @BindView(R.id.iv_userinfoImage)
-    ImageView ivUserinfoImage;
-    @BindView(R.id.uisv_scrollView)
-    UserInfoScrollView uisvScrollView;
-
     private static final String TAG = "ModifyUserInfoActivity";
     @BindView(R.id.indexTitleLayout)
     IndexTitleLayout indexTitleLayout;
+    @BindView(R.id.bt_modifyUserinfoBtn)
+    Button btModifyUserinfoBtn;
+    @BindView(R.id.tv_personallyLaber)
+    TextView tvPersonallyLaber;
+    @BindView(R.id.tv_addPersonallyLaberView)
+
+    TextView tvAddPersonallyLaberView;
     private int height;
     private Boolean flag = true;
 
+    private ImageView userInfoBkImage;
+    private Matrix matrix;
+    private UserInfoScrollView userInfoScrollView;
+
+    private LinearLayout ll_userinfoImgBgLayout ;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
 
@@ -51,21 +66,39 @@ public class ModifyUserInfoActivity extends BaseActivity {
     private void initView() {
 
         /**
+         * 艺术字
+         */
+        String fonts = "fonts/font_1.ttf";
+        Typeface typeface = Typeface.createFromAsset(getAssets(), fonts);
+        tvPersonallyLaber.setTypeface(typeface);
+        tvAddPersonallyLaberView.setTypeface(typeface);
+
+
+        /**
          * 设置显示用户名
          */
         indexTitleLayout.setMiddleText(JMessageClient.getMyInfo().getUserName() + "的资料");
 
 
-        ViewTreeObserver viewTreeObserver = ivUserinfoImage.getViewTreeObserver();
+        userInfoBkImage = findViewById(R.id.iv_userinfoImage);
+        userInfoScrollView = findViewById(R.id.uisv_scrollView);
+
+        ll_userinfoImgBgLayout = findViewById(R.id.ll_userinfoImgBgLayout)  ;
+        /**
+         * 初始化背景图片数据
+         */
+        matrix = new Matrix();
+
+        ViewTreeObserver viewTreeObserver = userInfoBkImage.getViewTreeObserver();
         viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                Log.d(TAG, "onGlobalLayout: befor: " +  uisvScrollView.getPaddingTop());
+                Log.d(TAG, "onGlobalLayout: befor: " + userInfoScrollView.getPaddingTop());
                 indexTitleLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                Log.d(TAG, "onGlobalLayout: after : " + uisvScrollView.getPaddingTop());
-                height = ivUserinfoImage.getHeight();
+                Log.d(TAG, "onGlobalLayout: after : " + userInfoScrollView.getPaddingTop());
+                height = userInfoBkImage.getHeight();
 
-                uisvScrollView.setScrollChangedListener(new UserInfoScrollView.ScrollChangedListener() {
+                userInfoScrollView.setScrollChangedListener(new UserInfoScrollView.ScrollChangedListener() {
                     @Override
                     public void onScrollChanged(int l, int y, int oldl, int oldt) {
 
@@ -74,7 +107,16 @@ public class ModifyUserInfoActivity extends BaseActivity {
                          */
                         if (flag) {
                             flag = false;
+                            //设置标题的背景颜色
+                            indexTitleLayout.setBackgroundColor(Color.argb((int) 0, 144, 151, 166));
+                            indexTitleLayout.setLeftBtnDrawable(IndexTitleLayout.NULL_DRAWABLE);
+                            indexTitleLayout.setMiddleTextColor(Color.argb((int) 0,144, 151, 166));
                             indexTitleLayout.setVisibility(View.VISIBLE);
+
+//                            Animation animation = AnimationUtils.loadAnimation(ModifyUserInfoActivity.this , R.anim.userinof_bkimg_scale) ;
+//                            userInfoBkImage.startAnimation(animation);
+
+                            Log.d(TAG, "onScrollChanged: startAnimator");
                         }
 
                         if (y <= 0) {
@@ -82,10 +124,19 @@ public class ModifyUserInfoActivity extends BaseActivity {
                             indexTitleLayout.setBackgroundColor(Color.argb((int) 0, 144, 151, 166));
                             indexTitleLayout.setLeftBtnDrawable(IndexTitleLayout.NULL_DRAWABLE);
 
+                            /**
+                             * 起点处下拉
+                             * 实现布局缩放，图片会跟随布局缩放
+                             */
+                            matrix.setScale((float)(1.0-y*1.0/200) , (float)(1.0-y*1.0/80));
+                            ll_userinfoImgBgLayout.setScaleX((float)(1.0-y*1.0/200));
+                            ll_userinfoImgBgLayout.setScaleY((float)(1.0-y*1.0/80));
+                            //userInfoBkImage.setImageMatrix(matrix);
 
                             /**
                              * 设置标题栏属性
                              */
+
                             setIndexTitleLayout();
                         } else if (y > 0 && y <= height) {
                             //滑动距离小于banner图的高度时，设置背景和字体颜色颜色透明度渐变
@@ -94,6 +145,7 @@ public class ModifyUserInfoActivity extends BaseActivity {
                             indexTitleLayout.setMiddleTextColor(Color.argb((int) alpha, 255, 255, 255));
                             indexTitleLayout.setBackgroundColor(Color.argb((int) alpha, 144, 151, 166));
                             indexTitleLayout.setLeftBtnDrawable(R.drawable.back_white);
+
 
                             /**
                              * 设置标题栏属性
@@ -148,9 +200,9 @@ public class ModifyUserInfoActivity extends BaseActivity {
 //                " statusHeight:" + DensityUtil.getStatusHeight(this));
 
 
-        indexTitleLayout.setPadding(MessageFragment.STATUSBAR_PADDING_lEFT ,
-                MessageFragment.STATUSBAR_PADDING_TOP ,
-                MessageFragment.STATUSBAR_PADDING_RIGHT ,
+        indexTitleLayout.setPadding(MessageFragment.STATUSBAR_PADDING_lEFT,
+                MessageFragment.STATUSBAR_PADDING_TOP,
+                MessageFragment.STATUSBAR_PADDING_RIGHT,
                 MessageFragment.STATUSBAR_PADDING_BOTTOM);
 
 
