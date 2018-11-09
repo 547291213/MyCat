@@ -82,6 +82,7 @@ public class ModifyUserInfoActivity extends BaseActivity {
                             indexTitleLayout.setBackgroundColor(Color.argb((int) 0, 144, 151, 166));
                             indexTitleLayout.setLeftBtnDrawable(IndexTitleLayout.NULL_DRAWABLE);
 
+
                             /**
                              * 设置标题栏属性
                              */
