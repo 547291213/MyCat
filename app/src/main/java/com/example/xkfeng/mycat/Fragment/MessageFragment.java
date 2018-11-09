@@ -54,6 +54,11 @@ public class MessageFragment extends Fragment {
     private Context mContext;
     private ListSlideView listSlideView ;
 
+    public static int STATUSBAR_PADDING_lEFT ;
+    public static int STATUSBAR_PADDING_TOP ;
+    public static int STATUSBAR_PADDING_RIGHT ;
+    public static int STATUSBAR_PADDING_BOTTOM ;
+
     private PopupMenuLayout popupMenuLayout_CONTENT ;
     private PopupMenuLayout popupMenuLayout_MENU ;
     @Nullable
@@ -130,6 +135,13 @@ public class MessageFragment extends Fragment {
                 indexTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(mContext),
                 indexTitleLayout.getPaddingRight(),
                 indexTitleLayout.getPaddingBottom());
+
+//        Log.d("ModifyUserInfoActivity", "setIndexTitleLayout: " + indexTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(mContext));
+        STATUSBAR_PADDING_lEFT = indexTitleLayout.getPaddingLeft() ;
+        STATUSBAR_PADDING_TOP = indexTitleLayout.getPaddingTop();
+        STATUSBAR_PADDING_RIGHT = indexTitleLayout.getPaddingRight() ;
+        STATUSBAR_PADDING_BOTTOM = indexTitleLayout.getPaddingBottom() ;
+
 
 //        设置点击事件监听
         indexTitleLayout.setTitleItemClickListener(new IndexTitleLayout.TitleItemClickListener() {

@@ -12,6 +12,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -37,6 +38,7 @@ import com.example.xkfeng.mycat.Util.ITosast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.jpush.im.android.api.JMessageClient;
 
 /**
  * Created by initializing on 2018/10/7.
@@ -81,6 +83,7 @@ public class IndexActivity extends BaseActivity {
 
     //两次点击退出的时间间隔
     private static final int MAX_EXIT_TIME = 2000;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,12 +119,29 @@ public class IndexActivity extends BaseActivity {
      */
     private void setNavView() {
 
-        navView.getHeaderView(0).setOnClickListener(new View.OnClickListener() {
+        /**
+         * 用户头像点击进行页面跳转
+         * 进行用户属性的设置
+         */
+        View view = navView.getHeaderView(0) ;
+        view.findViewById(R.id.iv_navigationHeaderImage).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(IndexActivity.this, "Image", Toast.LENGTH_SHORT).show();
+
+                startActivity(new Intent(IndexActivity.this , ModifyUserInfoActivity.class));
+//                Toast.makeText(IndexActivity.this, "Image", Toast.LENGTH_SHORT).show();
+
             }
         });
+
+
+        /**
+         * 加载用户名和昵称
+         */
+        Log.e(TAG, "setNavView: count : "  + navView.getHeaderCount());
+        ((TextView) view.findViewById(R.id.tv_userName)).setText(JMessageClient.getMyInfo().getUserName());
+        ((TextView) view.findViewById(R.id.tv_signatureTextView)).setText(TextUtils.isEmpty(JMessageClient.getMyInfo().getNickname()) == false ?
+                JMessageClient.getMyInfo().getNickname() : getResources().getString(R.string.nav_header_subtitle));
 
         //点击事件处理
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -440,14 +460,14 @@ public class IndexActivity extends BaseActivity {
         Log.d(TAG, "onKeyDown: " + keyCode);
 
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-            if ( (System.currentTimeMillis() - lastExitTime) > MAX_EXIT_TIME) {
+            if ((System.currentTimeMillis() - lastExitTime) > MAX_EXIT_TIME) {
                 ITosast.showShort(IndexActivity.this, "再按一次退出程序").show();
-                lastExitTime = System.currentTimeMillis() ;
+                lastExitTime = System.currentTimeMillis();
             } else {
                 //退出程序
                 ActivityController.finishAll();
             }
-            return true ;
+            return true;
         }
         return super.onKeyDown(keyCode, event);
     }

@@ -111,6 +111,13 @@
 
         </activity>
 
+        <!--Activity : modify user's data-->
+        <activity android:name=".Activity.ModifyUserInfoActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            >
+
+        </activity>
+
         <!--Activity : user create group chat-->
         <activity android:name=".Activity.CreateGroupChatActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"

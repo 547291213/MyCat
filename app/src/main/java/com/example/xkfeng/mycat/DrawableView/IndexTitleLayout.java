@@ -21,10 +21,10 @@ import com.example.xkfeng.mycat.Util.DensityUtil;
  * 多么辣鸡的设计
  * 针对传入不同的值类型根本就无法做到统一设计
  * 文字，图片显示效果丢帧
- *
+ * <p>
  * 是后续情况而定做修改
  * 泛型设计View（ImageView TextView）
- *
+ * <p>
  * --------BY AUTHOR
  */
 public class IndexTitleLayout extends RelativeLayout {
@@ -48,6 +48,8 @@ public class IndexTitleLayout extends RelativeLayout {
     private Drawable rightDrawable;
 
     private Drawable layoutDrawable;
+
+    public static final int NULL_DRAWABLE = 0 ;
 
     public IndexTitleLayout(Context context) {
         this(context, null);
@@ -116,10 +118,10 @@ public class IndexTitleLayout extends RelativeLayout {
         //不为空需要把该View的lp的宽度设置为wrap_content
         if (!TextUtils.isEmpty(leftText)) {
 
-            LayoutParams lp  = (LayoutParams) leftBtn.getLayoutParams();
-            lp.width = LayoutParams.WRAP_CONTENT ;
-            lp.height = LayoutParams.WRAP_CONTENT ;
-            lp.setMargins(-3,-3,-3,-3);
+            LayoutParams lp = (LayoutParams) leftBtn.getLayoutParams();
+            lp.width = LayoutParams.WRAP_CONTENT;
+            lp.height = LayoutParams.WRAP_CONTENT;
+            lp.setMargins(-3, -3, -3, -3);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 leftBtn.setTextAlignment(TEXT_ALIGNMENT_VIEW_START);
             }
@@ -151,13 +153,13 @@ public class IndexTitleLayout extends RelativeLayout {
         if (!TextUtils.isEmpty(rightText)) {
 
             //获取现有View的LayoutParames
-            LayoutParams lp  = (LayoutParams) rightBtn.getLayoutParams();
+            LayoutParams lp = (LayoutParams) rightBtn.getLayoutParams();
             //设置LayoutParames的宽和高都为与内容匹配
-            lp.width = LayoutParams.WRAP_CONTENT ;
+            lp.width = LayoutParams.WRAP_CONTENT;
             lp.height = LayoutParams.WRAP_CONTENT;
             //设置margin
             // 如果不设置会出现MessageFragment和后面两个Fragment的标题栏高度不一致 UI效果很差
-            lp.setMargins(-3,-3,-3,-3);
+            lp.setMargins(-3, -3, -3, -3);
             //设置文字内容居右
             //很奇怪：如果不设置，文字和右边的的距离偏大
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -211,4 +213,27 @@ public class IndexTitleLayout extends RelativeLayout {
         public void rightViewClick(View view);
     }
 
+    public void setMiddleTextColor(int color) {
+        if (middleTextView != null) {
+            middleTextView.setTextColor(color);
+        }
+    }
+
+    public void setMiddleText(String string) {
+        if (middleTextView != null) {
+            middleTextView.setText(string);
+        }
+    }
+
+    public void setLeftBtnDrawable(int resources) {
+
+        if (leftBtn != null) {
+
+            if (resources == NULL_DRAWABLE) {
+                leftBtn.setBackground(null);
+            } else {
+                leftBtn.setBackground(getResources().getDrawable(resources));
+            }
+        }
+    }
 }

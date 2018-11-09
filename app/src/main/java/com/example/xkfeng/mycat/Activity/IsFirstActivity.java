@@ -12,6 +12,8 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -93,6 +95,11 @@ public class IsFirstActivity extends BaseActivity {
             startActivity(new Intent(IsFirstActivity.this, StartMovieActivity.class));
         } else {
             // 如果不是第一次启动app，则正常显示启动屏
+            //全屏显示
+            //需要在加载布局之前
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
             setContentView(R.layout.isfirst_layout);
             /**
              * 登陆等待动画
@@ -162,6 +169,8 @@ public class IsFirstActivity extends BaseActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
+
+
                         PrivateKey privateKey = null;
                         try {
                             /**
