@@ -17,4 +17,10 @@
     <color name="waveColor1">#12c9d6</color>
     <color name="black">#f000</color>
     <color name="lightGreen">#7adfb8</color>
+
+    <!-- For settings framework -->
+    <color name="lighter_gray">#ddd</color>
+    <!-- A dark gray, equivalent to 0xffaaaaaa -->
+    <color name="darker_gray">#aaa</color>
+
 </resources>

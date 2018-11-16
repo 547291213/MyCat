@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <com.example.xkfeng.mycat.DrawableView.IndexTitleLayout
+        android:id="@+id/indexTitleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:leftBackground="@drawable/back_white"
+        app:middleText="编辑资料"
+        app:middleTextColor="@color/light_blue"
+        app:layoutBackground="@drawable/title_gradient"
+        />
+
+
+    <View
+        android:id="@+id/view_divider1"
+        android:paddingTop="25dp"
+        android:layout_width="match_parent"
+        android:layout_height="0.1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@id/indexTitleLayout"
+        />
+
+
+    <LinearLayout
+        android:id="@+id/ll_userHeaderLayout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:layout_below="@id/view_divider1"
+        >
+        <TextView
+            android:layout_width="100dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="15dp"
+            android:text="头像"
+            android:textSize="16sp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/tv_modifyUserAvatar"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:paddingRight="15dp"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:drawableRight="@drawable/bigger"/>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/view_divider2"
+        android:layout_width="match_parent"
+        android:layout_height="0.1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@id/ll_userHeaderLayout"
+        />
+
+    <LinearLayout
+        android:id="@+id/ll_userSignatureLayout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:layout_below="@id/view_divider2"
+        >
+        <TextView
+            android:layout_width="100dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="15dp"
+            android:text="签名"
+            android:textSize="16sp"
+            android:layout_height="match_parent" />
+
+        <EditText
+            android:id="@+id/et_modifyUserSignature"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:paddingRight="15dp"
+            android:hint="填写个性签名"
+            android:background="@null"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:drawableRight="@drawable/bigger"/>
+    </LinearLayout>
+
+    <View
+
+        android:id="@+id/view_divider3"
+        android:layout_width="match_parent"
+        android:layout_height="0.1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@id/ll_userSignatureLayout"
+        />
+
+    <View
+
+        android:id="@+id/view_divider4"
+        android:layout_marginTop="25dp"
+        android:layout_width="match_parent"
+        android:layout_height="0.1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@id/view_divider3"
+
+        />
+
+    <LinearLayout
+        android:id="@+id/ll_userNickNameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:layout_below="@id/view_divider4"
+        >
+        <TextView
+            android:layout_width="100dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="15dp"
+            android:text="昵称"
+            android:textSize="16sp"
+            android:layout_height="match_parent" />
+
+        <EditText
+            android:id="@+id/et_modifyUserNickName"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:paddingRight="15dp"
+            android:hint="填写昵称"
+            android:background="@null"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:drawableRight="@drawable/bigger"/>
+    </LinearLayout>
+
+
+    <View
+        android:id="@+id/view_divider5"
+        android:layout_width="match_parent"
+        android:layout_height="0.1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@id/ll_userNickNameLayout"
+        />
+
+    <LinearLayout
+        android:id="@+id/ll_userSexLayout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:layout_below="@id/view_divider5"
+        >
+        <TextView
+            android:layout_width="100dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="15dp"
+            android:text="性别"
+            android:textSize="16sp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/tv_modifyUserSex"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:paddingRight="15dp"
+            android:background="@null"
+            android:textSize="16sp"
+            android:text="男"
+            android:drawableRight="@drawable/bigger"/>
+    </LinearLayout>
+
+    <View
+
+        android:id="@+id/view_divider6"
+        android:layout_width="match_parent"
+        android:layout_height="0.1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@id/ll_userSexLayout"
+        />
+
+    <LinearLayout
+
+        android:id="@+id/ll_userBirthLayout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:layout_below="@id/view_divider6"
+        >
+        <TextView
+            android:layout_width="100dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="15dp"
+            android:text="生日"
+            android:textSize="16sp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/tv_modifyUserBirthday"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:paddingRight="15dp"
+            android:background="@null"
+            android:textSize="16sp"
+            android:text="1993-7-2"
+            android:drawableRight="@drawable/bigger"
+            />
+    </LinearLayout>
+
+    <View
+
+        android:id="@+id/view_divider7"
+        android:layout_width="match_parent"
+        android:layout_height="0.1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@id/ll_userBirthLayout"
+        />
+
+    <LinearLayout
+        android:id="@+id/ll_userAddressLayout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:layout_below="@id/view_divider7"
+        >
+        <TextView
+            android:layout_width="100dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="15dp"
+            android:text="地址"
+            android:textSize="16sp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/tv_modifyUserAddress"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:paddingRight="15dp"
+            android:background="@null"
+            android:textSize="16sp"
+            android:text="重庆-南岸"
+            android:drawableRight="@drawable/bigger"/>
+    </LinearLayout>
+    <View
+
+        android:id="@+id/view_divider8"
+        android:layout_width="match_parent"
+        android:layout_height="0.1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@id/ll_userAddressLayout"
+        />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</RelativeLayout>

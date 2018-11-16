@@ -7,7 +7,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.CollapsibleActionView;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
@@ -34,11 +33,12 @@ public class UserInfoActivity extends BaseActivity {
     IndexTitleLayout indexTitleLayout;
     @BindView(R.id.bt_modifyUserinfoBtn)
     Button btModifyUserinfoBtn;
+
     @BindView(R.id.tv_personallyLaber)
     TextView tvPersonallyLaber;
     @BindView(R.id.tv_addPersonallyLaberView)
-
     TextView tvAddPersonallyLaberView;
+
     @BindView(R.id.tv_userInfoUserSex)
     TextView tvUserInfoUserSex;
     @BindView(R.id.tv_userInfoUserBirthday)
@@ -47,8 +47,13 @@ public class UserInfoActivity extends BaseActivity {
     TextView tvUserInfoUserCity;
     @BindView(R.id.tv_userInfoUserLastUpdate)
     TextView tvUserInfoUserLastUpdate;
+    @BindView(R.id.iv_userinfoImage)
+    ImageView ivUserinfoImage;
+
+
     @BindView(R.id.uisv_scrollView)
     UserInfoScrollView uisvScrollView;
+
     private int height;
     private Boolean flag = true;
 
@@ -68,6 +73,20 @@ public class UserInfoActivity extends BaseActivity {
          * 主显示布局的初始化
          */
         initView();
+
+        /**
+         * 设置用户数据
+         */
+        setUserInfo();
+    }
+
+    /**
+     * 调用极光来获取当前用户的数据
+     */
+    private void setUserInfo() {
+
+
+        
     }
 
     /**
@@ -264,8 +283,8 @@ public class UserInfoActivity extends BaseActivity {
     }
 
     @OnClick({R.id.tv_personallyLaber, R.id.tv_addPersonallyLaberView})
-    public void onLaberClick(View view){
-        ITosast.showShort(UserInfoActivity.this , "个性标签")
+    public void onLaberClick(View view) {
+        ITosast.showShort(UserInfoActivity.this, "个性标签")
                 .show();
     }
 

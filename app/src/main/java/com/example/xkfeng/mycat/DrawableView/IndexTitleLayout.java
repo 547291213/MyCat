@@ -3,6 +3,7 @@ package com.example.xkfeng.mycat.DrawableView;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.TextUtils;
@@ -131,8 +132,10 @@ public class IndexTitleLayout extends RelativeLayout {
         leftBtn.setTextColor(leftTextColor);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                leftBtn.setBackgroundTintMode(PorterDuff.Mode.LIGHTEN);
+            }
             leftBtn.setBackground(leftDrawable);
-
         }
         //设置点击事件
         leftBtn.setOnClickListener(new OnClickListener() {

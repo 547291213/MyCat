@@ -110,5 +110,7 @@ dependencies {
     // 测试为不可用
     // implementation 'com.race604.waveloading:library:1.1.1'
 
+    //事件选择器框架
+    implementation 'com.contrarywind:Android-PickerView:4.1.6'
 
 }

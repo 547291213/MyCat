@@ -113,6 +113,12 @@ public class BottomDialog extends Dialog {
         public void onItem3Click(View view) ;
     }
 
+    public void setTextViewColor(int color){
+        textView1.setTextColor(color);
+        textView2.setTextColor(color);
+        textView3.setTextColor(color);
+    }
+
     //点击事件的处理
     public class ClickListener implements View.OnClickListener
     {
