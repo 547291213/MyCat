@@ -86,7 +86,7 @@ public class UserInfoActivity extends BaseActivity {
     private void setUserInfo() {
 
 
-        
+
     }
 
     /**
@@ -286,6 +286,16 @@ public class UserInfoActivity extends BaseActivity {
     public void onLaberClick(View view) {
         ITosast.showShort(UserInfoActivity.this, "个性标签")
                 .show();
+    }
+
+
+    /**
+     * 当界面可见
+     * 用于当用户在修改了用户资料返回来之后同步更新数据
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
 }
