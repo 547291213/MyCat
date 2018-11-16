@@ -85,6 +85,13 @@ public class IndexBottomLayout extends LinearLayout {
     //内层图片转动时间间隔
     private static int DELAY = 10;
 
+    //显示标题View
+    private TextView textView ;
+
+    //标题内容
+    private String textTitle ;
+
+
     public IndexBottomLayout(Context context) {
         this(context, null);
     }
@@ -115,6 +122,7 @@ public class IndexBottomLayout extends LinearLayout {
         iconWidth = array.getResourceId(R.styleable.IndexBottomLayout_iconWidth, 60);
         iconHeight = array.getResourceId(R.styleable.IndexBottomLayout_iconHeight, 60);
         mRange = array.getResourceId(R.styleable.IndexBottomLayout_range, 1);
+        textTitle = array.getNonResourceString(R.styleable.IndexBottomLayout_title ) ;
         //释放资源
         array.recycle();
 
@@ -134,6 +142,9 @@ public class IndexBottomLayout extends LinearLayout {
 
         mBigIconView.setImageResource(mBigBitmapSrc);
         mSmallIconView.setImageResource(mSmallBitmapSrc);
+
+        textView = (TextView)mView.findViewById(R.id.bottom_title) ;
+        textView.setText(textTitle);
 
         //设置布局  params
         LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);

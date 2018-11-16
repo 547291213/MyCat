@@ -236,4 +236,10 @@ public class IndexTitleLayout extends RelativeLayout {
             }
         }
     }
+
+    public void setLeftBtnVisiavle(int visiavle){
+        if (leftBtn != null){
+            leftBtn.setVisibility(visiavle);
+        }
+    }
 }

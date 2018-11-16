@@ -107,7 +107,7 @@ public class UserInfoActivity extends BaseActivity {
                 indexTitleLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 Log.d(TAG, "onGlobalLayout: after : " + userInfoScrollView.getPaddingTop());
                 height = userInfoBkImage.getHeight();
-
+                uisvScrollView.setSmoothScrollingEnabled(true);
                 userInfoScrollView.setScrollChangedListener(new UserInfoScrollView.ScrollChangedListener() {
                     @Override
                     public void onScrollChanged(int l, int y, int oldl, int oldt) {
@@ -121,6 +121,8 @@ public class UserInfoActivity extends BaseActivity {
                             indexTitleLayout.setBackgroundColor(Color.argb((int) 0, 144, 151, 166));
                             indexTitleLayout.setLeftBtnDrawable(IndexTitleLayout.NULL_DRAWABLE);
                             indexTitleLayout.setMiddleTextColor(Color.argb((int) 0, 144, 151, 166));
+                            //隐藏返回按钮
+                            indexTitleLayout.setLeftBtnVisiavle(View.GONE);
                             indexTitleLayout.setVisibility(View.VISIBLE);
 
 //                            Animation animation = AnimationUtils.loadAnimation(UserInfoActivity.this , R.anim.userinof_bkimg_scale) ;
@@ -134,14 +136,23 @@ public class UserInfoActivity extends BaseActivity {
                             indexTitleLayout.setBackgroundColor(Color.argb((int) 0, 144, 151, 166));
                             indexTitleLayout.setLeftBtnDrawable(IndexTitleLayout.NULL_DRAWABLE);
 
+                            //隐藏返回按钮
+                            indexTitleLayout.setLeftBtnVisiavle(View.GONE);
+
                             /**
                              * 起点处下拉
                              * 实现布局缩放，图片会跟随布局缩放
                              */
-                            matrix.setScale((float) (1.0 - y * 1.0 / 200), (float) (1.0 - y * 1.0 / 80));
-                            ll_userinfoImgBgLayout.setScaleX((float) (1.0 - y * 1.0 / 200));
-                            ll_userinfoImgBgLayout.setScaleY((float) (1.0 - y * 1.0 / 80));
-                            //userInfoBkImage.setImageMatrix(matrix);
+                            matrix.setScale((float) (1.0 - y * 1.0 / 2000), (float) (1.0 - y * 1.0 / 200));
+                            ll_userinfoImgBgLayout.setScaleX((float) (1.0 - y * 1.0 / 2000));
+                            ll_userinfoImgBgLayout.setScaleY((float) (1.0 - y * 1.0 / 800));
+//                            userInfoBkImage.setScaleType(ImageView.ScaleType.MATRIX);
+//                            userInfoBkImage.setImageMatrix(matrix);
+//                            uisvScrollView.setScrollY(DensityUtil.dip2px(UserInfoActivity.this , (float) (-100-y*1.0/80)));
+
+                            ll_userinfoImgBgLayout.setScrollY(-uisvScrollView.getScrollY());
+//                            ll_userinfoImgBgLayout.setScrollY(DensityUtil.dip2px(UserInfoActivity.this , (float) (-100-y*1.0/80)));
+
 
                             /**
                              * 设置标题栏属性
@@ -157,6 +168,10 @@ public class UserInfoActivity extends BaseActivity {
                             indexTitleLayout.setLeftBtnDrawable(R.drawable.back_white);
 
 
+                            //显示返回按钮
+                            indexTitleLayout.setLeftBtnVisiavle(View.VISIBLE);
+
+
                             /**
                              * 设置标题栏属性
                              */
@@ -167,6 +182,8 @@ public class UserInfoActivity extends BaseActivity {
 
                             indexTitleLayout.setLeftBtnDrawable(R.drawable.back_blue);
 
+                            //显示返回按钮
+                            indexTitleLayout.setLeftBtnVisiavle(View.VISIBLE);
                             /**
                              * 设置标题栏属性
                              */

@@ -31,5 +31,14 @@
         android:layout_marginLeft="-20dp"
         layout="@layout/item_drag_view"
         />
+    <TextView
+        android:id="@+id/bottom_title"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/iv_big"
+        android:text="Title"
+        android:gravity="center"
+        android:textSize="14sp"
+        />
 
 </RelativeLayout>

@@ -12,6 +12,7 @@
         <attr name="iconWidth" format="dimension" />
         <attr name="iconHeight" format="dimension" />
         <attr name="range" format="float" />
+        <attr name="title" format="string" />
     </declare-styleable>
 
 
