@@ -1,6 +1,7 @@
 package com.example.xkfeng.mycat.Activity;
 
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Typeface;
@@ -13,18 +14,24 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.UserInfoScrollView;
 import com.example.xkfeng.mycat.Fragment.MessageFragment;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
+import com.example.xkfeng.mycat.Util.StringUtil;
+import com.example.xkfeng.mycat.Util.TimeUtil;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.UserInfo;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserInfoActivity extends BaseActivity {
 
@@ -53,6 +60,12 @@ public class UserInfoActivity extends BaseActivity {
 
     @BindView(R.id.uisv_scrollView)
     UserInfoScrollView uisvScrollView;
+    @BindView(R.id.tv_userNikeName)
+    TextView tvUserNikeName;
+    @BindView(R.id.tv_signatureTextView)
+    TextView tvSignatureTextView;
+    @BindView(R.id.tv_userInfoUserName)
+    TextView tvUserInfoUserName;
 
     private int height;
     private Boolean flag = true;
@@ -61,6 +74,9 @@ public class UserInfoActivity extends BaseActivity {
     private Matrix matrix;
     private UserInfoScrollView userInfoScrollView;
     private LinearLayout ll_userinfoImgBgLayout;
+    private static final int ACTIVITY_RESULT_CODE = 1;
+    private UserInfo userInfo;
+    private CircleImageView circleImageView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,15 +85,28 @@ public class UserInfoActivity extends BaseActivity {
         setContentView(R.layout.userinfo_layout);
         ButterKnife.bind(this);
 
+        circleImageView = findViewById(R.id.iv_userinfoHeaderImage);
+
+
+        /**
+         *  虽然在初始化的时候顶部标题并不显示
+         *  但是仍然需要把padding的属性给设置好
+         *  不然在初次滑动的时候设置为alignParentBottom的按钮会出现布局偏移
+         *
+         */
+        setIndexTitleLayout();
+
         /**
          * 主显示布局的初始化
          */
         initView();
 
+
         /**
          * 设置用户数据
          */
         setUserInfo();
+
     }
 
     /**
@@ -85,7 +114,41 @@ public class UserInfoActivity extends BaseActivity {
      */
     private void setUserInfo() {
 
+        userInfo = JMessageClient.getMyInfo();
+        tvUserInfoUserSex.setText(StringUtil.isEmpty(userInfo.getGender().name()) == true ? "unkonwn" : userInfo.getGender().name());
+        tvUserInfoUserBirthday.setText(StringUtil.isEmpty(TimeUtil.ms2date("yyyy-MM-dd", userInfo.getBirthday()).toString()) == true ?
+                "unknown" : TimeUtil.ms2date("yyyy-MM-dd", userInfo.getBirthday()).toString());
+        tvUserInfoUserCity.setText(StringUtil.isEmpty(userInfo.getAddress().toString()) == true ? "unknown" : userInfo.getAddress().toString());
+        tvUserInfoUserLastUpdate.setText("上次活动：" + TimeUtil.unix2Date("yyyy-MM-dd HH:mm", userInfo.getmTime()));
+        tvUserNikeName.setText(StringUtil.isEmpty(userInfo.getNickname().toString())==true ? "~快取个昵称吧！" : userInfo.getNickname().toString());
+        tvUserInfoUserName.setText(userInfo.getUserName().toString());
+        if (!StringUtil.isEmpty(userInfo.getSignature().toString())){
+            tvSignatureTextView.setText(userInfo.getSignature().toString());
+        }else {
+            tvSignatureTextView.setText("还没有个性签名呢，快些一个吧");
+        }
+        //设置头像
+        setUserHeadImage();
+    }
 
+    /**
+     * 设置用户头像
+     * 情况特殊，单独列出
+     */
+    private void setUserHeadImage(){
+        /**
+         * 更新用户资料信息
+         */
+        userInfo = JMessageClient.getMyInfo();
+        if (!StringUtil.isEmpty(userInfo.getAvatarFile().toString())) {
+            //  circleImageView.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatar()));
+            Glide.with(UserInfoActivity.this)
+                    .load(userInfo.getAvatarFile())
+                    .into(circleImageView);
+
+        } else {
+            circleImageView.setImageResource(R.mipmap.log);
+        }
 
     }
 
@@ -162,16 +225,13 @@ public class UserInfoActivity extends BaseActivity {
                              * 起点处下拉
                              * 实现布局缩放，图片会跟随布局缩放
                              */
-                            matrix.setScale((float) (1.0 - y * 1.0 / 2000), (float) (1.0 - y * 1.0 / 200));
+                            matrix.setScale((float) (1.0 - y * 1.0 / 2000), (float) (1.0 - y * 1.0 / 800));
                             ll_userinfoImgBgLayout.setScaleX((float) (1.0 - y * 1.0 / 2000));
-                            ll_userinfoImgBgLayout.setScaleY((float) (1.0 - y * 1.0 / 800));
-//                            userInfoBkImage.setScaleType(ImageView.ScaleType.MATRIX);
-//                            userInfoBkImage.setImageMatrix(matrix);
-//                            uisvScrollView.setScrollY(DensityUtil.dip2px(UserInfoActivity.this , (float) (-100-y*1.0/80)));
-
-                            ll_userinfoImgBgLayout.setScrollY(-uisvScrollView.getScrollY());
-//                            ll_userinfoImgBgLayout.setScrollY(DensityUtil.dip2px(UserInfoActivity.this , (float) (-100-y*1.0/80)));
-
+                            ll_userinfoImgBgLayout.setScaleY((float) (1.0 - y * 1.0 / 800)) ;
+                            //userInfoBkImage.setImageMatrix(matrix);
+                            ll_userinfoImgBgLayout.setScrollY((int) (-uisvScrollView.getScrollY() * ll_userinfoImgBgLayout.getScaleY()));
+//                            ll_userinfoImgBgLayout.scrollTo();
+                            Log.d(TAG, "onScrollChanged: scrollY :" + ll_userinfoImgBgLayout.getScrollY() );
 
                             /**
                              * 设置标题栏属性
@@ -278,7 +338,12 @@ public class UserInfoActivity extends BaseActivity {
             R.id.bt_modifyUserinfoBtn, R.id.tv_userInfoUserSex})
     public void onModifyClick(View view) {
 
-        startActivity(new Intent(UserInfoActivity.this, ModifyUserInfoActivity.class));
+        /**
+         * 两个Activity进行交互，
+         * 根据传递的值来判断是否需要更新用户数据
+         */
+        startActivityForResult(new Intent(UserInfoActivity.this, ModifyUserInfoActivity.class), ACTIVITY_RESULT_CODE);
+//        startActivity(new Intent(UserInfoActivity.this, ModifyUserInfoActivity.class));
 
     }
 
@@ -298,4 +363,29 @@ public class UserInfoActivity extends BaseActivity {
         super.onResume();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case ACTIVITY_RESULT_CODE:
+                if (resultCode == RESULT_OK && "true".equals(data.getStringExtra("modify"))) {
+
+                    /**
+                     * 更新用户数据
+                     */
+                    setUserInfo();
+                }
+                if (resultCode == RESULT_OK && true == data.getBooleanExtra("headimagemodify" , false)){
+                    /**
+                     * 更新用户头像
+                     */
+                    setUserHeadImage();
+
+                    Toast.makeText(this, "change image", Toast.LENGTH_SHORT).show();
+                }
+
+                break ;
+        }
+    }
 }

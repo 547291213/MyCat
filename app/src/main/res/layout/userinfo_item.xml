@@ -12,7 +12,10 @@
         <com.example.xkfeng.mycat.DrawableView.UserInfoScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scrollbars="none">
+            android:scrollbars="none"
+            android:fillViewport="true"
+            android:overScrollMode="never"
+            >
 
             <RelativeLayout
                 android:id="@+id/rl_imageBkLayout"
@@ -30,9 +33,11 @@
                     <ImageView
                         android:id="@+id/iv_userinfoImage"
                         android:layout_width="match_parent"
-                        android:layout_height="300dp"
-                        android:scaleType="fitXY"
-                        android:src="@drawable/ic_userinfo" />
+                        android:layout_height="wrap_content"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_userinfo"
+                        android:adjustViewBounds="true"
+                        />
 
 
                 </LinearLayout>

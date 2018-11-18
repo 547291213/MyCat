@@ -93,9 +93,12 @@ public class ModifyUserInfoActivity extends BaseActivity {
     private UserInfo userInfo;
 
     public Uri imageUri;
+    private boolean isHeadImageModify = false ;
     private static final int TAKE_PHOTO = 1;
     private static final int CHOOSE_PHOTE = 2;
     private static final int REQUEST_CODE_WRITE = 1;
+    private static final int ONLY_HEAD_IMAGE_MODFIY = 2 ;
+
 
     private static final String TAG = "ModifyUserInfoActivity";
 
@@ -154,7 +157,7 @@ public class ModifyUserInfoActivity extends BaseActivity {
                 /**
                  * back  回滚Task
                  */
-                finish();
+                headImageMoidfy();
             }
 
             @Override
@@ -321,7 +324,10 @@ public class ModifyUserInfoActivity extends BaseActivity {
                         customDialog.dismiss();
                         if (i == 0) {
                             ITosast.showShort(ModifyUserInfoActivity.this.getApplicationContext() , "保存成功").show();
-                            finish();
+                            Intent intent = new Intent() ;
+                            intent.putExtra("modify" , "true") ;
+                            ModifyUserInfoActivity.this.setResult(RESULT_OK , intent);
+                            ModifyUserInfoActivity.this.finish();
                         } else {
                             ITosast.showShort(ModifyUserInfoActivity.this.getApplicationContext() , "保存失败").show();
                         }
@@ -484,6 +490,8 @@ public class ModifyUserInfoActivity extends BaseActivity {
             Bitmap bitmap = BitmapFactory.decodeFile(imageFileDir.toString());
             if (bitmap != null)
                 setIv_userHeaderImage(bitmap);
+            //设置boolean表示图片已经修改
+            isHeadImageModify = true  ;
         } else {
 
             ITosast.showShort(ModifyUserInfoActivity.this, "显示图片出错").show();
@@ -534,7 +542,7 @@ public class ModifyUserInfoActivity extends BaseActivity {
      */
     private void setIv_userHeaderImage(Bitmap bitmap) {
         /**
-         * 显示
+         * 显示fini
          */
         iv_userHeaderImage.setImageBitmap(bitmap);
     }
@@ -632,6 +640,27 @@ public class ModifyUserInfoActivity extends BaseActivity {
         return path;
     }
 
+
+    /**
+     * 根据用户是否修改头像来做出不同的处理
+     */
+    private void headImageMoidfy(){
+        if (isHeadImageModify == true){
+            Intent intent = new Intent() ;
+            intent.putExtra("headimagemodify" , isHeadImageModify) ;
+            ModifyUserInfoActivity.this.setResult(RESULT_OK,intent);
+            ModifyUserInfoActivity.this.finish();
+            Log.d(TAG, "headImageMoidfy: ");
+        }else {
+            ModifyUserInfoActivity.this.finish();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        headImageMoidfy();
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

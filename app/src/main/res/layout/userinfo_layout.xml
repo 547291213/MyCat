@@ -9,6 +9,8 @@
         android:layout_height="match_parent"
         android:scrollbars="none"
         android:id="@+id/uisv_scrollView"
+        android:fillViewport="true"
+        android:overScrollMode="never"
 
         >
 
