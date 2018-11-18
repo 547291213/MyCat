@@ -1,17 +1,25 @@
 package com.example.xkfeng.mycat.Activity;
 
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
+import com.example.xkfeng.mycat.Model.User;
+import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.ActivityController;
+import com.example.xkfeng.mycat.Util.UserAutoLoginHelper;
 
+import cn.jpush.android.api.BasicPushNotificationBuilder;
+import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
 
 /**
@@ -20,7 +28,11 @@ import cn.jpush.im.android.api.JMessageClient;
 
 public class BaseActivity extends AppCompatActivity {
 
-    private ForceOfflineReceiver receiver ;
+    private ForceOfflineReceiver receiver;
+
+    private UserAutoLoginHelper userAutoLoginHelper;
+
+    private static boolean isFirst = true;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,17 +40,25 @@ public class BaseActivity extends AppCompatActivity {
         /*
           极光SDK初始化
          */
-        JMessageClient.init(this, false) ;
+        if (isFirst) {
+            isFirst = false;
+            JMessageClient.init(getApplicationContext(), true);
+            userAutoLoginHelper = UserAutoLoginHelper.getUserAutoLoginHelper(getApplicationContext());
+            userAutoLoginHelper.setRoaming(true);
+
+
+        }
+
+
         ActivityController.addActivity(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (receiver!=null)
-        {
+        if (receiver != null) {
             unregisterReceiver(receiver);
-            receiver = null ;
+            receiver = null;
         }
         ActivityController.removeActivity(this);
 
@@ -54,24 +74,22 @@ public class BaseActivity extends AppCompatActivity {
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("com.example.xkfeng.forceofflinereceiver");
-        receiver = new ForceOfflineReceiver() ;
-        registerReceiver(receiver , intentFilter) ;
+        receiver = new ForceOfflineReceiver();
+        registerReceiver(receiver, intentFilter);
         super.onResume();
     }
 
     @Override
     protected void onStop() {
 
-        if (receiver!=null)
-        {
+        if (receiver != null) {
             unregisterReceiver(receiver);
-            receiver = null ;
+            receiver = null;
         }
         super.onStop();
     }
 
-    public class ForceOfflineReceiver extends BroadcastReceiver
-    {
+    public class ForceOfflineReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(final Context context, final Intent intent) {
@@ -87,12 +105,12 @@ public class BaseActivity extends AppCompatActivity {
                             ActivityController.finishAll();
 
                             //转换到登陆界面
-                            Intent logIntent = new Intent() ;
-                            intent.setClass(context , LoginActivity.class) ;
+                            Intent logIntent = new Intent();
+                            intent.setClass(context, LoginActivity.class);
                             startActivity(intent);
                         }
                     })
-                    .show() ;
+                    .show();
         }
     }
 }

@@ -90,7 +90,7 @@ public class LoginSQLDao {
          */
         if (hasData(id)) {
             Log.d(TAG , "insertData: Data is exist");
-            upDataLastModifyTime(id) ;
+            upDataLastModifyTime(id , password) ;
             return;
         }
         /**
@@ -196,11 +196,11 @@ public class LoginSQLDao {
 
     /**
      * 更新指定ID的最近修改时间
-     *
+     * 更新用户密码
      * @param id
      * @return
      */
-    public int upDataLastModifyTime(String id) {
+    public int upDataLastModifyTime(String id ,String password) {
         int flag = 0;
         //规范化时间
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -208,13 +208,21 @@ public class LoginSQLDao {
         //从Record这个表里找到name=tempName的id
         Cursor cursor = loginhistorySql.getReadableDatabase().
                 rawQuery("select * from login_history where id = ? ", new String[]{id});
-        if (cursor.moveToNext()) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(LoginhistorySql.ID, cursor.getString(cursor.getColumnIndex(LoginhistorySql.ID)));
-            contentValues.put(LoginhistorySql.PASSWORD, cursor.getString(cursor.getColumnIndex(LoginhistorySql.PASSWORD)));
-            contentValues.put(LoginhistorySql.LASTUPDATETIME, simpleDateFormat.format(date));
-            flag = loginhistorySql.getWritableDatabase().update(LoginhistorySql.TABLE_NAME, contentValues, "id = ?", new String[]{id});
+        PublicKey publicKey = null;
+        try {
+            publicKey = RSAEncrypt.getPublicKey(RSAEncrypt.PUBLIC_KEY);
+            if (cursor.moveToNext()) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(LoginhistorySql.ID, cursor.getString(cursor.getColumnIndex(LoginhistorySql.ID)));
+                contentValues.put(LoginhistorySql.PASSWORD, RSAEncrypt.encrypt(password, publicKey));
+                contentValues.put(LoginhistorySql.LASTUPDATETIME, simpleDateFormat.format(date));
+                flag = loginhistorySql.getWritableDatabase().update(LoginhistorySql.TABLE_NAME, contentValues, "id = ?", new String[]{id});
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+
         cursor.close();
 
         return flag;

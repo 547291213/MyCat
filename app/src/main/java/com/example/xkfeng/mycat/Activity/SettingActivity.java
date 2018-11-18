@@ -1,6 +1,7 @@
 package com.example.xkfeng.mycat.Activity;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,6 +16,7 @@ import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.ActivityController;
 import com.example.xkfeng.mycat.Util.DensityUtil;
+import com.example.xkfeng.mycat.Util.UserAutoLoginHelper;
 import com.suke.widget.SwitchButton;
 import com.tencent.connect.UserInfo;
 
@@ -24,8 +26,19 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import cn.jpush.android.api.BasicPushNotificationBuilder;
+import cn.jpush.android.api.JPushInterface;
 import cn.jpush.android.api.JPushMessage;
+import cn.jpush.android.data.JPushLocalNotification;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.IntegerCallback;
+import cn.jpush.im.api.BasicCallback;
+
+import static cn.jpush.im.android.api.JMessageClient.FLAG_NOTIFY_DISABLE;
+import static cn.jpush.im.android.api.JMessageClient.FLAG_NOTIFY_SILENCE;
+import static cn.jpush.im.android.api.JMessageClient.FLAG_NOTIFY_WITH_LED;
+import static cn.jpush.im.android.api.JMessageClient.FLAG_NOTIFY_WITH_SOUND;
+import static cn.jpush.im.android.api.JMessageClient.FLAG_NOTIFY_WITH_VIBRATE;
 
 public class SettingActivity extends BaseActivity {
 
@@ -55,12 +68,18 @@ public class SettingActivity extends BaseActivity {
     @BindView(R.id.tv_exitCurrentAccount)
     TextView tvExitCurrentAccount;
 
+    private UserAutoLoginHelper userAutoLoginHelper;
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.setting_layout);
         ButterKnife.bind(this);
+
+        userAutoLoginHelper = UserAutoLoginHelper.getUserAutoLoginHelper(getApplicationContext());
+
 
         initView();
 
@@ -71,7 +90,136 @@ public class SettingActivity extends BaseActivity {
         setIndexTitleLayout();
 
 
+        setSbPromptBtn();
+
+        setSbNoDisturbBtn();
+
+        setSbRoamingBtn();
+
+        setSbVibrationBtn();
     }
+
+
+    /**
+     * 消息震动
+     */
+    private void setSbVibrationBtn() {
+
+        sbVibrationBtn.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(SwitchButton view, boolean isChecked) {
+                userAutoLoginHelper.setVib(isChecked);
+                setJpushStyle();
+            }
+        });
+
+    }
+
+    /**
+     * 消息漫游
+     */
+    private void setSbRoamingBtn() {
+
+        sbRoamingBtn.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(SwitchButton view, boolean isChecked) {
+                JMessageClient.init(getApplicationContext(), isChecked);
+                userAutoLoginHelper.setRoaming(isChecked);
+
+            }
+        });
+    }
+
+    /**
+     * 消息免打扰
+     */
+    private void setSbNoDisturbBtn() {
+
+        sbNoDisturbBtn.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(SwitchButton view, boolean isChecked) {
+                userAutoLoginHelper.setPush(isChecked);
+                setJpushStyle();
+            }
+        });
+
+
+    }
+
+    /**
+     * 消息提示音
+     */
+    private void setSbPromptBtn() {
+
+        sbPromptBtn.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(SwitchButton view, boolean isChecked) {
+                userAutoLoginHelper.setMusic(isChecked);
+                setJpushStyle();
+            }
+        });
+    }
+
+    private void setJpushStyle() {
+        if (userAutoLoginHelper.getPush()) {
+            setNotification4();
+        } else if (userAutoLoginHelper.getMusic() && userAutoLoginHelper.getVib()) {
+            setNotification1();
+        } else if (userAutoLoginHelper.getMusic()) {
+            setNotification2();
+        } else if (userAutoLoginHelper.getVib()) {
+            setNotification3();
+        } else{
+            setNotification4();
+        }
+    }
+
+    //自定义报警通知（震动铃声都要）
+    public void setNotification1() {
+
+        BasicPushNotificationBuilder builder = new BasicPushNotificationBuilder(SettingActivity.this);
+        builder.statusBarDrawable = R.mipmap.log;//消息栏显示的图标
+        builder.notificationFlags = Notification.FLAG_AUTO_CANCEL;  //设置为自动消失
+        builder.notificationDefaults = Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;// 设置为铃声与震动都要
+        JPushInterface.setDefaultPushNotificationBuilder(builder);
+    }
+
+    //自定义报警通知（铃声）
+    public void setNotification2() {
+        BasicPushNotificationBuilder builder = new BasicPushNotificationBuilder(SettingActivity.this);
+        builder.statusBarDrawable = R.mipmap.log;//消息栏显示的图标</span>
+        builder.notificationFlags = Notification.FLAG_AUTO_CANCEL;  //设置为自动消失
+        builder.notificationDefaults = Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS;// 设置为铃声与震动都要
+        JPushInterface.setDefaultPushNotificationBuilder(builder);
+    }
+
+    //自定义报警通知（震动）
+    public void setNotification3() {
+        BasicPushNotificationBuilder builder = new BasicPushNotificationBuilder(SettingActivity.this);
+        builder.statusBarDrawable = R.mipmap.log;
+        //消息栏显示的图标
+        builder.notificationFlags = Notification.FLAG_AUTO_CANCEL;  //设置为自动消失
+        builder.notificationDefaults = Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;// 震动
+        JPushInterface.setDefaultPushNotificationBuilder(builder);
+    }
+
+    //自定义报警通知（震动铃声都不要）
+    public void setNotification4() {
+        BasicPushNotificationBuilder builder = new BasicPushNotificationBuilder(SettingActivity.this);
+        builder.statusBarDrawable = R.mipmap.log;
+        builder.notificationFlags = Notification.FLAG_AUTO_CANCEL;  //设置为自动消失
+        builder.notificationDefaults = Notification.DEFAULT_LIGHTS;// 设置为铃声与震动都不要
+        JPushInterface.setDefaultPushNotificationBuilder(builder);
+    }
+
+    /**
+     * 默认推送
+     */
+    public void setNotification5() {
+        BasicPushNotificationBuilder builder = new BasicPushNotificationBuilder(SettingActivity.this);
+        JPushInterface.setDefaultPushNotificationBuilder(builder);
+    }
+
 
     @OnClick(R.id.tv_modifyPasswordText)
     public void setTvModifyPasswordText(View view) {
@@ -93,7 +241,7 @@ public class SettingActivity extends BaseActivity {
                 dialog.dismiss();
 
                 //转换到修改密码界面
-                startActivity(new Intent(SettingActivity.this , ModifyPasswordActivity.class));
+                startActivity(new Intent(SettingActivity.this, ModifyPasswordActivity.class));
             }
 
             @Override
@@ -128,7 +276,7 @@ public class SettingActivity extends BaseActivity {
                 ActivityController.finishAll();
 
                 //转换到登陆界面
-                startActivity(new Intent(SettingActivity.this , LoginActivity.class));
+                startActivity(new Intent(SettingActivity.this, LoginActivity.class));
 
                 //关闭弹出窗口
                 dialog.dismiss();
@@ -186,4 +334,15 @@ public class SettingActivity extends BaseActivity {
     }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        sbVibrationBtn.setChecked(userAutoLoginHelper.getVib());
+        sbRoamingBtn.setChecked(userAutoLoginHelper.getRoaming());
+        sbNoDisturbBtn.setChecked(userAutoLoginHelper.getPush());
+        sbPromptBtn.setChecked(userAutoLoginHelper.getMusic());
+
+        setJpushStyle();
+    }
 }

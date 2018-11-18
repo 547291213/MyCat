@@ -231,7 +231,6 @@ public class UserInfoActivity extends BaseActivity {
                             //userInfoBkImage.setImageMatrix(matrix);
                             ll_userinfoImgBgLayout.setScrollY((int) (-uisvScrollView.getScrollY() * ll_userinfoImgBgLayout.getScaleY()));
 //                            ll_userinfoImgBgLayout.scrollTo();
-                            Log.d(TAG, "onScrollChanged: scrollY :" + ll_userinfoImgBgLayout.getScrollY() );
 
                             /**
                              * 设置标题栏属性

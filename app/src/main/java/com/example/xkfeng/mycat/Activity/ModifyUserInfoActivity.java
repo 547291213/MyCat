@@ -385,9 +385,6 @@ public class ModifyUserInfoActivity extends BaseActivity {
          */
         List<IReginBean> provinceList = JsonUtil.parseData(cityData, IReginBean[].class);
 
-
-        Toast.makeText(this, "size :" + provinceList.size(), Toast.LENGTH_SHORT).show();
-
         /**
          * 一级列表的初始化
          */

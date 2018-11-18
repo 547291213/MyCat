@@ -16,9 +16,11 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.DrawableView.IndexBottomLayout;
 import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
 import com.example.xkfeng.mycat.Fragment.DynamicFragment;
@@ -28,10 +30,12 @@ import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.ActivityController;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
+import com.example.xkfeng.mycat.Util.StringUtil;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.UserInfo;
 
 /**
  * Created by initializing on 2018/10/7.
@@ -70,6 +74,9 @@ public class IndexActivity extends BaseActivity {
     private static final String PROJECT_GITHUB = "https://github.com/547291213/MyCat";
     private static final String PROJECT_CSDN = "https://blog.csdn.net/qq_29989087/article/details/82962296";
 
+    private UserInfo userInfo ;
+    private static final int REQUEST_USERINFO = 1 ;
+
     //用户最近一次点击Back的事件
     //用于实现在相近时间内两次点击Back退出程序
     private static long lastExitTime = 0;
@@ -106,6 +113,36 @@ public class IndexActivity extends BaseActivity {
     }
 
     /**
+     * 设置用户资料
+     */
+    private void setUserHeadInfo(){
+        /**
+         * 更新用户头像
+         */
+        userInfo = JMessageClient.getMyInfo();
+        if (!StringUtil.isEmpty(userInfo.getAvatarFile().toString())) {
+            //  circleImageView.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatar()));
+            Glide.with(IndexActivity.this)
+                    .load(userInfo.getAvatarFile())
+                    .into((ImageView)navView.getHeaderView(0).findViewById(R.id.iv_navigationHeaderImage));
+
+        } else {
+            ((ImageView)navView.getHeaderView(0).findViewById(R.id.iv_navigationHeaderImage)).setImageResource(R.mipmap.log);
+        }
+
+        /**
+         * 更新用户昵称
+         */
+        ((TextView)navView.getHeaderView(0).findViewById(R.id.tv_signatureTextView)).setText(userInfo.getNickname().toString());
+
+        /**
+         * 设置用户名
+         */
+        ((TextView) navView.getHeaderView(0).findViewById(R.id.tv_userName)).setText(JMessageClient.getMyInfo().getUserName().toString());
+
+    }
+
+    /**
      * 设置抽屉属性
      * 一 点击事件处理
      * 二 挤压抽屉实现
@@ -117,11 +154,20 @@ public class IndexActivity extends BaseActivity {
          * 进行用户属性的设置
          */
         View view = navView.getHeaderView(0) ;
+
+        /**
+         * 设置用户资料
+         */
+        setUserHeadInfo();
+
         view.findViewById(R.id.iv_navigationHeaderImage).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                startActivity(new Intent(IndexActivity.this , UserInfoActivity.class));
+                /**
+                 * 跳转到用户资料栏
+                 */
+                startActivityForResult(new Intent(IndexActivity.this , UserInfoActivity.class) , REQUEST_USERINFO);
 //                Toast.makeText(IndexActivity.this, "Image", Toast.LENGTH_SHORT).show();
 
             }
@@ -131,11 +177,6 @@ public class IndexActivity extends BaseActivity {
         /**
          * 加载用户名和昵称
          */
-        Log.e(TAG, "setNavView: count : "  + navView.getHeaderCount());
-        ((TextView) view.findViewById(R.id.tv_userName)).setText(JMessageClient.getMyInfo().getUserName());
-        ((TextView) view.findViewById(R.id.tv_signatureTextView)).setText(TextUtils.isEmpty(JMessageClient.getMyInfo().getNickname()) == false ?
-                JMessageClient.getMyInfo().getNickname() : getResources().getString(R.string.nav_header_subtitle));
-
         //点击事件处理
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -465,4 +506,19 @@ public class IndexActivity extends BaseActivity {
         return super.onKeyDown(keyCode, event);
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode){
+            case REQUEST_USERINFO :
+
+                /**
+                 * 更新用户数据
+                 */
+                setUserHeadInfo();
+                break ;
+        }
+    }
 }
