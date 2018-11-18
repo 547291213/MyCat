@@ -51,6 +51,8 @@ public class ListSlideView extends HorizontalScrollView {
     private static final String TAG = "ListSlideView";
     private Context mContext;
 
+    private RedPointViewHelper stickyViewHelper  ;
+
     public ListSlideView(Context context) {
         this(context, null);
     }
@@ -62,6 +64,9 @@ public class ListSlideView extends HorizontalScrollView {
         this.setOverScrollMode(OVER_SCROLL_NEVER);
 
 
+    }
+
+    public void setShow(){
     }
 
     /**
@@ -86,8 +91,8 @@ public class ListSlideView extends HorizontalScrollView {
             /**
              * 设置红顶啊拖拽
              */
-            View redPointMessage = relativeLayout.findViewById(R.id.redpoint_view);
-            RedPointViewHelper stickyViewHelper = new RedPointViewHelper(mContext, redPointMessage, R.layout.item_drag_view);
+            View redPointMessage = relativeLayout.findViewById(R.id.redpoint_view_message);
+            stickyViewHelper = new RedPointViewHelper(mContext, redPointMessage, R.layout.item_drag_view);
 
             ViewGroup.LayoutParams lp = relativeLayout.getLayoutParams();
             //lp.width = 1080;

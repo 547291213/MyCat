@@ -118,6 +118,8 @@ public class RedPointView extends android.support.v7.widget.AppCompatTextView {
         mDragCircleRadius = Math.min(mDragViewHeight, mDragViewWidth);
 
 
+
+
         mParams = new WindowManager.LayoutParams();
         mParams.format = PixelFormat.TRANSLUCENT;
         mParams.width = DensityUtil.dip2px(mContext , mDragCircleRadius) ;
@@ -203,7 +205,6 @@ public class RedPointView extends android.support.v7.widget.AppCompatTextView {
     /**
      * 更新拖动圆的圆心和通知重绘
      *
-     * @param event 点击事件
      */
     private void updateDragCircleCenter(int x, int y) {
         mDragCircleCenterX = x;

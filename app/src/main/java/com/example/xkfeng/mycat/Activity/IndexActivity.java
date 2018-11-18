@@ -19,6 +19,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.DrawableView.IndexBottomLayout;
@@ -71,11 +72,15 @@ public class IndexActivity extends BaseActivity {
     private View redPointFriend;
     private View redPointDynamic;
 
+    private RedPointViewHelper stickyViewHelper;
+    private RedPointViewHelper stickyViewHelper1;
+    private RedPointViewHelper stickyViewHelper2;
+
     private static final String PROJECT_GITHUB = "https://github.com/547291213/MyCat";
     private static final String PROJECT_CSDN = "https://blog.csdn.net/qq_29989087/article/details/82962296";
 
-    private UserInfo userInfo ;
-    private static final int REQUEST_USERINFO = 1 ;
+    private UserInfo userInfo;
+    private static final int REQUEST_USERINFO = 1;
 
     //用户最近一次点击Back的事件
     //用于实现在相近时间内两次点击Back退出程序
@@ -115,7 +120,7 @@ public class IndexActivity extends BaseActivity {
     /**
      * 设置用户资料
      */
-    private void setUserHeadInfo(){
+    private void setUserHeadInfo() {
         /**
          * 更新用户头像
          */
@@ -124,16 +129,16 @@ public class IndexActivity extends BaseActivity {
             //  circleImageView.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatar()));
             Glide.with(IndexActivity.this)
                     .load(userInfo.getAvatarFile())
-                    .into((ImageView)navView.getHeaderView(0).findViewById(R.id.iv_navigationHeaderImage));
+                    .into((ImageView) navView.getHeaderView(0).findViewById(R.id.iv_navigationHeaderImage));
 
         } else {
-            ((ImageView)navView.getHeaderView(0).findViewById(R.id.iv_navigationHeaderImage)).setImageResource(R.mipmap.log);
+            ((ImageView) navView.getHeaderView(0).findViewById(R.id.iv_navigationHeaderImage)).setImageResource(R.mipmap.log);
         }
 
         /**
          * 更新用户昵称
          */
-        ((TextView)navView.getHeaderView(0).findViewById(R.id.tv_signatureTextView)).setText(userInfo.getNickname().toString());
+        ((TextView) navView.getHeaderView(0).findViewById(R.id.tv_signatureTextView)).setText(userInfo.getNickname().toString());
 
         /**
          * 设置用户名
@@ -153,7 +158,7 @@ public class IndexActivity extends BaseActivity {
          * 用户头像点击进行页面跳转
          * 进行用户属性的设置
          */
-        View view = navView.getHeaderView(0) ;
+        View view = navView.getHeaderView(0);
 
         /**
          * 设置用户资料
@@ -167,7 +172,7 @@ public class IndexActivity extends BaseActivity {
                 /**
                  * 跳转到用户资料栏
                  */
-                startActivityForResult(new Intent(IndexActivity.this , UserInfoActivity.class) , REQUEST_USERINFO);
+                startActivityForResult(new Intent(IndexActivity.this, UserInfoActivity.class), REQUEST_USERINFO);
 //                Toast.makeText(IndexActivity.this, "Image", Toast.LENGTH_SHORT).show();
 
             }
@@ -314,21 +319,20 @@ public class IndexActivity extends BaseActivity {
          * 否则view上面显示的文字可能在拖拽时不能识别，这样一是为了方便，二是为了减少消耗
          * 布局方式请参考xml文件
          */
-//        View view = findViewById(R.id.redpoint_view) ;
-//        TextView textView = findViewById(R.id.tv_mDragView);
-
         /**
          * 需要对每一个红点进行设置
          */
         redPointMessage = ibIndexBottomMessage.findViewById(R.id.redpoint_view);
-        RedPointViewHelper stickyViewHelper = new RedPointViewHelper(this, redPointMessage, R.layout.item_drag_view);
+        stickyViewHelper = new RedPointViewHelper(this, redPointMessage, R.layout.item_drag_view);
+        stickyViewHelper.setRedPointViewText("8");
 
         redPointFriend = ibIndexBottomFriend.findViewById(R.id.redpoint_view);
-        RedPointViewHelper stickyViewHelper1 = new RedPointViewHelper(this, redPointFriend, R.layout.item_drag_view);
+        stickyViewHelper1 = new RedPointViewHelper(this, redPointFriend, R.layout.item_drag_view);
+        stickyViewHelper1.setRedPointViewText("99");
 
         redPointDynamic = ibIndexBottomDynamic.findViewById(R.id.redpoint_view);
-        RedPointViewHelper stickyViewHelper2 = new RedPointViewHelper(this, redPointDynamic, R.layout.item_drag_view);
-
+        stickyViewHelper2 = new RedPointViewHelper(this, redPointDynamic, R.layout.item_drag_view);
+        stickyViewHelper2.setRedPointViewText("12");
 
     }
 
@@ -401,6 +405,7 @@ public class IndexActivity extends BaseActivity {
             case R.id.ib_indexBottomMessage:
                 //如果Message fragment已经是当前选中的界面，
                 // 就不做任何处理
+                stickyViewHelper.setViewShow();
                 if (ibIndexBottomMessage.getmCheckSate() == IndexBottomLayout.CHECKED) {
                     return;
                 } else {
@@ -511,14 +516,14 @@ public class IndexActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        switch (requestCode){
-            case REQUEST_USERINFO :
+        switch (requestCode) {
+            case REQUEST_USERINFO:
 
                 /**
                  * 更新用户数据
                  */
                 setUserHeadInfo();
-                break ;
+                break;
         }
     }
 }
