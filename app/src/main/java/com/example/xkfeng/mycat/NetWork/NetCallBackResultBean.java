@@ -12,6 +12,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.internal.LinkedTreeMap;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,7 +41,7 @@ public abstract class NetCallBackResultBean<Result> implements NetCallBack {
      *
      * @param result 泛型数据
      */
-    public abstract void onSuccess(List<Map<String ,Object>> result);
+    public abstract void onSuccess(List<Map<String, Object>> result);
 
     /**
      * 参数为模板类
@@ -55,10 +57,14 @@ public abstract class NetCallBackResultBean<Result> implements NetCallBack {
      * @param string 从服务器接收的数据
      */
     @Override
-    public void Success(String string , int jsonCode) {
+    public void Success(String string, int jsonCode) {
         switch (jsonCode) {
             case HttpHelper.JSON_DATA_1:
 
+                Gson gson1 = new Gson();
+                Class<?> cls = analysisClzzInfo(this) ;
+                Result result1 = (Result) gson1.fromJson(string, cls);
+                onSuccess(result1);
                 break;
 
             case HttpHelper.JSON_DATA_2:
@@ -69,7 +75,7 @@ public abstract class NetCallBackResultBean<Result> implements NetCallBack {
                  */
                 JsonArray jsonArray = new JsonParser().parse(string).getAsJsonArray();
                 Gson gson = new Gson();
-                List<Map<String ,Object>> list = new ArrayList<>();
+                List<Map<String, Object>> list = new ArrayList<>();
 
                 for (JsonElement jsonElement : jsonArray) {
                     Result result = gson.fromJson(jsonElement, new TypeToken<Result>() {
@@ -77,15 +83,15 @@ public abstract class NetCallBackResultBean<Result> implements NetCallBack {
 
                     LinkedTreeMap tm = (LinkedTreeMap) result;
                     Iterator it = tm.keySet().iterator();
-                    Map <String ,Object >map  = new HashMap<>() ;
+                    Map<String, Object> map = new HashMap<>();
                     while (it.hasNext()) {
                         String key = (String) it.next();
                         Object value = (Object) tm.get(key);
-                        map.put(key , value) ;
+                        map.put(key, value);
 //                        Log.d(TAG, "Success: key :" + key + "  value :" + value);
                         // TypeToken
                     }
-                    list.add(map) ;
+                    list.add(map);
                 }
                 onSuccess(list);
 
@@ -114,10 +120,9 @@ public abstract class NetCallBackResultBean<Result> implements NetCallBack {
      * @return Class<?> 需要实现的Json解析类
      */
     private Class<?> analysisClzzInfo(Object object) {
-
-
-        return List.class;
-
+        Type genType = getClass().getGenericSuperclass();
+        Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
+        return (Class<?>) params[0];
     }
 
 

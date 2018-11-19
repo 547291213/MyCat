@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.Model.Gradle;
+import com.example.xkfeng.mycat.Model.WeatherBean;
 import com.example.xkfeng.mycat.NetWork.HttpHelper;
 import com.example.xkfeng.mycat.NetWork.HttpProcesser;
 import com.example.xkfeng.mycat.NetWork.NetCallBackResultBean;
@@ -109,12 +110,27 @@ public class DynamicFragment extends Fragment {
         final List<Map<String , Object>>mapList = new ArrayList<>();
         HttpHelper.initHttpProcesser(new OkHttpProcesser());
         HttpHelper httpHelper = HttpHelper.getInstance(getContext().getApplicationContext());
-        httpHelper.getRequest("https://services.gradle.org/versions/all", null, new NetCallBackResultBean<Gradle>() {
+        httpHelper.getRequest("https://free-api.heweather.com/s6/weather/now?location=" +
+                        "500230&key=722dda481604441db9967f3fabd76ed1", null,
+                HttpHelper.JSON_DATA_1 ,
+                new NetCallBackResultBean<WeatherBean>() {
+                    @Override
+                    public void Failed(String string) {
+                    }
+                    @Override
+                    public void onSuccess(List<Map<String, Object>> result) {
+                    }
+                    @Override
+                    public void onSuccess(WeatherBean weatherBean) {
+                        Log.d(TAG, "onSuccess: " + weatherBean.getHeWeather6().get(0).getBasic().getLocation());
+                    }
+                });
 
-
+        httpHelper.getRequest("https://services.gradle.org/versions/all", null,
+                HttpHelper.JSON_DATA_2,
+                new NetCallBackResultBean<Gradle>() {
             @Override
             public void Failed(String string) {
-
             }
             @Override
             public void onSuccess(List<Map<String ,Object>> result) {

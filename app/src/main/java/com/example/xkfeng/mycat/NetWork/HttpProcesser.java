@@ -13,7 +13,7 @@ public interface HttpProcesser {
      * @param params 请求参数
      * @param callBack 请求结果回调
      */
-    public void getRequest(String url , Map<String ,Object> params , NetCallBack callBack) ;
+    public void getRequest(String url , Map<String ,Object> params ,int code , NetCallBack callBack) ;
 
-    public void postRequest(String url , Map<String ,Object> params , NetCallBack callBack) ;
+    public void postRequest(String url , Map<String ,Object> params ,int code , NetCallBack callBack) ;
 }

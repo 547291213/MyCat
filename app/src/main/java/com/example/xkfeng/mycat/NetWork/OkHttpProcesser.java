@@ -42,7 +42,7 @@ public class OkHttpProcesser implements HttpProcesser {
     }
 
     @Override
-    public void getRequest(String url, Map<String, Object> params, final NetCallBack callBack) {
+    public void getRequest(String url, Map<String, Object> params, final int code , final NetCallBack callBack) {
 
         final Request request = new Request.Builder()
                 .url(url)
@@ -62,7 +62,7 @@ public class OkHttpProcesser implements HttpProcesser {
                 if (response == null) {
                     return;
                 } else {
-                    callBack.Success(response.body().string(), HttpHelper.JSON_DATA_2);
+                    callBack.Success(response.body().string(), code);
 
                 }
             }
@@ -70,7 +70,7 @@ public class OkHttpProcesser implements HttpProcesser {
     }
 
     @Override
-    public void postRequest(String url, Map<String, Object> params, final NetCallBack callBack) {
+    public void postRequest(String url, Map<String, Object> params, final int code , final NetCallBack callBack ) {
 
         RequestBody requestBody = buildBody(params);
         Request request = new Request.Builder()
@@ -88,7 +88,7 @@ public class OkHttpProcesser implements HttpProcesser {
 
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
-                callBack.Success(response.body().string(), HttpHelper.JSON_DATA_2);
+                callBack.Success(response.body().string(),code);
 
             }
         });
