@@ -113,4 +113,7 @@ dependencies {
     //事件选择器框架
     implementation 'com.contrarywind:Android-PickerView:4.1.6'
 
+    //android百分比布局
+    implementation 'com.android.support:percent:27.1.1'
+
 }

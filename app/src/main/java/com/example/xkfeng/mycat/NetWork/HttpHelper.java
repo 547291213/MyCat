@@ -1,5 +1,7 @@
 package com.example.xkfeng.mycat.NetWork;
 
+import android.content.Context;
+
 import java.util.Map;
 
 /**
@@ -8,16 +10,37 @@ import java.util.Map;
  * 2 需要指定网络框架
  * 3 调用网络请求
  */
-public class HttpProxy implements HttpProcesser {
+public class HttpHelper implements HttpProcesser {
+
+
+    public static final int REQUEST_SUCCESS = 1 ;
+    public static final int REQUEST_FAILED = 2 ;
+
+    /**
+     * JSON DATA LIKE :
+     * {"code" : "1" , "message" : "hello" , "data" : {}}
+     */
+    public static final int JSON_DATA_1 = 1 ;
+
+    /**
+     * JSON DATA LIKE LIST:
+     * {"data" : []}
+     *
+     */
+    public static final int JSON_DATA_2 = 2 ;
+
+
 
     //代理类对象
-    private static HttpProxy instance = null;
+    private static HttpHelper instance = null;
 
     //代理类持有被代理类的对象
     private static HttpProcesser processer = null;
 
+    protected static Context context ;
+
     //私有类
-    private HttpProxy() {
+    private HttpHelper() {
     }
 
     /**
@@ -26,9 +49,10 @@ public class HttpProxy implements HttpProcesser {
      *
      * @return
      */
-    public static HttpProxy getInstance() {
+    public static HttpHelper getInstance(Context context) {
         if (instance == null) {
-            instance = new HttpProxy();
+            instance = new HttpHelper();
+            HttpHelper.context = context ;
         }
         return instance;
     }
@@ -39,7 +63,7 @@ public class HttpProxy implements HttpProcesser {
      * @param httpProcesser 网络框架实例
      */
     public static void initHttpProcesser(HttpProcesser httpProcesser) {
-        processer = httpProcesser;
+        processer = httpProcesser ;
     }
 
     @Override

@@ -18,4 +18,24 @@
 
 
         />
+
+    <Button
+        android:id="@+id/test_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/indexTitleLayout"
+        android:background="@drawable/btn_state_drawable"
+        android:text="获取数据"
+        android:textColor="@color/white"
+        android:textSize="22sp"
+        />
+    <ListView
+        android:id="@+id/lv_testListView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/test_btn"
+        >
+
+
+    </ListView>
 </RelativeLayout>

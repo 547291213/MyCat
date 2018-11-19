@@ -133,9 +133,11 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
         if (mShowView != null && mShowView instanceof TextView) {
 
             if (Integer.parseInt(string) > 9) {
-                mShowView.getLayoutParams().width = DensityUtil.dip2px(mContext, 24);
+                mShowView.getLayoutParams().width = DensityUtil.dip2px(mContext, 24 + Integer.parseInt(string)/25);
+//                mShowView.getLayoutParams().height = DensityUtil.dip2px(mContext , 24 + Integer.parseInt(string)/25) ;//
             } else {
                 mShowView.getLayoutParams().width = DensityUtil.dip2px(mContext, 20);
+                mShowView.getLayoutParams().height = DensityUtil.dip2px(mContext , 20) ;//
             }
             if (Integer.parseInt(string) >= 99) {
                 ((TextView) mShowView).setText("99+");
