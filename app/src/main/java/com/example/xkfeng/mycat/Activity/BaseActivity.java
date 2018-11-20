@@ -14,6 +14,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.example.xkfeng.mycat.Model.User;
+import com.example.xkfeng.mycat.NetWork.HttpHelper;
+import com.example.xkfeng.mycat.NetWork.OkHttpProcesser;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.ActivityController;
 import com.example.xkfeng.mycat.Util.UserAutoLoginHelper;
@@ -37,15 +39,21 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /*
-          极光SDK初始化
-         */
+
         if (isFirst) {
+            /**
+             * 极光SDK初始化
+             */
             isFirst = false;
             JMessageClient.init(getApplicationContext(), true);
             userAutoLoginHelper = UserAutoLoginHelper.getUserAutoLoginHelper(getApplicationContext());
             userAutoLoginHelper.setRoaming(true);
 
+
+            /**
+             * 网络框架选择的初始化
+             */
+            HttpHelper.initHttpProcesser(new OkHttpProcesser());
 
         }
 

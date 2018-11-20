@@ -25,6 +25,7 @@ import com.example.xkfeng.mycat.NetWork.NetCallBackResultBean;
 import com.example.xkfeng.mycat.NetWork.OkHttpProcesser;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
+import com.example.xkfeng.mycat.Util.IPUtil;
 
 import org.w3c.dom.ls.LSException;
 
@@ -108,23 +109,26 @@ public class DynamicFragment extends Fragment {
     private void setListView() {
 
         final List<Map<String , Object>>mapList = new ArrayList<>();
-        HttpHelper.initHttpProcesser(new OkHttpProcesser());
         HttpHelper httpHelper = HttpHelper.getInstance(getContext().getApplicationContext());
-        httpHelper.getRequest("https://free-api.heweather.com/s6/weather/now?location=" +
-                        "500230&key=722dda481604441db9967f3fabd76ed1", null,
-                HttpHelper.JSON_DATA_1 ,
-                new NetCallBackResultBean<WeatherBean>() {
-                    @Override
-                    public void Failed(String string) {
-                    }
-                    @Override
-                    public void onSuccess(List<Map<String, Object>> result) {
-                    }
-                    @Override
-                    public void onSuccess(WeatherBean weatherBean) {
-                        Log.d(TAG, "onSuccess: " + weatherBean.getHeWeather6().get(0).getBasic().getLocation());
-                    }
-                });
+//        httpHelper.getRequest("https://free-api.heweather.com/s6/weather/now?location=" +
+//                        IPUtil.getIPAddress(getContext().getApplicationContext()) +"&key=722dda481604441db9967f3fabd76ed1", null,
+//                HttpHelper.JSON_DATA_1 ,
+//                new NetCallBackResultBean<WeatherBean>() {
+//                    @Override
+//                    public void Failed(String string) {
+//                    }
+//                    @Override
+//                    public void onSuccess(List<Map<String, Object>> result) {
+//                    }
+//                    @Override
+//                    public void onSuccess(WeatherBean weatherBean) {
+//                        Log.d(TAG, "onSuccess: " + IPUtil.getIPAddress(getContext().getApplicationContext()));
+//
+//                        Log.d(TAG, "onSuccess: " + weatherBean.getHeWeather6().get(0).getBasic().getLocation());
+//
+//                        Log.d(TAG, "onSuccess: " + weatherBean.getHeWeather6().get(0).getNow().getCond_txt());
+//                    }
+//                });
 
         httpHelper.getRequest("https://services.gradle.org/versions/all", null,
                 HttpHelper.JSON_DATA_2,

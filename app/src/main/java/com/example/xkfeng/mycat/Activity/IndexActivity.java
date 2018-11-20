@@ -1,11 +1,19 @@
 package com.example.xkfeng.mycat.Activity;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
@@ -19,7 +27,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.DrawableView.IndexBottomLayout;
@@ -27,16 +34,29 @@ import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
 import com.example.xkfeng.mycat.Fragment.DynamicFragment;
 import com.example.xkfeng.mycat.Fragment.FriendFragment;
 import com.example.xkfeng.mycat.Fragment.MessageFragment;
+import com.example.xkfeng.mycat.Model.LocationBean;
+import com.example.xkfeng.mycat.Model.MsgEvent;
+import com.example.xkfeng.mycat.Model.WeatherBean;
+import com.example.xkfeng.mycat.NetWork.HttpHelper;
+import com.example.xkfeng.mycat.NetWork.NetCallBackResultBean;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.RxBus.RxBus;
 import com.example.xkfeng.mycat.Util.ActivityController;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.StringUtil;
 
+import java.util.List;
+import java.util.Map;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by initializing on 2018/10/7.
@@ -89,6 +109,12 @@ public class IndexActivity extends BaseActivity {
     //两次点击退出的时间间隔
     private static final int MAX_EXIT_TIME = 2000;
 
+    private static final int REQUEST_LOCATION_PERMISSION = 1;
+
+
+    private LocationManager locationManager;
+    private String locationProvider;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,15 +131,250 @@ public class IndexActivity extends BaseActivity {
         metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
+
         //沉浸式View
         DensityUtil.fullScreen(this);
 
         //抽屉设置
         setNavView();
 
+
+
         //初始化布局
         initView();
 
+        //获取RxBus发送的事件
+        getRxBusEvent();
+
+    }
+
+
+    /**
+     * 每次界面可见的时候获取当前天气
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //获取权限
+        getUserPermission();
+
+    }
+
+    /**
+     * 获取并且处理RxBus发送的消息事件
+     */
+    private void getRxBusEvent() {
+
+        RxBus.getInstance().tObservable(MsgEvent.class)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<MsgEvent>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+                    @Override
+                    public void onNext(final MsgEvent msgEvent) {
+                        navView.getMenu().findItem(R.id.nav_city).setTitle(msgEvent.getT().getLocationData());
+                        navView.getMenu().findItem(R.id.nav_weather).setTitle(msgEvent.getT().getWeather());
+//                        navView.postInvalidate();
+//                        navView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//                            @Override
+//                            public void onGlobalLayout() {
+//
+//
+////                        if ((MenuItem) navView.findViewById(R.id.nav_city) != null && (MenuItem) navView.findViewById(R.id.nav_weather) != null) {
+////                            navView.getMenu().getItem(2).setTitle();
+////                            navView.getMenu().getItem(3).setTitle(msgEvent.getT().getWeather());
+////                            ((MenuItem) navView.findViewById(R.id.nav_city)).setTitle(msgEvent.getT().getLocationData());
+////                            ((MenuItem) navView.findViewById(R.id.nav_weather)).setTitle(msgEvent.getT().getWeather());
+////                        }
+//                                navView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+//                            }
+//                        });
+
+//                        Log.d(TAG, "onNext: Success :" + msgEvent.getT().getLocationData() + " Weather:" + msgEvent.getT().getWeather());
+                    }
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    @SuppressLint("MissingPermission")
+    private String getLocationInfoMation() {
+
+        //获取地址位置管理器
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        //获取所有可用的地理位置提供器
+        List<String> providers = locationManager.getProviders(true);
+
+        //如果是GPS
+        if (providers.contains(LocationManager.GPS_PROVIDER)) {
+            locationProvider = LocationManager.GPS_PROVIDER;
+        } else if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
+            locationProvider = LocationManager.NETWORK_PROVIDER;
+        } else {
+            ITosast.showShort(this, "当前无法获取位置,请检查您的网络设置").show();
+            return "null";
+        }
+
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+// != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // : Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return ;
+//        }
+        @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(locationProvider);
+
+        //如果位置信息不为空
+        if (location != null) {
+            return location.getLongitude() + "," + location.getLatitude();
+        }
+
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // : Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return ;
+//        }
+
+        locationManager.requestLocationUpdates(locationProvider, 3000, 1, listener);
+
+
+        return "null";
+
+    }
+
+    LocationListener listener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+
+            /**
+             * 重新获取位置信息
+             */
+            getCityAndWeather(location.getLongitude() + "," + location.getLatitude());
+
+
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    };
+
+
+    /**
+     * 获取位置需要得到的的权限
+     * 访问网络
+     */
+    private void getUserPermission() {
+
+        //权限获取
+        if (ActivityCompat.checkSelfPermission(IndexActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(IndexActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                        PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}
+                    , REQUEST_LOCATION_PERMISSION);
+
+        } else {
+            //访问网络
+            String strings = getLocationInfoMation() ;
+            getCityAndWeather(strings);
+        }
+
+    }
+
+    /**
+     * 获取当前位置的城市和天气
+     *
+     * @param strings 当前位置的经度和维度
+     */
+    private void getCityAndWeather(String strings) {
+
+        if ("null".equals(strings)) {
+            ITosast.showShort(this, "无法获取位置信息，可能会影响部分功能的使用").show();
+            return;
+        }
+
+//        Toast.makeText(this, "正在获取数据 ：" + strings, Toast.LENGTH_SHORT).show();
+        HttpHelper httpHelper = HttpHelper.getInstance(getApplicationContext());
+        httpHelper.getRequest("https://free-api.heweather.com/s6/weather/now?location=" +
+                        strings + "&key=722dda481604441db9967f3fabd76ed1", null,
+                HttpHelper.JSON_DATA_1,
+                new NetCallBackResultBean<WeatherBean>() {
+                    @Override
+                    public void Failed(String string) {
+
+                        ITosast.showShort(IndexActivity.this, "访问天气数据失败").show();
+                    }
+
+                    @Override
+                    public void onSuccess(List<Map<String, Object>> result) {
+                    }
+
+                    @Override
+                    public void onSuccess(WeatherBean weatherBean) {
+//                        Log.d(TAG, "onSuccess: " + IPUtil.getIPAddress(getApplicationContext()));
+//
+//                        Log.d(TAG, "onSuccess: " + weatherBean.getHeWeather6().get(0).getBasic().getLocation());
+                        String locationData = null;
+                        String weather = null;
+                        if (weatherBean.getHeWeather6() != null) {
+                            if (!TextUtils.isEmpty(weatherBean.getHeWeather6().get(0).getBasic().getLocation()) &&
+                                    weatherBean.getHeWeather6().get(0).getBasic().getLocation().equals
+                                            (weatherBean.getHeWeather6().get(0).getBasic().getParent_city())) {
+                                locationData = weatherBean.getHeWeather6().get(0).getBasic().getLocation();
+                                weather = weatherBean.getHeWeather6().get(0).getNow().getCond_txt();
+                            } else if (!TextUtils.isEmpty(weatherBean.getHeWeather6().get(0).getBasic().getLocation()) &&
+                                    !weatherBean.getHeWeather6().get(0).getBasic().getLocation().equals
+                                            (weatherBean.getHeWeather6().get(0).getBasic().getParent_city())) {
+                                locationData = weatherBean.getHeWeather6().get(0).getBasic().getParent_city() +
+                                        weatherBean.getHeWeather6().get(0).getBasic().getLocation();
+                                weather = weatherBean.getHeWeather6().get(0).getNow().getCond_txt();
+                            }
+                            LocationBean locationBean = new LocationBean(locationData, weather);
+
+                            /**
+                             * 将消息和数据发送到主线程，
+                             * 在主线程中进行UI数据修改
+                             */
+                            RxBus.getInstance().post(new MsgEvent("location", locationBean));
+                        }
+
+//                        Log.d(TAG, "onSuccess: " + weatherBean.getHeWeather6().get(0).getNow().getCond_txt());
+
+                    }
+                });
 
     }
 
@@ -209,6 +470,7 @@ public class IndexActivity extends BaseActivity {
                         break;
 
                     case R.id.nav_setting:
+
                         /**
                          * 打开设置界面
                          */
@@ -524,6 +786,43 @@ public class IndexActivity extends BaseActivity {
                  */
                 setUserHeadInfo();
                 break;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode) {
+            case REQUEST_LOCATION_PERMISSION:
+                if (grantResults.length <= 0) {
+
+                    ITosast.showShort(IndexActivity.this, "获取权限失败").show();
+                    return;
+                }
+                for (int i : grantResults) {
+                    if (i != PackageManager.PERMISSION_GRANTED) {
+
+                        ITosast.showShort(IndexActivity.this, "获取权限失败").show();
+                        return;
+                    }
+                }
+                String strings = getLocationInfoMation() ;
+                getCityAndWeather(strings);
+                break;
+
+
+        }
+
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (locationManager != null) {
+            //移除监听器
+            locationManager.removeUpdates(listener);
         }
     }
 }
