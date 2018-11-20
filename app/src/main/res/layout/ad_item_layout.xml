@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="142dp">
+
+    <ImageView
+        android:id="@+id/iv_adItemImage"
+        android:layout_width="match_parent"
+        android:layout_height="142dp"
+        android:scaleType="fitXY"
+        android:background="@drawable/btn_state_drawable"
+        />
+    <TextView
+        android:id="@+id/tv_adItemText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:text="广告招商"
+        android:textStyle="italic"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:textColor="@color/white"
+        android:layout_marginRight="2dp"
+        android:layout_marginBottom="2dp"
+        />
+
+</RelativeLayout>

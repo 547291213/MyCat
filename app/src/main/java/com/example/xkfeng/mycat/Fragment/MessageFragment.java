@@ -8,18 +8,16 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.view.menu.MenuPopupHelper;
-import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,10 +27,11 @@ import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.ListSlideView;
 import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.RecyclerDefine.EmptyRecyclerView;
+import com.example.xkfeng.mycat.RecyclerDefine.QucikAdapterWrapter;
+import com.example.xkfeng.mycat.RecyclerDefine.QuickAdapter;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,21 +45,29 @@ public class MessageFragment extends Fragment {
     IndexTitleLayout indexTitleLayout;
     @BindView(R.id.et_searchEdit)
     TextView etSearchEdit;
+    @BindView(R.id.tv_messageEmptyView)
+    TextView tvMessageEmptyView;
+
     Unbinder unbinder;
+    @BindView(R.id.rv_messageRecyclerView)
+    EmptyRecyclerView rvMessageRecyclerView;
+
     private View view;
     private static final String TAG = "MessageFragment";
 
     private DisplayMetrics metrics;
     private Context mContext;
-    private ListSlideView listSlideView ;
+    private ListSlideView listSlideView;
+    private QucikAdapterWrapter<ListSlideView> qucikAdapterWrapter;
 
-    public static int STATUSBAR_PADDING_lEFT ;
-    public static int STATUSBAR_PADDING_TOP ;
-    public static int STATUSBAR_PADDING_RIGHT ;
-    public static int STATUSBAR_PADDING_BOTTOM ;
+    public static int STATUSBAR_PADDING_lEFT;
+    public static int STATUSBAR_PADDING_TOP;
+    public static int STATUSBAR_PADDING_RIGHT;
+    public static int STATUSBAR_PADDING_BOTTOM;
 
-    private PopupMenuLayout popupMenuLayout_CONTENT ;
-    private PopupMenuLayout popupMenuLayout_MENU ;
+    private PopupMenuLayout popupMenuLayout_CONTENT;
+    private PopupMenuLayout popupMenuLayout_MENU;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -93,8 +100,52 @@ public class MessageFragment extends Fragment {
         /*
          设置侧滑消息栏属性
          */
-        setSlideView();
+//        setSlideView();
 
+        /**
+         * 设置消息列表
+         */
+        setMessageList();
+
+    }
+
+    /**
+     * 消息列表内容的初始化
+     */
+    private void setMessageList() {
+
+        ListSlideView listSlideView = new ListSlideView(getContext());
+        ListSlideView listSlideView1 = new ListSlideView(getContext());
+        ListSlideView listSlideView2 = new ListSlideView(getContext()) ;
+        ListSlideView listSlideView3 = new ListSlideView(getContext()) ;
+
+        List<ListSlideView> listSlideViews = new ArrayList<>();
+        listSlideViews.add(listSlideView)  ;
+        listSlideViews.add(listSlideView1) ;
+        listSlideViews.add(listSlideView2) ;
+        listSlideViews.add(listSlideView3) ;
+
+        QuickAdapter<ListSlideView> quickAdapter = new QuickAdapter<ListSlideView>(listSlideViews) {
+            @Override
+            public int getLayoutId(int viewType) {
+                return R.layout.message_list_item;
+            }
+
+            @Override
+            public void convert(VH vh, ListSlideView data, int position) {
+
+            }
+        };
+
+        qucikAdapterWrapter = new QucikAdapterWrapter<ListSlideView>(quickAdapter);
+        View addView = LayoutInflater.from(getContext()).inflate(R.layout.ad_item_layout, null);
+        qucikAdapterWrapter.setAdView(addView);
+
+        rvMessageRecyclerView.setmEmptyView(tvMessageEmptyView);
+        rvMessageRecyclerView.setAdapter(qucikAdapterWrapter);
+        rvMessageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext() , LinearLayoutManager.VERTICAL , false));
+        rvMessageRecyclerView.addItemDecoration(new DividerItemDecoration(getContext() , DividerItemDecoration.VERTICAL));
+        rvMessageRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
     }
 
@@ -137,10 +188,10 @@ public class MessageFragment extends Fragment {
                 indexTitleLayout.getPaddingBottom());
 
 //        Log.d("UserInfoActivity", "setIndexTitleLayout: " + indexTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(mContext));
-        STATUSBAR_PADDING_lEFT = indexTitleLayout.getPaddingLeft() ;
+        STATUSBAR_PADDING_lEFT = indexTitleLayout.getPaddingLeft();
         STATUSBAR_PADDING_TOP = indexTitleLayout.getPaddingTop();
-        STATUSBAR_PADDING_RIGHT = indexTitleLayout.getPaddingRight() ;
-        STATUSBAR_PADDING_BOTTOM = indexTitleLayout.getPaddingBottom() ;
+        STATUSBAR_PADDING_RIGHT = indexTitleLayout.getPaddingRight();
+        STATUSBAR_PADDING_BOTTOM = indexTitleLayout.getPaddingBottom();
 
 
 //        设置点击事件监听
@@ -196,18 +247,17 @@ public class MessageFragment extends Fragment {
 //                //显示(这一行代码不要忘记了)
 //                popup.show();
 
-                List<String> list = new ArrayList<>() ;
-                list.add("创建群聊") ;
-                list.add("加好友/群") ;
-                list.add("扫一扫") ;
-                popupMenuLayout_MENU =  new PopupMenuLayout(getContext() , list , PopupMenuLayout.MENU_POPUP) ;
+                List<String> list = new ArrayList<>();
+                list.add("创建群聊");
+                list.add("加好友/群");
+                list.add("扫一扫");
+                popupMenuLayout_MENU = new PopupMenuLayout(getContext(), list, PopupMenuLayout.MENU_POPUP);
 //                popupMenuLayout_MENU.setContentView(indexTitleLayout);
 //                Log.d(TAG, "rightViewClick: " + indexTitleLayout.getChildCount());
-                popupMenuLayout_MENU.showAsDropDown(indexTitleLayout , DensityUtil.getScreenWidth(getContext())
-                                - popupMenuLayout_MENU.getWidth() -DensityUtil.dip2px(getContext() ,5)
-                        , DensityUtil.dip2px(getContext() , 5) );
+                popupMenuLayout_MENU.showAsDropDown(indexTitleLayout, DensityUtil.getScreenWidth(getContext())
+                                - popupMenuLayout_MENU.getWidth() - DensityUtil.dip2px(getContext(), 5)
+                        , DensityUtil.dip2px(getContext(), 5));
 
-                
 
             }
         });
@@ -217,14 +267,14 @@ public class MessageFragment extends Fragment {
     /**
      * 设置滑动View的相关属性
      */
-    private void setSlideView(){
+    private void setSlideView() {
 
-        List<String> list = new ArrayList<>() ;
+        List<String> list = new ArrayList<>();
         list.add("设置为置顶消息");
-        list.add("删除") ;
-        popupMenuLayout_CONTENT = new PopupMenuLayout(mContext ,list , PopupMenuLayout.CONTENT_POPUP) ;
+        list.add("删除");
+        popupMenuLayout_CONTENT = new PopupMenuLayout(mContext, list, PopupMenuLayout.CONTENT_POPUP);
 
-        listSlideView = (ListSlideView)view.findViewById(R.id.listlide) ;
+        listSlideView = (ListSlideView) view.findViewById(R.id.listlide);
         listSlideView.setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
             @Override
             public void topViewClick(View view) {
@@ -250,11 +300,12 @@ public class MessageFragment extends Fragment {
                  * 由于contentView还未绘制，这时候的width、height都是0。
                  * 因此需要通过measure测量出contentView的大小，才能进行计算。
                  */
-                popupMenuLayout_CONTENT.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getWidth()) ,
-                        DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getHeight())); ;
-                popupMenuLayout_CONTENT.showAsDropDown(view ,
-                        DensityUtil.getScreenWidth(getContext())/2 - popupMenuLayout_CONTENT.getContentView().getMeasuredWidth()/2
-                        ,-view.getHeight()-popupMenuLayout_CONTENT.getContentView().getMeasuredHeight() );
+                popupMenuLayout_CONTENT.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getWidth()),
+                        DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getHeight()));
+                ;
+                popupMenuLayout_CONTENT.showAsDropDown(view,
+                        DensityUtil.getScreenWidth(getContext()) / 2 - popupMenuLayout_CONTENT.getContentView().getMeasuredWidth() / 2
+                        , -view.getHeight() - popupMenuLayout_CONTENT.getContentView().getMeasuredHeight());
 
             }
 
