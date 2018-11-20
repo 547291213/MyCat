@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
+
     <com.example.xkfeng.mycat.DrawableView.IndexTitleLayout
         android:id="@+id/indexTitleLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
 
+        app:layoutBackground="@drawable/title_gradient"
         app:leftBackground="@drawable/contacts_gray"
         app:middleText="消息"
         app:middleTextColor="@color/light_blue"
         app:rightBackground="@drawable/plus"
-        app:layoutBackground="@drawable/title_gradient"
 
         />
 
@@ -22,51 +23,55 @@
         android:id="@+id/et_searchEdit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="搜索"
-        android:textSize="14sp"
-        android:gravity="center"
+        android:layout_below="@id/indexTitleLayout"
         android:layout_margin="5dp"
         android:background="@color/gray"
-        android:paddingBottom="2dp"
+        android:gravity="center"
         android:paddingTop="2dp"
-        android:layout_below="@id/indexTitleLayout"
+        android:paddingBottom="2dp"
+        android:text="搜索"
+        android:textSize="14sp"
 
 
         />
+
+    <include
+        android:id="@+id/listlide"
+        layout="@layout/list_slide_layout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_below="@id/et_searchEdit" />
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/et_searchEdit"
-        >
+        android:layout_below="@id/listlide">
 
         <com.example.xkfeng.mycat.RecyclerDefine.EmptyRecyclerView
             android:id="@+id/rv_messageRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-
-            />
+            android:layout_height="wrap_content" />
 
         <TextView
             android:id="@+id/tv_messageEmptyView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textSize="20sp"
-            android:text="还没有任何会话消息，赶快去添加好友发起会话吧！"
-            android:layout_marginRight="30dp"
             android:layout_marginLeft="30dp"
-            android:textStyle="italic"
-            />
+            android:layout_marginRight="30dp"
+            android:text="还没有任何会话消息，赶快去添加好友发起会话吧！"
+            android:textSize="20sp"
+            android:textStyle="italic" />
 
     </FrameLayout>
 
     <!--<include-->
-        <!--android:id="@+id/listlide"-->
-        <!--layout="@layout/list_slide_layout"-->
+    <!--android:id="@+id/listlide"-->
+    <!--layout="@layout/list_slide_layout"-->
 
-        <!--android:layout_below="@id/et_searchEdit"-->
-        <!--android:layout_height="60dp"-->
-        <!--android:layout_width="match_parent"-->
-        <!--/>-->
+    <!--android:layout_below="@id/et_searchEdit"-->
+    <!--android:layout_height="60dp"-->
+    <!--android:layout_width="match_parent"-->
+    <!--/>-->
 
 </RelativeLayout>

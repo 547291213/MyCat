@@ -6,9 +6,11 @@ import android.content.res.Resources;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -16,7 +18,11 @@ import android.widget.TextView;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 
+import org.w3c.dom.Attr;
+
 import butterknife.internal.ListenerClass;
+
+import static com.example.xkfeng.mycat.R.layout.message_item;
 
 public class ListSlideView extends HorizontalScrollView {
 
@@ -44,6 +50,16 @@ public class ListSlideView extends HorizontalScrollView {
     //是否第一次测量（只在onMeasure中调用一次）
     private Boolean once = false;
 
+    private int TEST = 1;
+
+    public int getTEST() {
+        return TEST;
+    }
+
+    public void setTEST(int TEST) {
+        this.TEST = TEST;
+    }
+
     //自定义接口，将事件传递出去
     private SlideViewClickListener slideViewClickListener;
 
@@ -51,22 +67,27 @@ public class ListSlideView extends HorizontalScrollView {
     private static final String TAG = "ListSlideView";
     private Context mContext;
 
-    private RedPointViewHelper stickyViewHelper  ;
+    private RedPointViewHelper stickyViewHelper;
 
     public ListSlideView(Context context) {
-        this(context, null);
+        this(context , null) ;
+
     }
 
     public ListSlideView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
+    }
 
+    public ListSlideView(Context context, AttributeSet attrs, int str) {
+        super(context, attrs, str);
         mContext = context;
         this.setOverScrollMode(OVER_SCROLL_NEVER);
 
 
     }
 
-    public void setShow(){
+    public SlideViewClickListener getSlideViewClickListener() {
+        return slideViewClickListener;
     }
 
     /**
@@ -76,10 +97,8 @@ public class ListSlideView extends HorizontalScrollView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
         if (!once) {
-
-
+            once = true;
             int width = DensityUtil.getScreenWidth(mContext);
 //            Log.d(TAG, "onMeasure: width " + width);
 
@@ -127,7 +146,9 @@ public class ListSlideView extends HorizontalScrollView {
             topView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Log.d(TAG, "onClick: onTouchEvent topView " + slideViewClickListener + " Test :" + TEST);
                     if (slideViewClickListener != null) {
+                        Log.d(TAG, "onClick: onTouchEvent : not-null");
                         slideViewClickListener.topViewClick(v);
                     }
                 }
@@ -151,8 +172,6 @@ public class ListSlideView extends HorizontalScrollView {
                         slideViewClickListener.deleteViewClick(v);
                 }
             });
-
-            once = true;
 
         }
 
@@ -203,7 +222,7 @@ public class ListSlideView extends HorizontalScrollView {
             case MotionEvent.ACTION_UP://松开
             case MotionEvent.ACTION_CANCEL:
                 changeScrollX();
-                Log.d(TAG, "onTouchEvent: UP OR CANCEL");
+//                Log.d(TAG, "onTouchEvent: UP OR CANCEL");
                 return true;
             default:
                 break;
@@ -221,7 +240,7 @@ public class ListSlideView extends HorizontalScrollView {
     }
 
     public void changeScrollX() {
-        Log.d(TAG, "changeScrollX: ");
+//        Log.d(TAG, "changeScrollX: ");
         if (getScrollX() >= (mScrollWidth / 2)) {
             this.smoothScrollTo(mScrollWidth, 0);
             isOpen = true;
@@ -247,6 +266,7 @@ public class ListSlideView extends HorizontalScrollView {
      */
     public void setSlideViewClickListener(SlideViewClickListener slideViewClickListener) {
         this.slideViewClickListener = slideViewClickListener;
+
     }
 
     /**

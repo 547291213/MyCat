@@ -49,6 +49,7 @@ public class MessageFragment extends Fragment {
     TextView tvMessageEmptyView;
 
     Unbinder unbinder;
+
     @BindView(R.id.rv_messageRecyclerView)
     EmptyRecyclerView rvMessageRecyclerView;
 
@@ -57,8 +58,15 @@ public class MessageFragment extends Fragment {
 
     private DisplayMetrics metrics;
     private Context mContext;
-    private ListSlideView listSlideView;
+    private ListSlideView testListSlideView;
     private QucikAdapterWrapter<ListSlideView> qucikAdapterWrapter;
+    private QuickAdapter<ListSlideView> quickAdapter;
+
+    private List<ListSlideView> listSlideViews;
+    private ListSlideView listSlideView;
+    private ListSlideView listSlideView1;
+    private ListSlideView listSlideView2;
+    private ListSlideView listSlideView3;
 
     public static int STATUSBAR_PADDING_lEFT;
     public static int STATUSBAR_PADDING_TOP;
@@ -114,25 +122,128 @@ public class MessageFragment extends Fragment {
      */
     private void setMessageList() {
 
-        ListSlideView listSlideView = new ListSlideView(getContext());
-        ListSlideView listSlideView1 = new ListSlideView(getContext());
-        ListSlideView listSlideView2 = new ListSlideView(getContext()) ;
-        ListSlideView listSlideView3 = new ListSlideView(getContext()) ;
 
-        List<ListSlideView> listSlideViews = new ArrayList<>();
-        listSlideViews.add(listSlideView)  ;
-        listSlideViews.add(listSlideView1) ;
-        listSlideViews.add(listSlideView2) ;
-        listSlideViews.add(listSlideView3) ;
+        listSlideView = new ListSlideView(getContext().getApplicationContext());
+        listSlideView1 = new ListSlideView(getContext().getApplicationContext());
+        listSlideView2 = new ListSlideView(getContext().getApplicationContext());
+        listSlideView3 = new ListSlideView(getContext().getApplicationContext());
 
-        QuickAdapter<ListSlideView> quickAdapter = new QuickAdapter<ListSlideView>(listSlideViews) {
+        testListSlideView = view.findViewById(R.id.listlide);
+        List<String> list = new ArrayList<>();
+        list.add("设置为置顶消息");
+        list.add("删除");
+        popupMenuLayout_CONTENT = new PopupMenuLayout(mContext, list, PopupMenuLayout.CONTENT_POPUP);
+
+        testListSlideView.setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
+            @Override
+            public void topViewClick(View view) {
+
+                Toast.makeText(mContext, "topViewClick", Toast.LENGTH_SHORT).show();
+                listSlideViews.add(listSlideView);
+                listSlideViews.add(listSlideView1);
+                listSlideViews.add(listSlideView2);
+                listSlideViews.add(listSlideView3);
+
+                qucikAdapterWrapter.notifyDataSetChanged();
+
+            }
+
+            @Override
+            public void flagViewClick(View view) {
+                Toast.makeText(mContext, "flagViewClick", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void deleteViewClick(View view) {
+                Toast.makeText(mContext, "deleteViewClick", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void contentViewLongClick(View view) {
+
+                /**
+                 * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
+                 * 由于contentView还未绘制，这时候的width、height都是0。
+                 * 因此需要通过measure测量出contentView的大小，才能进行计算。
+                 */
+                popupMenuLayout_CONTENT.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getWidth()),
+                        DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getHeight()));
+                ;
+                popupMenuLayout_CONTENT.showAsDropDown(view,
+                        DensityUtil.getScreenWidth(getContext()) / 2 - popupMenuLayout_CONTENT.getContentView().getMeasuredWidth() / 2
+                        , -view.getHeight() - popupMenuLayout_CONTENT.getContentView().getMeasuredHeight());
+
+            }
+
+            @Override
+            public void contentViewClick(View view) {
+
+                Toast.makeText(getContext(), "Message Click", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        listSlideViews = new ArrayList<ListSlideView>();
+
+        quickAdapter = new QuickAdapter<ListSlideView>(listSlideViews) {
             @Override
             public int getLayoutId(int viewType) {
                 return R.layout.message_list_item;
             }
 
             @Override
-            public void convert(VH vh, ListSlideView data, int position) {
+            public void convert(VH vh, ListSlideView data, final int position) {
+
+//           Toast.makeText(mContext, "data : " + position, Toast.LENGTH_SHORT).show();
+
+                List<String> list = new ArrayList<>();
+                list.add("设置为置顶消息");
+                list.add("删除");
+                popupMenuLayout_CONTENT = new PopupMenuLayout(mContext, list, PopupMenuLayout.CONTENT_POPUP);
+
+                data.setTEST(11);
+                data.setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
+                    @Override
+                    public void topViewClick(View view) {
+
+                        Toast.makeText(mContext, "topViewClick :" + position, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void flagViewClick(View view) {
+                        Toast.makeText(mContext, "flagViewClick :" + position, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void deleteViewClick(View view) {
+                        Toast.makeText(mContext, "deleteViewClick :" + position, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void contentViewLongClick(View view) {
+
+                        /**
+                         * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
+                         * 由于contentView还未绘制，这时候的width、height都是0。
+                         * 因此需要通过measure测量出contentView的大小，才能进行计算。
+                         */
+                        popupMenuLayout_CONTENT.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getWidth()),
+                                DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getHeight()));
+                        ;
+                        popupMenuLayout_CONTENT.showAsDropDown(view,
+                                DensityUtil.getScreenWidth(getContext()) / 2 - popupMenuLayout_CONTENT.getContentView().getMeasuredWidth() / 2
+                                , -view.getHeight() - popupMenuLayout_CONTENT.getContentView().getMeasuredHeight());
+                    }
+
+                    @Override
+                    public void contentViewClick(View view) {
+                        Toast.makeText(getContext(), "Message Click :" + position, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                if (data.getSlideViewClickListener() == null) {
+                    Toast.makeText(getContext(), "null", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.d(TAG, " onTouchEvent convert: not-null " + data.getTEST());
+                }
 
             }
         };
@@ -141,11 +252,11 @@ public class MessageFragment extends Fragment {
         View addView = LayoutInflater.from(getContext()).inflate(R.layout.ad_item_layout, null);
         qucikAdapterWrapter.setAdView(addView);
 
+        rvMessageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        rvMessageRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        rvMessageRecyclerView.setItemAnimator(new DefaultItemAnimator());
         rvMessageRecyclerView.setmEmptyView(tvMessageEmptyView);
         rvMessageRecyclerView.setAdapter(qucikAdapterWrapter);
-        rvMessageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext() , LinearLayoutManager.VERTICAL , false));
-        rvMessageRecyclerView.addItemDecoration(new DividerItemDecoration(getContext() , DividerItemDecoration.VERTICAL));
-        rvMessageRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
     }
 
@@ -274,47 +385,47 @@ public class MessageFragment extends Fragment {
         list.add("删除");
         popupMenuLayout_CONTENT = new PopupMenuLayout(mContext, list, PopupMenuLayout.CONTENT_POPUP);
 
-        listSlideView = (ListSlideView) view.findViewById(R.id.listlide);
-        listSlideView.setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
-            @Override
-            public void topViewClick(View view) {
-
-                Toast.makeText(mContext, "topViewClick", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void flagViewClick(View view) {
-                Toast.makeText(mContext, "flagViewClick", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void deleteViewClick(View view) {
-                Toast.makeText(mContext, "deleteViewClick", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void contentViewLongClick(View view) {
-
-                /**
-                 * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
-                 * 由于contentView还未绘制，这时候的width、height都是0。
-                 * 因此需要通过measure测量出contentView的大小，才能进行计算。
-                 */
-                popupMenuLayout_CONTENT.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getWidth()),
-                        DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getHeight()));
-                ;
-                popupMenuLayout_CONTENT.showAsDropDown(view,
-                        DensityUtil.getScreenWidth(getContext()) / 2 - popupMenuLayout_CONTENT.getContentView().getMeasuredWidth() / 2
-                        , -view.getHeight() - popupMenuLayout_CONTENT.getContentView().getMeasuredHeight());
-
-            }
-
-            @Override
-            public void contentViewClick(View view) {
-
-                Toast.makeText(getContext(), "Message Click", Toast.LENGTH_SHORT).show();
-            }
-        });
+//        listSlideView = (ListSlideView) view.findViewById(R.id.listlide);
+//        listSlideView.setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
+//            @Override
+//            public void topViewClick(View view) {
+//
+//                Toast.makeText(mContext, "topViewClick", Toast.LENGTH_SHORT).show();
+//            }
+//
+//            @Override
+//            public void flagViewClick(View view) {
+//                Toast.makeText(mContext, "flagViewClick", Toast.LENGTH_SHORT).show();
+//            }
+//
+//            @Override
+//            public void deleteViewClick(View view) {
+//                Toast.makeText(mContext, "deleteViewClick", Toast.LENGTH_SHORT).show();
+//            }
+//
+//            @Override
+//            public void contentViewLongClick(View view) {
+//
+//                /**
+//                 * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
+//                 * 由于contentView还未绘制，这时候的width、height都是0。
+//                 * 因此需要通过measure测量出contentView的大小，才能进行计算。
+//                 */
+//                popupMenuLayout_CONTENT.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getWidth()),
+//                        DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getHeight()));
+//                ;
+//                popupMenuLayout_CONTENT.showAsDropDown(view,
+//                        DensityUtil.getScreenWidth(getContext()) / 2 - popupMenuLayout_CONTENT.getContentView().getMeasuredWidth() / 2
+//                        , -view.getHeight() - popupMenuLayout_CONTENT.getContentView().getMeasuredHeight());
+//
+//            }
+//
+//            @Override
+//            public void contentViewClick(View view) {
+//
+//                Toast.makeText(getContext(), "Message Click", Toast.LENGTH_SHORT).show();
+//            }
+//        });
     }
 
 

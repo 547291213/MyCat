@@ -22,7 +22,7 @@ import java.util.List;
 public abstract class QuickAdapter<T> extends RecyclerView.Adapter<QuickAdapter.VH> {
 
 
-    private List<T> list ;
+    private List<T> list;
 
     public QuickAdapter(List<T> list)
     {

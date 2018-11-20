@@ -27,27 +27,31 @@ public class EmptyRecyclerView extends RecyclerView {
 
         @Override
         public void onItemRangeChanged(int positionStart, int itemCount) {
+            super.onItemRangeChanged(positionStart , itemCount);
             onChanged();
         }
 
         @Override
         public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
+            super.onItemRangeChanged(positionStart , itemCount , payload);
             onChanged();
         }
 
         @Override
         public void onItemRangeInserted(int positionStart, int itemCount) {
+            super.onItemRangeInserted(positionStart ,itemCount );
             onChanged();
         }
 
         @Override
         public void onItemRangeRemoved(int positionStart, int itemCount) {
+            super.onItemRangeRemoved(positionStart , itemCount);
             onChanged();
         }
 
         @Override
         public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
-
+            super.onItemRangeMoved(fromPosition ,toPosition , itemCount);
             onChanged();
         }
     };
