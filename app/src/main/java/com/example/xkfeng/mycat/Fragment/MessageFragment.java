@@ -26,6 +26,8 @@ import com.example.xkfeng.mycat.Activity.SearchActivity;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.ListSlideView;
 import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
+import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
+import com.example.xkfeng.mycat.Model.MessageInfo;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.RecyclerDefine.EmptyRecyclerView;
 import com.example.xkfeng.mycat.RecyclerDefine.QucikAdapterWrapter;
@@ -59,15 +61,14 @@ public class MessageFragment extends Fragment {
     private DisplayMetrics metrics;
     private Context mContext;
     private ListSlideView testListSlideView;
-    private QucikAdapterWrapter<ListSlideView> qucikAdapterWrapter;
-    private QuickAdapter<ListSlideView> quickAdapter;
+    private QucikAdapterWrapter<MessageInfo> qucikAdapterWrapter;
+    private QuickAdapter<MessageInfo> quickAdapter;
 
     private List<ListSlideView> listSlideViews;
     private ListSlideView listSlideView;
     private ListSlideView listSlideView1;
     private ListSlideView listSlideView2;
     private ListSlideView listSlideView3;
-
     public static int STATUSBAR_PADDING_lEFT;
     public static int STATUSBAR_PADDING_TOP;
     public static int STATUSBAR_PADDING_RIGHT;
@@ -139,10 +140,6 @@ public class MessageFragment extends Fragment {
             public void topViewClick(View view) {
 
                 Toast.makeText(mContext, "topViewClick", Toast.LENGTH_SHORT).show();
-                listSlideViews.add(listSlideView);
-                listSlideViews.add(listSlideView1);
-                listSlideViews.add(listSlideView2);
-                listSlideViews.add(listSlideView3);
 
                 qucikAdapterWrapter.notifyDataSetChanged();
 
@@ -184,38 +181,49 @@ public class MessageFragment extends Fragment {
 
         listSlideViews = new ArrayList<ListSlideView>();
 
-        quickAdapter = new QuickAdapter<ListSlideView>(listSlideViews) {
+        List<MessageInfo> messageInfoList = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            if (i % 3 == 0) {
+                MessageInfo messageInfo = new MessageInfo("", "Hello world!", "value ;" + i, "19:58", "12");
+                messageInfoList.add(messageInfo);
+            } else {
+                MessageInfo messageInfo = new MessageInfo("", "Hello world!", "value ;" + i, "19:58", "false");
+                messageInfoList.add(messageInfo);
+            }
+        }
+
+        quickAdapter = new QuickAdapter<MessageInfo>(messageInfoList) {
             @Override
             public int getLayoutId(int viewType) {
                 return R.layout.message_list_item;
             }
 
             @Override
-            public void convert(VH vh, ListSlideView data, final int position) {
+            public void convert(VH vh, MessageInfo data, final int position) {
 
 //           Toast.makeText(mContext, "data : " + position, Toast.LENGTH_SHORT).show();
 
-                List<String> list = new ArrayList<>();
-                list.add("设置为置顶消息");
-                list.add("删除");
-                popupMenuLayout_CONTENT = new PopupMenuLayout(mContext, list, PopupMenuLayout.CONTENT_POPUP);
+                ((TextView) vh.getView(R.id.tv_meessageTitle)).setText(data.getTitle());
+                ((TextView) vh.getView(R.id.tv_messageContent)).setText(data.getContent());
+                ((TextView) vh.getView(R.id.tv_meessageTime)).setText(data.getTime());
 
-                data.setTEST(11);
-                data.setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
+                ((ListSlideView) vh.getView(R.id.listlide)).setStickyViewHelper(data.getMessageNotRead());
+
+                ((ListSlideView) vh.getView(R.id.listlide)).setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
                     @Override
                     public void topViewClick(View view) {
 
-                        Toast.makeText(mContext, "topViewClick :" + position, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "topViewClick", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void flagViewClick(View view) {
-                        Toast.makeText(mContext, "flagViewClick :" + position, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "flagViewClick", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void deleteViewClick(View view) {
-                        Toast.makeText(mContext, "deleteViewClick :" + position, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "deleteViewClick", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -232,23 +240,26 @@ public class MessageFragment extends Fragment {
                         popupMenuLayout_CONTENT.showAsDropDown(view,
                                 DensityUtil.getScreenWidth(getContext()) / 2 - popupMenuLayout_CONTENT.getContentView().getMeasuredWidth() / 2
                                 , -view.getHeight() - popupMenuLayout_CONTENT.getContentView().getMeasuredHeight());
+
                     }
 
                     @Override
                     public void contentViewClick(View view) {
-                        Toast.makeText(getContext(), "Message Click :" + position, Toast.LENGTH_SHORT).show();
+
+                        Toast.makeText(getContext(), "Message Click", Toast.LENGTH_SHORT).show();
                     }
                 });
-                if (data.getSlideViewClickListener() == null) {
-                    Toast.makeText(getContext(), "null", Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.d(TAG, " onTouchEvent convert: not-null " + data.getTEST());
-                }
+
+                List<String> list = new ArrayList<>();
+                list.add("设置为置顶消息");
+                list.add("删除");
+                popupMenuLayout_CONTENT = new PopupMenuLayout(mContext, list, PopupMenuLayout.CONTENT_POPUP);
 
             }
+
         };
 
-        qucikAdapterWrapter = new QucikAdapterWrapter<ListSlideView>(quickAdapter);
+        qucikAdapterWrapter = new QucikAdapterWrapter<MessageInfo>(quickAdapter);
         View addView = LayoutInflater.from(getContext()).inflate(R.layout.ad_item_layout, null);
         qucikAdapterWrapter.setAdView(addView);
 

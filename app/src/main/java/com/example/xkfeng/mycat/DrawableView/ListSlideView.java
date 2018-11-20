@@ -3,6 +3,9 @@ package com.example.xkfeng.mycat.DrawableView;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.speech.tts.TextToSpeech;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -21,6 +24,7 @@ import com.example.xkfeng.mycat.Util.DensityUtil;
 import org.w3c.dom.Attr;
 
 import butterknife.internal.ListenerClass;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.example.xkfeng.mycat.R.layout.message_item;
 
@@ -49,6 +53,22 @@ public class ListSlideView extends HorizontalScrollView {
 
     //是否第一次测量（只在onMeasure中调用一次）
     private Boolean once = false;
+    /**
+     * 消息来源用户头像，群头像
+     */
+    private CircleImageView pciv_messageHeaderImage;
+    /**
+     * 用户ID，群标题
+     */
+    private TextView tv_meessageTitle;
+    /**
+     * 消息内容
+     */
+    private TextView tv_messageContent;
+    /**
+     * 最近消息的时间
+     */
+    private TextView tv_meessageTime;
 
     private int TEST = 1;
 
@@ -70,7 +90,7 @@ public class ListSlideView extends HorizontalScrollView {
     private RedPointViewHelper stickyViewHelper;
 
     public ListSlideView(Context context) {
-        this(context , null) ;
+        this(context, null);
 
     }
 
@@ -113,8 +133,16 @@ public class ListSlideView extends HorizontalScrollView {
             View redPointMessage = relativeLayout.findViewById(R.id.redpoint_view_message);
             stickyViewHelper = new RedPointViewHelper(mContext, redPointMessage, R.layout.item_drag_view);
 
+            /**
+             * 消息对象内容的获取
+             */
+            pciv_messageHeaderImage = relativeLayout.findViewById(R.id.pciv_messageHeaderImage);
+            tv_meessageTitle = relativeLayout.findViewById(R.id.tv_meessageTitle);
+            tv_messageContent = relativeLayout.findViewById(R.id.tv_messageContent);
+            tv_meessageTime = relativeLayout.findViewById(R.id.tv_meessageTime);
+
+
             ViewGroup.LayoutParams lp = relativeLayout.getLayoutParams();
-            //lp.width = 1080;
             lp.width = width;
             relativeLayout.setLayoutParams(lp);
 
@@ -257,6 +285,59 @@ public class ListSlideView extends HorizontalScrollView {
      */
     public Boolean getIsOpen() {
         return isOpen;
+    }
+
+
+    /**
+     * 设置消息用户头像
+     *
+     * @param bitmap 消息用户头像
+     */
+    public void setPciv_messageHeaderImageSource(Bitmap bitmap) {
+        pciv_messageHeaderImage.setImageBitmap(bitmap);
+    }
+
+    /**
+     * 设置消息标题
+     *
+     * @param string 消息标题
+     */
+    public void setTv_meessageTitleText(String string) {
+        this.tv_meessageTitle.setText(string);
+    }
+
+    /**
+     * 设置消息内容
+     *
+     * @param string 消息内容
+     */
+    public void setTv_messageContentText(String string) {
+        this.tv_messageContent.setText(string);
+    }
+
+    public void setStickyViewHelper(String string) {
+        if ("false".equals(string)) {
+            if (stickyViewHelper != null) {
+                stickyViewHelper.setViewNotShow();
+            }
+        } else {
+            if (stickyViewHelper != null) {
+                stickyViewHelper.setRedPointViewText(string);
+                stickyViewHelper.setViewShow();
+
+            }
+        }
+
+
+    }
+
+    /**
+     * 消息最近的消息时间
+     *
+     * @param string 消息时间
+     */
+    public void setTv_meessageTime(String string) {
+        this.tv_meessageTime.setText(string);
     }
 
     /**

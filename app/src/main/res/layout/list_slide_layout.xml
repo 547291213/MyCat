@@ -5,6 +5,8 @@
     android:layout_height="60dp"
     android:paddingBottom="1dp"
     android:scrollbars="none"
+    android:descendantFocusability="beforeDescendants"
+
     >
 
 

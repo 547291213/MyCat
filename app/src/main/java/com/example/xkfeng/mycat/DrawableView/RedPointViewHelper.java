@@ -159,6 +159,19 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
     }
 
     /**
+     * 设置View不显示
+     */
+     public void setViewNotShow() {
+         if (mWm != null && mRedPointView.getParent() != null && mDragView.getParent() != null) {
+             mWm.removeView(mRedPointView);
+             mWm.removeView(mDragView);
+             //先设置在点击事件弹起后，显示原View
+             mShowView.setVisibility(View.VISIBLE);
+         }
+         mShowView.setVisibility(View.VISIBLE);
+     }
+
+    /**
      * 设置View显示
      */
     public void setViewShow(){
