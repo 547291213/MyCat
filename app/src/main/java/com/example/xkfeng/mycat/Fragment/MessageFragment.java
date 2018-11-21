@@ -60,15 +60,9 @@ public class MessageFragment extends Fragment {
 
     private DisplayMetrics metrics;
     private Context mContext;
-    private ListSlideView testListSlideView;
     private QucikAdapterWrapter<MessageInfo> qucikAdapterWrapter;
     private QuickAdapter<MessageInfo> quickAdapter;
 
-    private List<ListSlideView> listSlideViews;
-    private ListSlideView listSlideView;
-    private ListSlideView listSlideView1;
-    private ListSlideView listSlideView2;
-    private ListSlideView listSlideView3;
     public static int STATUSBAR_PADDING_lEFT;
     public static int STATUSBAR_PADDING_TOP;
     public static int STATUSBAR_PADDING_RIGHT;
@@ -123,63 +117,10 @@ public class MessageFragment extends Fragment {
      */
     private void setMessageList() {
 
-
-        listSlideView = new ListSlideView(getContext().getApplicationContext());
-        listSlideView1 = new ListSlideView(getContext().getApplicationContext());
-        listSlideView2 = new ListSlideView(getContext().getApplicationContext());
-        listSlideView3 = new ListSlideView(getContext().getApplicationContext());
-
-        testListSlideView = view.findViewById(R.id.listlide);
         List<String> list = new ArrayList<>();
         list.add("设置为置顶消息");
         list.add("删除");
         popupMenuLayout_CONTENT = new PopupMenuLayout(mContext, list, PopupMenuLayout.CONTENT_POPUP);
-
-        testListSlideView.setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
-            @Override
-            public void topViewClick(View view) {
-
-                Toast.makeText(mContext, "topViewClick", Toast.LENGTH_SHORT).show();
-
-                qucikAdapterWrapter.notifyDataSetChanged();
-
-            }
-
-            @Override
-            public void flagViewClick(View view) {
-                Toast.makeText(mContext, "flagViewClick", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void deleteViewClick(View view) {
-                Toast.makeText(mContext, "deleteViewClick", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void contentViewLongClick(View view) {
-
-                /**
-                 * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
-                 * 由于contentView还未绘制，这时候的width、height都是0。
-                 * 因此需要通过measure测量出contentView的大小，才能进行计算。
-                 */
-                popupMenuLayout_CONTENT.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getWidth()),
-                        DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getHeight()));
-                ;
-                popupMenuLayout_CONTENT.showAsDropDown(view,
-                        DensityUtil.getScreenWidth(getContext()) / 2 - popupMenuLayout_CONTENT.getContentView().getMeasuredWidth() / 2
-                        , -view.getHeight() - popupMenuLayout_CONTENT.getContentView().getMeasuredHeight());
-
-            }
-
-            @Override
-            public void contentViewClick(View view) {
-
-                Toast.makeText(getContext(), "Message Click", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        listSlideViews = new ArrayList<ListSlideView>();
 
         List<MessageInfo> messageInfoList = new ArrayList<>();
         for (int i = 0; i < 10; i++) {

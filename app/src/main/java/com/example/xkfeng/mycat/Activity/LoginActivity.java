@@ -2,6 +2,7 @@ package com.example.xkfeng.mycat.Activity;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -164,7 +165,6 @@ public class LoginActivity extends BaseActivity {
 
         //密码drawableTextEdit的功能实现
         passwordEditInit();
-
 
     }
 

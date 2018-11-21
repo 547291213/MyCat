@@ -2,6 +2,7 @@ package com.example.xkfeng.mycat.Activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -111,9 +112,11 @@ public class IndexActivity extends BaseActivity {
 
     private static final int REQUEST_LOCATION_PERMISSION = 1;
 
-
     private LocationManager locationManager;
     private String locationProvider;
+
+
+    private static boolean isFirst = true ;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -143,8 +146,6 @@ public class IndexActivity extends BaseActivity {
         //初始化布局
         initView();
 
-        //获取RxBus发送的事件
-        getRxBusEvent();
 
     }
 
@@ -155,8 +156,12 @@ public class IndexActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        //获取RxBus发送的事件
+        getRxBusEvent();
+
         //获取权限
         getUserPermission();
+
 
     }
 
@@ -164,10 +169,12 @@ public class IndexActivity extends BaseActivity {
      * 获取并且处理RxBus发送的消息事件
      */
     private void getRxBusEvent() {
-
-        RxBus.getInstance().tObservable(MsgEvent.class)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
+        RxBus.getInstance()
+//                .toObservable(this , MsgEvent.class) // 防止内存泄漏
+                .toObservable(MsgEvent.class)  //对象类型(可能存在内存泄漏)
+//                .compose(provider.<MsgEvent>bindToLifecycle())  //防内存泄漏
+                .observeOn(AndroidSchedulers.mainThread())  //观察者事件发生线程
+                .subscribeOn(Schedulers.io()) //被观察者事件发生线程
                 .subscribe(new Observer<MsgEvent>() {
                     @Override
                     public void onSubscribe(Disposable d) {
@@ -221,7 +228,7 @@ public class IndexActivity extends BaseActivity {
         } else if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
             locationProvider = LocationManager.NETWORK_PROVIDER;
         } else {
-            ITosast.showShort(this, "当前无法获取位置,请检查您的网络设置").show();
+//            ITosast.showShort(this, "当前无法获取位置,请检查您的网络设置").show();
             return "null";
         }
 
@@ -321,9 +328,16 @@ public class IndexActivity extends BaseActivity {
      */
     private void getCityAndWeather(String strings) {
 
-        if ("null".equals(strings)) {
-            ITosast.showShort(this, "无法获取位置信息，可能会影响部分功能的使用").show();
-            return;
+        /**
+         * 只在用户登陆的时候进行提示处理
+         * 非登陆的时候，只返回
+         */
+        if ("null".equals(strings) ) {
+            if(isFirst){
+                ITosast.showShort(this, "无法获取位置信息，可能会影响部分功能的使用").show();
+                isFirst = false ;
+            }
+            return ;
         }
 
 //        Toast.makeText(this, "正在获取数据 ：" + strings, Toast.LENGTH_SHORT).show();

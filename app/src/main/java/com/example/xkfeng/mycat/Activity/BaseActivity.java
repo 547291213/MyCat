@@ -19,7 +19,6 @@ import com.example.xkfeng.mycat.NetWork.OkHttpProcesser;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.ActivityController;
 import com.example.xkfeng.mycat.Util.UserAutoLoginHelper;
-
 import cn.jpush.android.api.BasicPushNotificationBuilder;
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
@@ -35,6 +34,7 @@ public class BaseActivity extends AppCompatActivity {
     private UserAutoLoginHelper userAutoLoginHelper;
 
     private static boolean isFirst = true;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,6 +54,7 @@ public class BaseActivity extends AppCompatActivity {
              * 网络框架选择的初始化
              */
             HttpHelper.initHttpProcesser(new OkHttpProcesser());
+
 
         }
 
@@ -78,7 +79,6 @@ public class BaseActivity extends AppCompatActivity {
      */
     @Override
     protected void onResume() {
-
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("com.example.xkfeng.forceofflinereceiver");

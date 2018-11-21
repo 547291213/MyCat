@@ -35,17 +35,10 @@
 
         />
 
-    <include
-        android:id="@+id/listlide"
-        layout="@layout/list_slide_layout"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_below="@id/et_searchEdit" />
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/listlide">
+        android:layout_below="@id/et_searchEdit">
 
         <com.example.xkfeng.mycat.RecyclerDefine.EmptyRecyclerView
             android:id="@+id/rv_messageRecyclerView"

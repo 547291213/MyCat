@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 public class QucikAdapterWrapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private static int AD_POSITION = 0 ;
     enum ITEM_TYPE {
         AD,
         NORMAL
@@ -25,7 +26,7 @@ public class QucikAdapterWrapter<T> extends RecyclerView.Adapter<RecyclerView.Vi
     @Override
     public int getItemViewType(int position) {
 
-        if (position == 1) {
+        if (position == AD_POSITION) {
             return ITEM_TYPE.AD.ordinal();
         } else {
             return ITEM_TYPE.NORMAL.ordinal();
@@ -51,9 +52,9 @@ public class QucikAdapterWrapter<T> extends RecyclerView.Adapter<RecyclerView.Vi
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
-        if (position == 1) {
+        if (position == AD_POSITION) {
             return;
-        } else if (position == 0){
+        } else if (position < AD_POSITION){
             quickAdapter.onBindViewHolder((QuickAdapter.VH) holder, position);
         }else{
             quickAdapter.onBindViewHolder((QuickAdapter.VH) holder, position-1);
@@ -64,7 +65,7 @@ public class QucikAdapterWrapter<T> extends RecyclerView.Adapter<RecyclerView.Vi
     @Override
     public int getItemCount() {
 
-        if (quickAdapter.getItemCount() >= 1) {
+        if (quickAdapter.getItemCount() >= AD_POSITION) {
             return quickAdapter.getItemCount() + 1;
         } else {
             return quickAdapter.getItemCount();
