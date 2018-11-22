@@ -28,6 +28,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.DrawableView.IndexBottomLayout;
@@ -400,12 +401,11 @@ public class IndexActivity extends BaseActivity {
          * 更新用户头像
          */
         userInfo = JMessageClient.getMyInfo();
-        if (!StringUtil.isEmpty(userInfo.getAvatarFile().toString())) {
+        if (userInfo.getAvatar()!=null&&!StringUtil.isEmpty(userInfo.getAvatarFile().toString())) {
             //  circleImageView.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatar()));
             Glide.with(IndexActivity.this)
                     .load(userInfo.getAvatarFile())
                     .into((ImageView) navView.getHeaderView(0).findViewById(R.id.iv_navigationHeaderImage));
-
         } else {
             ((ImageView) navView.getHeaderView(0).findViewById(R.id.iv_navigationHeaderImage)).setImageResource(R.mipmap.log);
         }
@@ -600,15 +600,63 @@ public class IndexActivity extends BaseActivity {
          */
         redPointMessage = ibIndexBottomMessage.findViewById(R.id.redpoint_view);
         stickyViewHelper = new RedPointViewHelper(this, redPointMessage, R.layout.item_drag_view);
+        stickyViewHelper.setRedPointViewReleaseOutRangeListener(new RedPointViewHelper.RedPointViewReleaseOutRangeListener() {
+            @Override
+            public void onReleaseOutRange() {
+                Toast.makeText(IndexActivity.this, "redPointMessage", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRedViewClickDown() {
+
+            }
+
+            @Override
+            public void onRedViewCLickUp() {
+
+            }
+        });
         stickyViewHelper.setRedPointViewText("8");
 
         redPointFriend = ibIndexBottomFriend.findViewById(R.id.redpoint_view);
         stickyViewHelper1 = new RedPointViewHelper(this, redPointFriend, R.layout.item_drag_view);
         stickyViewHelper1.setRedPointViewText("99");
+        stickyViewHelper1.setRedPointViewReleaseOutRangeListener(new RedPointViewHelper.RedPointViewReleaseOutRangeListener() {
+            @Override
+            public void onReleaseOutRange() {
+                Toast.makeText(IndexActivity.this, "redPointFriend", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRedViewClickDown() {
+
+            }
+
+            @Override
+            public void onRedViewCLickUp() {
+
+            }
+        });
 
         redPointDynamic = ibIndexBottomDynamic.findViewById(R.id.redpoint_view);
         stickyViewHelper2 = new RedPointViewHelper(this, redPointDynamic, R.layout.item_drag_view);
         stickyViewHelper2.setRedPointViewText("12");
+        stickyViewHelper2.setRedPointViewReleaseOutRangeListener(new RedPointViewHelper.RedPointViewReleaseOutRangeListener() {
+            @Override
+            public void onReleaseOutRange() {
+                Toast.makeText(IndexActivity.this, "redPointDynamic", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRedViewClickDown() {
+
+            }
+
+            @Override
+            public void onRedViewCLickUp() {
+
+            }
+        });
 
     }
 

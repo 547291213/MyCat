@@ -95,8 +95,14 @@ public class MessageFragment extends Fragment {
     private QucikAdapterWrapter<JPushMessageInfo> jpushQuickAdapterWrapter;
     private QuickAdapter<JPushMessageInfo> jpushQuickAdapter;
 
+    /**
+     * 可拖动的红点个数
+     * 需要跟随消息列表的消息数目变动
+     */
+    private List<RedPointViewHelper> redPointViewHelperList;
+
     private Handler handler;
-    private Runnable runnable ;
+    private Runnable runnable;
 
 
     private static final int INT_NULL = 0;
@@ -178,19 +184,19 @@ public class MessageFragment extends Fragment {
      * 定时每两秒拉取一次数据
      */
     private void handlerForTimer() {
-        if (handler == null){
-            handler = new Handler() ;
+        if (handler == null) {
+            handler = new Handler();
         }
-        if (runnable == null){
+        if (runnable == null) {
             runnable = new Runnable() {
                 @Override
                 public void run() {
                     initData();
-                    handler.postDelayed(this , 2000) ;
+                    handler.postDelayed(this, 2000);
                 }
             };
         }
-        handler.postDelayed( runnable ,2000);
+        handler.postDelayed(runnable, 2000);
     }
 
 
@@ -204,6 +210,8 @@ public class MessageFragment extends Fragment {
     private void initData() {
 
         conversationList = JMessageClient.getConversationList();
+
+        redPointViewHelperList = new ArrayList<>(conversationList.size());
 
         if (jPushMessageInfoList == null) {
             jPushMessageInfoList = new ArrayList<>();
@@ -221,7 +229,7 @@ public class MessageFragment extends Fragment {
             jPushMessageInfo.setMsgID(conversation.getId()); //消息ID
             jPushMessageInfo.setUserName(((UserInfo) conversation.getTargetInfo()).getUserName());//用户名
             jPushMessageInfo.setTitle(conversation.getTitle()); //标题
-            jPushMessageInfo.setUnReadCount(conversation.getUnReadMsgCnt()+"");//当前会话未读消息数
+            jPushMessageInfo.setUnReadCount(conversation.getUnReadMsgCnt() + "");//当前会话未读消息数
 
             //规范化时间
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
@@ -262,23 +270,62 @@ public class MessageFragment extends Fragment {
             }
 
             @Override
-            public void convert(VH vh, JPushMessageInfo data, int position) {
+            public void convert(final VH vh, final JPushMessageInfo data, int position) {
 
                 ((TextView) vh.getView(R.id.tv_meessageTitle)).setText(data.getTitle());
                 ((TextView) vh.getView(R.id.tv_messageContent)).setText(data.getContent());
                 ((TextView) vh.getView(R.id.tv_meessageTime)).setText(data.getTime());
 
-                RedPointViewHelper stickyViewHelper = new RedPointViewHelper(getContext() ,
-                        ((View)vh.getView(R.id.redpoint_view_message)) ,R.layout.item_drag_view ) ;
-                stickyViewHelper.setRedPointViewText(data.getUnReadCount());
 
-                if (TextUtils.isEmpty(data.getImg()))
-                {
+                /**
+                 * BUG
+                 * 在红点拖动期间，存在数据拉取的情况，
+                 * 每次都会重新创建RedPointViewHelper。
+                 *
+                 * 改动思路，在红点拖拽的时候，屏蔽掉数据拉取的移除Handler中的Runnable
+                 * 表现为屏蔽拉取消息列表
+                 *
+                 */
+                RedPointViewHelper stickyViewHelper = new RedPointViewHelper(getContext(),
+                        ((View) vh.getView(R.id.redpoint_view_message)), R.layout.item_drag_view);
+                stickyViewHelper.setRedPointViewText(data.getUnReadCount());
+                stickyViewHelper
+                        .setRedPointViewReleaseOutRangeListener(new RedPointViewHelper.RedPointViewReleaseOutRangeListener() {
+                            @Override
+                            public void onReleaseOutRange() {
+                                data.setUnReadCount(0 + "");
+                                data.getConversation().setUnReadMessageCnt(0);
+                                jpushQuickAdapterWrapter.notifyDataSetChanged();
+                            }
+
+                            @Override
+                            public void onRedViewClickDown() {
+                                if (handler != null){
+                                    handler.removeCallbacks(runnable);
+                                }
+                            }
+
+                            @Override
+                            public void onRedViewCLickUp() {
+                                if (handler != null){
+                                    handler.postDelayed(runnable ,1000) ;
+                                }
+                            }
+                        });
+                if (TextUtils.isEmpty(data.getImg())) {
                     ((ImageView) vh.getView(R.id.pciv_messageHeaderImage)).setImageResource(R.mipmap.log);
-                }else {
+                } else {
                     ((ImageView) vh.getView(R.id.pciv_messageHeaderImage)).setImageURI(Uri.parse(data.getImg()));
                 }
 
+                /**
+                 * 根据是否存在未读的消息来进行文本显示
+                 */
+                if (Integer.parseInt(data.getUnReadCount()) > 0){
+                    ((ListSlideView)vh.getView(R.id.listlide)).setMarkReadViewText(true);
+                }else {
+                    ((ListSlideView)vh.getView(R.id.listlide)).setMarkReadViewText(false);
+                }
                 ((ListSlideView) vh.getView(R.id.listlide)).setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
                     @Override
                     public void topViewClick(View view) {
@@ -288,7 +335,27 @@ public class MessageFragment extends Fragment {
 
                     @Override
                     public void flagViewClick(View view) {
-                        Toast.makeText(mContext, "flagViewClick", Toast.LENGTH_SHORT).show();
+
+                        Toast.makeText(mContext, "flagMarkView", Toast.LENGTH_SHORT).show();
+                        /**
+                         * 如果显示的文本为标记已读
+                         */
+                        if (getContext().getResources().getString(R.string.listSlideView_markRead).equals(((TextView)view).getText())){
+                            //将显示的文本呢修改为标记未读
+                            ((TextView)view).setText(getContext().getResources().getString(R.string.listSlideView_markUnread));
+                            //做标记已读的处理
+                            data.setUnReadCount(0 + "");
+                            data.getConversation().setUnReadMessageCnt(0);
+                            jpushQuickAdapterWrapter.notifyDataSetChanged();
+                        } else {
+                            //将显示的文本呢修改为标记已读
+                            ((TextView)view).setText(getContext().getResources().getString(R.string.listSlideView_markRead));
+                            //做标记未读的处理
+                            data.setUnReadCount(1 + "");
+                            data.getConversation().setUnReadMessageCnt(1);
+                            jpushQuickAdapterWrapter.notifyDataSetChanged();
+
+                        }
                     }
 
                     @Override
@@ -444,7 +511,7 @@ public class MessageFragment extends Fragment {
         Drawable left = getResources().getDrawable(R.drawable.searcher);
         left.setBounds(metrics.widthPixels / 2 - DensityUtil.dip2px(mContext, 10 + 14 * 2), 0,
                 50 + metrics.widthPixels / 2 - DensityUtil.dip2px(mContext, 10 + 14 * 2), 30);
-        Log.d(TAG, "setEtSearchEdit: " + metrics.widthPixels);
+//        Log.d(TAG, "setEtSearchEdit: " + metrics.widthPixels);
         etSearchEdit.setCompoundDrawablePadding(-left.getIntrinsicWidth() / 2 + 5);
         etSearchEdit.setCompoundDrawables(left, null, null, null);
         etSearchEdit.setAlpha((float) 0.6);

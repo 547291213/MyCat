@@ -47,6 +47,8 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
     private int mPathColor;
     private TextView redPointView;
 
+    private RedPointViewReleaseOutRangeListener redPointViewReleaseOutRangeListener ;
+
     public RedPointViewHelper(Context mContext, View mShowView, int dragViewLayouId) {
         this.mContext = mContext;
         this.dragViewLayouId = dragViewLayouId;
@@ -71,7 +73,16 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
             if (parent == null) {
                 return false;
             }
+
             parent.requestDisallowInterceptTouchEvent(true);
+
+
+            /**
+             * DownClick传出
+             */
+            if (redPointViewReleaseOutRangeListener != null){
+                redPointViewReleaseOutRangeListener.onRedViewClickDown();
+            }
 
             mStatusBarHeight = DensityUtil.getStatusBarHeight(mShowView);
             mShowView.setVisibility(View.INVISIBLE);
@@ -133,9 +144,15 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
 
         if (mShowView != null && mShowView instanceof TextView) {
 
+            /**
+             * 当前未读的消息数目小于等于0的时候，
+             * 不显示红点拖拽View
+             */
             if (Integer.parseInt(string) <= 0){
-                mShowView.setVisibility(View.INVISIBLE);
+                mShowView.setVisibility(View.GONE);
                 return ;
+            }else {
+              mShowView.setVisibility(View.VISIBLE);
             }
 
             if (Integer.parseInt(string) > 9) {
@@ -204,6 +221,11 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
 
         removeOutView();
         playAnim(dragCanterPoint);
+        /**
+         * 接口回调
+         */
+        if (redPointViewReleaseOutRangeListener != null)
+        redPointViewReleaseOutRangeListener.onReleaseOutRange();
     }
 
     private void removeOutView() {
@@ -222,6 +244,17 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
         if (mViewInRangeUpRun != null) {
             mViewInRangeUpRun.run();
         }
+    }
+
+    @Override
+    public void redViewClickDown() {
+
+    }
+
+    @Override
+    public void redViewClickUp() {
+        if (redPointViewReleaseOutRangeListener != null)
+        redPointViewReleaseOutRangeListener.onRedViewCLickUp();
     }
 
     /**
@@ -286,5 +319,22 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
         }
     }
 
+    /**
+     * 设置接口
+     * @param redPointViewReleaseOutRangeListener 接口
+     */
+    public void setRedPointViewReleaseOutRangeListener(RedPointViewReleaseOutRangeListener redPointViewReleaseOutRangeListener) {
+        this.redPointViewReleaseOutRangeListener = redPointViewReleaseOutRangeListener;
+    }
+
+    public interface RedPointViewReleaseOutRangeListener{
+
+        public void onReleaseOutRange() ;
+
+        public void onRedViewClickDown() ;
+
+        public void onRedViewCLickUp() ;
+
+    }
 
 }

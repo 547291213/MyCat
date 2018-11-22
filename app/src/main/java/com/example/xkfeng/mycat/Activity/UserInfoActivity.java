@@ -26,10 +26,13 @@ import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.StringUtil;
 import com.example.xkfeng.mycat.Util.TimeUtil;
 
+import org.json.JSONArray;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -114,38 +117,47 @@ public class UserInfoActivity extends BaseActivity {
      */
     private void setUserInfo() {
 
+//        JMessageClient.getUserInfo(getIntent().getStringExtra("userName"), new GetUserInfoCallback() {
+//            @Override
+//            public void gotResult(int i, String s, UserInfo userInfo) {
+//                if ( i == 0 ){
+//                    userInfo = userInfo ;
+//                }
+//            }
+//        });
+
         userInfo = JMessageClient.getMyInfo();
         tvUserInfoUserSex.setText(StringUtil.isEmpty(userInfo.getGender().name()) == true ? "unkonwn" : userInfo.getGender().name());
         tvUserInfoUserBirthday.setText(StringUtil.isEmpty(TimeUtil.ms2date("yyyy-MM-dd", userInfo.getBirthday()).toString()) == true ?
                 "unknown" : TimeUtil.ms2date("yyyy-MM-dd", userInfo.getBirthday()).toString());
         tvUserInfoUserCity.setText(StringUtil.isEmpty(userInfo.getAddress().toString()) == true ? "unknown" : userInfo.getAddress().toString());
         tvUserInfoUserLastUpdate.setText("上次活动：" + TimeUtil.unix2Date("yyyy-MM-dd HH:mm", userInfo.getmTime()));
-        tvUserNikeName.setText(StringUtil.isEmpty(userInfo.getNickname().toString())==true ? "~快取个昵称吧！" : userInfo.getNickname().toString());
+        tvUserNikeName.setText(StringUtil.isEmpty(userInfo.getNickname().toString()) == true ? "~快取个昵称吧！" : userInfo.getNickname().toString());
         tvUserInfoUserName.setText(userInfo.getUserName().toString());
-        if (!StringUtil.isEmpty(userInfo.getSignature().toString())){
+        if (!StringUtil.isEmpty(userInfo.getSignature().toString())) {
             tvSignatureTextView.setText(userInfo.getSignature().toString());
-        }else {
+        } else {
             tvSignatureTextView.setText("还没有个性签名呢，快些一个吧");
         }
-        //设置头像
+        //设置用户头像
         setUserHeadImage();
+
     }
 
     /**
      * 设置用户头像
      * 情况特殊，单独列出
      */
-    private void setUserHeadImage(){
+    private void setUserHeadImage() {
         /**
          * 更新用户资料信息
          */
         userInfo = JMessageClient.getMyInfo();
-        if (!StringUtil.isEmpty(userInfo.getAvatarFile().toString())) {
+        if (userInfo.getAvatar()!=null&&!StringUtil.isEmpty(userInfo.getAvatarFile().toString())) {
             //  circleImageView.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatar()));
             Glide.with(UserInfoActivity.this)
                     .load(userInfo.getAvatarFile())
                     .into(circleImageView);
-
         } else {
             circleImageView.setImageResource(R.mipmap.log);
         }
@@ -227,7 +239,7 @@ public class UserInfoActivity extends BaseActivity {
                              */
                             matrix.setScale((float) (1.0 - y * 1.0 / 2000), (float) (1.0 - y * 1.0 / 800));
                             ll_userinfoImgBgLayout.setScaleX((float) (1.0 - y * 1.0 / 2000));
-                            ll_userinfoImgBgLayout.setScaleY((float) (1.0 - y * 1.0 / 800)) ;
+                            ll_userinfoImgBgLayout.setScaleY((float) (1.0 - y * 1.0 / 800));
                             //userInfoBkImage.setImageMatrix(matrix);
                             ll_userinfoImgBgLayout.setScrollY((int) (-uisvScrollView.getScrollY() * ll_userinfoImgBgLayout.getScaleY()));
 //                            ll_userinfoImgBgLayout.scrollTo();
@@ -375,7 +387,7 @@ public class UserInfoActivity extends BaseActivity {
                      */
                     setUserInfo();
                 }
-                if (resultCode == RESULT_OK && true == data.getBooleanExtra("headimagemodify" , false)){
+                if (resultCode == RESULT_OK && true == data.getBooleanExtra("headimagemodify", false)) {
                     /**
                      * 更新用户头像
                      */
@@ -384,7 +396,7 @@ public class UserInfoActivity extends BaseActivity {
                     Toast.makeText(this, "change image", Toast.LENGTH_SHORT).show();
                 }
 
-                break ;
+                break;
         }
     }
 }

@@ -187,6 +187,7 @@ public class IsFirstActivity extends BaseActivity {
                                         initUserInfo();
                                         Intent intent = new Intent(getApplication(), IndexActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        intent.putExtra("userName" ,userAutoLoginHelper.getUserName()) ;
                                         startActivity(intent);
 
                                     } else {

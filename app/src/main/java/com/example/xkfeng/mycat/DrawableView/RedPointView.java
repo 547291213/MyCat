@@ -81,7 +81,7 @@ public class RedPointView extends android.support.v7.widget.AppCompatTextView {
 
     private boolean isOut = false;  // 用于判断拖动圆拖动是否超出最大距离
 
-    private boolean outRelease = false ;  //是否在最大范围外释放
+    private boolean outRelease = false;  //是否在最大范围外释放
 
     /**
      * 弹出式窗口参数
@@ -107,23 +107,21 @@ public class RedPointView extends android.support.v7.widget.AppCompatTextView {
 //
 ////      需要手动测量
         mDragView.measure(1, 1);
-        ViewGroup.LayoutParams lp = mDragView.getLayoutParams() ;
-        lp.width=DensityUtil.dip2px(mContext,5);
-        lp.height=DensityUtil.dip2px(mContext,5);
+        ViewGroup.LayoutParams lp = mDragView.getLayoutParams();
+        lp.width = DensityUtil.dip2px(mContext, 5);
+        lp.height = DensityUtil.dip2px(mContext, 5);
         mDragView.setLayoutParams(lp);
 
         mDragViewHeight = mDragView.getMeasuredHeight() / 4;
-        mDragViewWidth = mDragView.getMeasuredWidth() / 4 ;
+        mDragViewWidth = mDragView.getMeasuredWidth() / 4;
         Log.d(TAG, "RedPointView: " + mDragViewWidth + "  " + mDragViewHeight);
         mDragCircleRadius = Math.min(mDragViewHeight, mDragViewWidth);
 
 
-
-
         mParams = new WindowManager.LayoutParams();
         mParams.format = PixelFormat.TRANSLUCENT;
-        mParams.width = DensityUtil.dip2px(mContext , mDragCircleRadius) ;
-        mParams.height = DensityUtil.dip2px(mContext , mDragCircleRadius) ;
+        mParams.width = DensityUtil.dip2px(mContext, mDragCircleRadius);
+        mParams.height = DensityUtil.dip2px(mContext, mDragCircleRadius);
 //        mParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
 //        mParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
         mParams.gravity = Gravity.TOP | Gravity.LEFT;
@@ -158,6 +156,10 @@ public class RedPointView extends android.support.v7.widget.AppCompatTextView {
             case MotionEvent.ACTION_DOWN:
                 //更新拖拽圆的坐标并通知重绘
                 updateDragCircleCenter((int) event.getRawX(), (int) event.getRawY());
+                //down
+                if (dragStickViewListener != null){
+                    dragStickViewListener.redViewClickDown();
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 //更新拖拽圆的坐标并通知重绘
@@ -184,10 +186,10 @@ public class RedPointView extends android.support.v7.widget.AppCompatTextView {
                  */
                 //                防止误操作
                 if (mDragView != null)
-                mDragView.setEnabled(false);
+                    mDragView.setEnabled(false);
                 this.setEnabled(false);
                 if (isOut) {
-                    outRelease = false ;
+                    outRelease = false;
                     if (dragStickViewListener != null) {
                         dragStickViewListener.outRangeUp(new PointF(mDragCircleCenterX, mDragCircleCenterY));
                     }
@@ -196,6 +198,11 @@ public class RedPointView extends android.support.v7.widget.AppCompatTextView {
                     overShootAnimator();
                 }
 //                invalidate();
+                //up
+
+                if (dragStickViewListener != null) {
+                    dragStickViewListener.redViewClickUp();
+                }
                 break;
         }
 
@@ -204,7 +211,6 @@ public class RedPointView extends android.support.v7.widget.AppCompatTextView {
 
     /**
      * 更新拖动圆的圆心和通知重绘
-     *
      */
     private void updateDragCircleCenter(int x, int y) {
         mDragCircleCenterX = x;
@@ -325,8 +331,8 @@ public class RedPointView extends android.support.v7.widget.AppCompatTextView {
                 if (dragStickViewListener != null) {
                     dragStickViewListener.inRangeUp(new PointF(mDragCircleCenterX, mDragCircleCenterY));
                 }
-                outRelease = true ;
-                updateDragCircleCenter(mFixCircleCenterX , mFixCircleCenterY) ;
+                outRelease = true;
+                updateDragCircleCenter(mFixCircleCenterX, mFixCircleCenterY);
             }
         });
 
@@ -430,6 +436,17 @@ public class RedPointView extends android.support.v7.widget.AppCompatTextView {
      * 拖拽过程监听接口
      */
     public interface DragStickViewListener {
+        /**
+         * 红点View点击Down事件发生
+         */
+        public void redViewClickDown();
+
+        /**
+         * 红点View点击Up事件发生
+         */
+        public void redViewClickUp();
+
+
         /**
          * 在范围内移动回调
          *

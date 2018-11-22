@@ -24,4 +24,11 @@
     <string name="action_settings">Settings</string>
 
     <string name="loading">正在加载</string>
+
+    <!--ListSlideView-->
+    <string name="listSlideView_top">"置顶</string>
+    <string name="listSlideView_unTop">取消置顶</string>
+    <string name="listSlideView_markUnread">标记未读</string>
+    <string name="listSlideView_markRead">标记已读</string>
+    <string name="listSlideView_delete">删除</string>
 </resources>

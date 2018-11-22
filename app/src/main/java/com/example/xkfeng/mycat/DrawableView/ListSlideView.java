@@ -70,6 +70,7 @@ public class ListSlideView extends HorizontalScrollView {
      */
     private TextView tv_meessageTime;
 
+
     private int TEST = 1;
 
     public int getTEST() {
@@ -339,6 +340,53 @@ public class ListSlideView extends HorizontalScrollView {
     public void setTv_meessageTime(String string) {
         this.tv_meessageTime.setText(string);
     }
+
+    /**
+     * 获取置顶TextView显示的文本
+     * @return text
+     */
+    public String getTopViewText(){
+        return topView.getText().toString() ;
+    }
+
+    /**
+     * 设置置顶TextView的显示
+     * @param isTop 是否置顶
+     */
+    public void setTopViewText(Boolean isTop){
+        if (topView == null){
+            return ;
+        }
+        if (isTop){
+            topView.setText(mContext.getResources().getString(R.string.listSlideView_top));
+        }else {
+            topView.setText(mContext.getResources().getString(R.string.listSlideView_unTop));
+        }
+    }
+
+    /**
+     * 获取标记读否显示的文本
+     * @return text
+     */
+    public String getMarkReadViewText(){
+        return markReadView.getText().toString() ;
+    }
+
+    /**
+     * 设置标志读TextView的显示
+     * @param isMarkReadFlag 是否已读
+     */
+    public void setMarkReadViewText(Boolean isMarkReadFlag){
+        if (markReadView == null){
+            return ;
+        }
+        if (isMarkReadFlag){
+            markReadView.setText(mContext.getResources().getString(R.string.listSlideView_markRead));
+        }else {
+            markReadView.setText(mContext.getResources().getString(R.string.listSlideView_markUnread));
+        }
+    }
+
 
     /**
      * 外部调用设置接口
