@@ -22,9 +22,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.xkfeng.mycat.Activity.ChatMsgActivity;
+import com.example.xkfeng.mycat.Activity.CreateGroupChatActivity;
 import com.example.xkfeng.mycat.Activity.IndexActivity;
 import com.example.xkfeng.mycat.Activity.SearchActivity;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
@@ -75,6 +78,11 @@ public class MessageFragment extends Fragment {
     private DisplayMetrics metrics;
     private Context mContext;
 
+    /**
+     * 部分界面无法获取状态栏的属性
+     * 又状态栏的属性时一致的。
+     * 由此：设置为共有静态变量
+     */
     public static int STATUSBAR_PADDING_lEFT;
     public static int STATUSBAR_PADDING_TOP;
     public static int STATUSBAR_PADDING_RIGHT;
@@ -92,6 +100,8 @@ public class MessageFragment extends Fragment {
 
     private QucikAdapterWrapter<JPushMessageInfo> jpushQuickAdapterWrapter;
     private QuickAdapter<JPushMessageInfo> jpushQuickAdapter;
+
+    public static final int REQUEST_CHATMESSAGE  = 101 ;
 
     /**
      * 可拖动的红点个数
@@ -121,7 +131,6 @@ public class MessageFragment extends Fragment {
          */
 //        JMessageClient.registerEventReceiver(this);
 
-        Log.d(TAG, "onCreateView: HHHHH");
         return view;
     }
 
@@ -300,6 +309,7 @@ public class MessageFragment extends Fragment {
             @Override
             public void convert(final VH vh, final JPushMessageInfo data, int position) {
 
+
                 //设置标题
                 ((TextView) vh.getView(R.id.tv_meessageTitle)).setText(data.getTitle());
                 //设置内容
@@ -409,12 +419,36 @@ public class MessageFragment extends Fragment {
                                 DensityUtil.getScreenWidth(getContext()) / 2 - popupMenuLayout_CONTENT.getContentView().getMeasuredWidth() / 2
                                 , -view.getHeight() - popupMenuLayout_CONTENT.getContentView().getMeasuredHeight());
 
+
+                        popupMenuLayout_CONTENT.setItemClickListener(new PopupMenuLayout.ItemClickListener() {
+                            @Override
+                            public void itemClick(View view, int position) {
+                                switch (position) {
+                                    case 0:
+                                        Toast.makeText(getContext(), "position Top", Toast.LENGTH_SHORT).show();
+                                        break;
+
+                                    case 1:
+                                        Toast.makeText(getContext(), "position Elete", Toast.LENGTH_SHORT).show();
+                                        break;
+                                }
+                                //实现点击消失
+                                popupMenuLayout_CONTENT.dismiss();
+                            }
+                        });
                     }
 
                     @Override
                     public void contentViewClick(View view) {
 
-                        Toast.makeText(getContext(), "Message Click", Toast.LENGTH_SHORT).show();
+                        /**
+                         * 需要把与之会话的UserName传递过去
+                         */
+                        Intent intent = new Intent() ;
+                        intent.setClass(getContext() ,ChatMsgActivity.class) ;
+                        intent.putExtra("userName" , data.getUserName());
+                        startActivityForResult(intent , REQUEST_CHATMESSAGE );
+
                     }
                 });
             }
@@ -542,7 +576,25 @@ public class MessageFragment extends Fragment {
                 popupMenuLayout_MENU.showAsDropDown(indexTitleLayout, DensityUtil.getScreenWidth(getContext())
                                 - popupMenuLayout_MENU.getWidth() - DensityUtil.dip2px(getContext(), 5)
                         , DensityUtil.dip2px(getContext(), 5));
-
+                popupMenuLayout_MENU.setItemClickListener(new PopupMenuLayout.ItemClickListener() {
+                    @Override
+                    public void itemClick(View view, int position) {
+                        switch (position) {
+                            case 0:
+                                mContext.startActivity(new Intent(mContext, CreateGroupChatActivity.class));
+                                popupMenuLayout_MENU.dismiss();
+                                break;
+                            case 1:
+                                Toast.makeText(mContext, "AddBuddy", Toast.LENGTH_SHORT).show();
+                                popupMenuLayout_MENU.dismiss();
+                                break;
+                            case 2:
+                                Toast.makeText(mContext, "Scan", Toast.LENGTH_SHORT).show();
+                                popupMenuLayout_MENU.dismiss();
+                                break;
+                        }
+                    }
+                });
 
             }
         });

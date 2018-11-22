@@ -43,6 +43,8 @@ public class PopupMenuLayout extends PopupWindow {
     private RelativeLayout relativeLayout;
     private int[] Images = new int[]{R.drawable.create_group_chat, R.drawable.addbuddy, R.drawable.scan};
 
+    private ItemClickListener itemClickListener ;
+
     public PopupMenuLayout(@NonNull Context context, @NonNull List<String> list, @NonNull int Flag) {
         this.list = list;
         this.mContext = context;
@@ -120,27 +122,24 @@ public class PopupMenuLayout extends PopupWindow {
                     vh.getView(R.id.popupMenuTextView).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            switch (position)
-                            {
-                                case 0 :
-
-                                    mContext.startActivity(new Intent(mContext , CreateGroupChatActivity.class));
-                                    break ;
-                                case 1 :
-
-                                    Toast.makeText(mContext, "AddBuddy", Toast.LENGTH_SHORT).show();
-                                    break ;
-
-                                case 2 :
-
-                                    Toast.makeText(mContext, "Scan", Toast.LENGTH_SHORT).show();
-                                    break ;
+                            if (itemClickListener != null){
+                                itemClickListener.itemClick(v , position);
                             }
                         }
                     });
                 } else if (getItemViewType(position) == CONTENT_POPUP) {
                     vh.setText(R.id.tv_popupContentTextView, data);
                     ((TextView) vh.getView(R.id.tv_popupContentTextView)).setTextColor(Color.WHITE);
+
+                    vh.getView(R.id.tv_popupContentTextView).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (itemClickListener != null){
+                                itemClickListener.itemClick(v , position);
+                            }
+                        }
+                    });
+
 
                     if (position == list.size() - 1) {
                         ((View) vh.getView(R.id.view_dividerLineView)).setVisibility(View.GONE);
@@ -203,5 +202,19 @@ public class PopupMenuLayout extends PopupWindow {
 
 
     }
+
+    public void setItemClickListener(ItemClickListener itemClickListener) {
+        this.itemClickListener = itemClickListener;
+    }
+
+
+    /**
+     * 接口
+     * 把点击事件向外传出
+     */
+    public interface ItemClickListener{
+        public void itemClick(View view, int position) ;
+    }
+
 
 }

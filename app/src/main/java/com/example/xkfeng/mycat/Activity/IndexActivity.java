@@ -181,6 +181,8 @@ public class IndexActivity extends BaseActivity {
         //一共三个页面，缓存两个页面，另一个正在显示
         vpIndexFragmentPager.setOffscreenPageLimit(2);
 
+
+
     }
 
 

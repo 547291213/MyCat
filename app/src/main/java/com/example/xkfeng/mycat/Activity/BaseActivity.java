@@ -80,22 +80,36 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
 
+        super.onResume();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("com.example.xkfeng.forceofflinereceiver");
         receiver = new ForceOfflineReceiver();
         registerReceiver(receiver, intentFilter);
-        super.onResume();
+
+        JPushInterface.onResume(this);
     }
 
     @Override
-    protected void onStop() {
-
+    protected void onPause() {
+        super.onPause();
         if (receiver != null) {
             unregisterReceiver(receiver);
             receiver = null;
         }
-        super.onStop();
+
+        JPushInterface.onPause(this);
+
     }
+
+//    @Override
+//    protected void onStop() {
+//
+//        if (receiver != null) {
+//            unregisterReceiver(receiver);
+//            receiver = null;
+//        }
+//        super.onStop();
+//    }
 
     public class ForceOfflineReceiver extends BroadcastReceiver {
 

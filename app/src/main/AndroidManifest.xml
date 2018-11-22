@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
 
+    <!--Baidu app-key  NIMmHgy2KDKAvBmZkN7rAHG2z7kaMuYa-->
+
 
     <application
         android:allowBackup="true"
@@ -79,9 +81,14 @@
         <!--Activity : user-index page .-->
         <activity android:name=".Activity.IndexActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-
             >
 
+        </activity>
+
+        <!--Activity : chat-message page-->
+        <activity android:name=".Activity.ChatMsgActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            >
 
         </activity>
 

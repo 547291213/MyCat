@@ -5,6 +5,7 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -128,6 +129,13 @@ public class ListSlideView extends HorizontalScrollView {
              */
             relativeLayout = (RelativeLayout) findViewById(R.id.rl_contentLayout);
 
+            /**
+             * 提高用户体验
+             * 点击触感
+             */
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                relativeLayout.setBackground(mContext.getDrawable(R.drawable.state_pressed_drawable));
+            }
             /**
              * 设置红顶啊拖拽
              */
