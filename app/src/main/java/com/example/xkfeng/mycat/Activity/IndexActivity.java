@@ -31,6 +31,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baidu.location.BDAbstractLocationListener;
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
 import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.DrawableView.IndexBottomLayout;
 import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
@@ -60,6 +65,7 @@ import butterknife.ButterKnife;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.reactivex.Observer;
+import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -120,8 +126,8 @@ public class IndexActivity extends BaseActivity {
 
     private static final int REQUEST_LOCATION_PERMISSION = 1;
 
-    private LocationManager locationManager;
-    private String locationProvider;
+    //百度地图客户端api
+    private LocationClient locationClient ;
 
 
     public static boolean isFirst = true;
@@ -146,6 +152,8 @@ public class IndexActivity extends BaseActivity {
         //沉浸式View
         DensityUtil.fullScreen(this);
 
+        getUserPermission();
+
         //抽屉设置
         setNavView();
 
@@ -156,8 +164,14 @@ public class IndexActivity extends BaseActivity {
         //初始化页面和碎片
         initPagerAndFragment() ;
 
+        //百度地图初始化
+        initBaiduLocation();
     }
 
+
+    /**
+     * 初始化页面和碎片的布局
+     */
     private void initPagerAndFragment() {
 
         fragmentList = new ArrayList<>() ;
@@ -182,7 +196,6 @@ public class IndexActivity extends BaseActivity {
         vpIndexFragmentPager.setOffscreenPageLimit(2);
 
 
-
     }
 
 
@@ -192,19 +205,100 @@ public class IndexActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //获取RxBus发送的事件
-        getRxBusEvent();
 
-        //获取权限
-        getUserPermission();
+        //获取RxBus发送的事件  网络数据
+        getRxBusEventForNetWork();
 
+        //获取RxBus发送的事件  经纬度信息
+        getRxBusEventForLocation() ;
+
+        //开始测量
+        measureLocation();
 
     }
 
     /**
-     * 获取并且处理RxBus发送的消息事件
+     * 百度地图数据初始化
      */
-    private void getRxBusEvent() {
+    private void initBaiduLocation() {
+
+        locationClient = new LocationClient(getApplicationContext()) ;
+        locationClient.registerLocationListener(new MyLocationListener());
+        LocationClientOption option = new LocationClientOption() ;
+        option.setScanSpan(1000 * 60 * 60);
+        option.setIsNeedAddress(true);
+        option.setLocationMode(LocationClientOption.LocationMode.Device_Sensors);
+        locationClient.setLocOption(option);
+
+
+    }
+
+
+    /**
+     * 百度地图测量
+     */
+    private void measureLocation(){
+
+        locationClient.start();
+    }
+
+
+    class MyLocationListener extends BDAbstractLocationListener{
+        @Override
+        public void onReceiveLocation(BDLocation bdLocation) {
+
+            String str = bdLocation.getLongitude()+","+bdLocation.getLatitude() ;
+            RxBus.getInstance().post(str);
+        }
+    }
+
+
+    /**
+     * 获取并且处理RxBus
+     * 发送的消息事件  经纬度
+     */
+    private void getRxBusEventForLocation(){
+
+        RxBus.getInstance()
+                .toObservable(String.class)
+                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(String string) {
+
+                        /**
+                         * 获取到经纬度信息，
+                         */
+                        Log.d(TAG, "onNext: " + string);
+                        getCityAndWeather(string);
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                }) ;
+
+    }
+
+    /**
+     * 获取并且处理RxBus
+     * 发送的消息事件 网络数据
+     */
+    private void getRxBusEventForNetWork() {
+
         RxBus.getInstance()
 //                .toObservable(this , MsgEvent.class) // 防止内存泄漏
                 .toObservable(MsgEvent.class)  //对象类型(可能存在内存泄漏)
@@ -252,91 +346,6 @@ public class IndexActivity extends BaseActivity {
                 });
     }
 
-    @SuppressLint("MissingPermission")
-    private String getLocationInfoMation() {
-
-        //获取地址位置管理器
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        //获取所有可用的地理位置提供器
-        List<String> providers = locationManager.getProviders(true);
-
-        //如果是GPS
-        if (providers.contains(LocationManager.GPS_PROVIDER)) {
-            locationProvider = LocationManager.GPS_PROVIDER;
-        } else if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
-            locationProvider = LocationManager.NETWORK_PROVIDER;
-        } else {
-//            ITosast.showShort(this, "当前无法获取位置,请检查您的网络设置").show();
-            return "null";
-        }
-
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-// != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            // : Consider calling
-//            //    ActivityCompat#requestPermissions
-//            // here to request the missing permissions, and then overriding
-//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//            //                                          int[] grantResults)
-//            // to handle the case where the user grants the permission. See the documentation
-//            // for ActivityCompat#requestPermissions for more details.
-//            return ;
-//        }
-        @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(locationProvider);
-
-        //如果位置信息不为空
-        if (location != null) {
-            return location.getLongitude() + "," + location.getLatitude();
-        }
-
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-//                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            // : Consider calling
-//            //    ActivityCompat#requestPermissions
-//            // here to request the missing permissions, and then overriding
-//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//            //                                          int[] grantResults)
-//            // to handle the case where the user grants the permission. See the documentation
-//            // for ActivityCompat#requestPermissions for more details.
-//            return ;
-//        }
-
-        locationManager.requestLocationUpdates(locationProvider, 3000, 1, listener);
-
-
-        return "null";
-
-    }
-
-    LocationListener listener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-
-            /**
-             * 重新获取位置信息
-             */
-            getCityAndWeather(location.getLongitude() + "," + location.getLatitude());
-
-
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-
-        }
-    };
-
-
     /**
      * 获取位置需要得到的的权限
      * 访问网络
@@ -352,11 +361,7 @@ public class IndexActivity extends BaseActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}
                     , REQUEST_LOCATION_PERMISSION);
 
-        } else {
-            //访问网络
-            String strings = getLocationInfoMation();
-            getCityAndWeather(strings);
-        }
+        } else {}
 
     }
 
@@ -371,7 +376,7 @@ public class IndexActivity extends BaseActivity {
          * 只在用户登陆的时候进行提示处理
          * 非登陆的时候，只返回
          */
-        if ("null".equals(strings)) {
+        if (TextUtils.isEmpty(strings)) {
             if (isFirst) {
                 ITosast.showShort(this, "无法获取位置信息，可能会影响部分功能的使用").show();
                 isFirst = false;
@@ -881,8 +886,8 @@ public class IndexActivity extends BaseActivity {
                         return;
                     }
                 }
-                String strings = getLocationInfoMation();
-                getCityAndWeather(strings);
+//                String strings = getLocationInfoMation();
+//                getCityAndWeather(strings);
                 break;
 
 
@@ -892,11 +897,20 @@ public class IndexActivity extends BaseActivity {
 
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        /*
+        停止位置测量
+         */
+        locationClient.stop();
+
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (locationManager != null) {
-            //移除监听器
-            locationManager.removeUpdates(listener);
-        }
+
+
+
     }
 }

@@ -7,9 +7,18 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"  />
     <uses-permission android:name="android.permission.WRITE_APN_SETTINGS"
         tools:ignore="ProtectedPermissions" />
+
+
+    <!-- Optional. Required for location feature -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    //获取设备网络状态，禁用后无法获取网络状态
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <!--Baidu app-key  NIMmHgy2KDKAvBmZkN7rAHG2z7kaMuYa-->
 
@@ -22,6 +31,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         >
+
+        <!--BAIDU MAP API-->
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="NIMmHgy2KDKAvBmZkN7rAHG2z7kaMuYa"/>
 
         <activity android:name=".Activity.MainActivity">
 

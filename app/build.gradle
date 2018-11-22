@@ -36,13 +36,17 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    sourceSets{
+        main{
+            jniLibs.srcDir 'libs'
+            //说明so的路径为该libs路径，关联所有地图SDK的so文件
+        }
+    }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-
-
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     testImplementation 'junit:junit:4.12'
@@ -65,25 +69,31 @@ dependencies {
 
     //Rxjava
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
-// Because RxAndroid releases are few and far between, it is recommended you also
-// explicitly depend on RxJava's latest version for bug fixes and new features.
-// (see https://github.com/ReactiveX/RxJava/releases for latest 2.x.x version)
-//    implementation 'io.reactivex.rxjava2:rxjava:2.1.0'
-    implementation "io.reactivex.rxjava2:rxjava:2.x.y"
 
-// to prevent memory leak -- for RxBus
-// If you want to use Android Lifecycle for providers
-//   error : not find LifecycleActivity
-//  implementation 'com.trello.rxlifecycle3:rxlifecycle-android-lifecycle:3.0.0'
+    // Because RxAndroid releases are few and far between, it is recommended you also
 
+    // explicitly depend on RxJava's latest version for bug fixes and new features.
 
-// 使用Android生命周期作为提供者
-//    to prevent memory leak----for RxBus
-//    error : conflict with greendDao
-//    implementation 'com.trello.rxlifecycle2:rxlifecycle-android-lifecycle:2.2.2'
+    // (see https://github.com/ReactiveX/RxJava/releases for latest 2.x.x version)
 
+    //    implementation 'io.reactivex.rxjava2:rxjava:2.1.0'
+    implementation 'io.reactivex.rxjava2:rxjava:2.x.y'
 
+    // to prevent memory leak -- for RxBus
 
+    // If you want to use Android Lifecycle for providers
+
+    //   error : not find LifecycleActivity
+
+    //  implementation 'com.trello.rxlifecycle3:rxlifecycle-android-lifecycle:3.0.0'
+
+    // 使用Android生命周期作为提供者
+
+    //    to prevent memory leak----for RxBus
+
+    //    error : conflict with greendDao
+
+    //    implementation 'com.trello.rxlifecycle2:rxlifecycle-android-lifecycle:2.2.2'
 
     //Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
@@ -103,12 +113,20 @@ dependencies {
     implementation 'top.zibin:Luban:1.1.8'
 
     //极光开发文档
-    implementation 'cn.jiguang.sdk:jpush:3.1.6'  // 此处以JPush 3.1.6 版本为例。
-    implementation 'cn.jiguang.sdk:jcore:1.2.5'  // 此处以JCore 1.2.5 版本为例。
-    implementation 'cn.jiguang.sdk:jmessage:2.7.1'  // 此处以JMessage 2.7.1 版本为例。
+    implementation 'cn.jiguang.sdk:jpush:3.1.6'
+
+    // 此处以JPush 3.1.6 版本为例。
+    implementation 'cn.jiguang.sdk:jcore:1.2.5'
+
+    // 此处以JCore 1.2.5 版本为例。
+    implementation 'cn.jiguang.sdk:jmessage:2.7.1'
+
+    // 此处以JMessage 2.7.1 版本为例。
 
     //GreendDao
-    implementation 'org.greenrobot:greendao:3.2.2' // add library
+    implementation 'org.greenrobot:greendao:3.2.2'
+
+    // add library
 
     //圆形图片
     implementation 'de.hdodenhof:circleimageview:2.2.0'
@@ -117,7 +135,9 @@ dependencies {
     implementation 'com.github.zcweng:switch-button:0.0.3@aar'
 
     //水波纹加载动画
+
     // 测试为不可用
+
     // implementation 'com.race604.waveloading:library:1.1.1'
 
     //事件选择器框架
@@ -125,6 +145,6 @@ dependencies {
 
     //android百分比布局
     implementation 'com.android.support:percent:27.1.1'
-
-
+    implementation files('libs/IndoorscapeAlbumPlugin.jar')
+    implementation files('libs/BaiduLBS_Android.jar')
 }

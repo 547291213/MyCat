@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.baidu.mapapi.map.BaiduMap;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.Fragment.ClassfiedFragment;
 import com.example.xkfeng.mycat.Fragment.SelectedPersonFragment;
