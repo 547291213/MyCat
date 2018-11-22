@@ -183,7 +183,6 @@ public class IsFirstActivity extends BaseActivity {
                                 public void gotResult(int i, String s) {
                                     if (i == 0) {
 
-
                                         initUserInfo();
                                         Intent intent = new Intent(getApplication(), IndexActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

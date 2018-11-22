@@ -2,7 +2,6 @@ package com.example.xkfeng.mycat.Activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,8 +14,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -33,6 +34,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.DrawableView.IndexBottomLayout;
 import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
+import com.example.xkfeng.mycat.DrawableView.ViewPagerSlide;
+import com.example.xkfeng.mycat.Fragment.BottomTabFragmentPageAdapter;
 import com.example.xkfeng.mycat.Fragment.DynamicFragment;
 import com.example.xkfeng.mycat.Fragment.FriendFragment;
 import com.example.xkfeng.mycat.Fragment.MessageFragment;
@@ -48,6 +51,7 @@ import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.StringUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -81,14 +85,17 @@ public class IndexActivity extends BaseActivity {
     DrawerLayout drawerLayout;
     @BindView(R.id.rl_indexMainLayout)
     RelativeLayout rlIndexMainLayout;
+    @BindView(R.id.vp_indexFragmentPager)
+    ViewPagerSlide vpIndexFragmentPager;
 
     private DisplayMetrics metrics;
 
-    private FrameLayout frameLayout;
     private MessageFragment messageFragment;
     private FriendFragment friendFragment;
     private DynamicFragment dynamicFragment;
     private FragmentManager fragmentManager;
+    private List<Fragment> fragmentList ;
+    private BottomTabFragmentPageAdapter pageAdapter ;
 
     private View redPointMessage;
     private View redPointFriend;
@@ -117,7 +124,7 @@ public class IndexActivity extends BaseActivity {
     private String locationProvider;
 
 
-    private static boolean isFirst = true ;
+    public static boolean isFirst = true;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -143,10 +150,36 @@ public class IndexActivity extends BaseActivity {
         setNavView();
 
 
-
         //初始化布局
         initView();
 
+        //初始化页面和碎片
+        initPagerAndFragment() ;
+
+    }
+
+    private void initPagerAndFragment() {
+
+        fragmentList = new ArrayList<>() ;
+        messageFragment = new MessageFragment();
+        friendFragment = new FriendFragment() ;
+        dynamicFragment = new DynamicFragment() ;
+
+        fragmentList.add(messageFragment) ;
+        fragmentList.add(friendFragment) ;
+        fragmentList.add(dynamicFragment) ;
+
+        fragmentManager = getSupportFragmentManager() ;
+
+        pageAdapter = new BottomTabFragmentPageAdapter(fragmentManager , fragmentList) ;
+        //设置适配器
+        vpIndexFragmentPager.setAdapter(pageAdapter);
+        //禁止左右滑动
+        vpIndexFragmentPager.setSlide(false);
+        //当前显示的item
+        vpIndexFragmentPager.setCurrentItem(0);
+        //一共三个页面，缓存两个页面，另一个正在显示
+        vpIndexFragmentPager.setOffscreenPageLimit(2);
 
     }
 
@@ -181,6 +214,7 @@ public class IndexActivity extends BaseActivity {
                     public void onSubscribe(Disposable d) {
 
                     }
+
                     @Override
                     public void onNext(final MsgEvent msgEvent) {
                         navView.getMenu().findItem(R.id.nav_city).setTitle(msgEvent.getT().getLocationData());
@@ -203,10 +237,12 @@ public class IndexActivity extends BaseActivity {
 
 //                        Log.d(TAG, "onNext: Success :" + msgEvent.getT().getLocationData() + " Weather:" + msgEvent.getT().getWeather());
                     }
+
                     @Override
                     public void onError(Throwable e) {
 
                     }
+
                     @Override
                     public void onComplete() {
 
@@ -316,7 +352,7 @@ public class IndexActivity extends BaseActivity {
 
         } else {
             //访问网络
-            String strings = getLocationInfoMation() ;
+            String strings = getLocationInfoMation();
             getCityAndWeather(strings);
         }
 
@@ -333,12 +369,12 @@ public class IndexActivity extends BaseActivity {
          * 只在用户登陆的时候进行提示处理
          * 非登陆的时候，只返回
          */
-        if ("null".equals(strings) ) {
-            if(isFirst){
+        if ("null".equals(strings)) {
+            if (isFirst) {
                 ITosast.showShort(this, "无法获取位置信息，可能会影响部分功能的使用").show();
-                isFirst = false ;
+                isFirst = false;
             }
-            return ;
+            return;
         }
 
 //        Toast.makeText(this, "正在获取数据 ：" + strings, Toast.LENGTH_SHORT).show();
@@ -401,7 +437,7 @@ public class IndexActivity extends BaseActivity {
          * 更新用户头像
          */
         userInfo = JMessageClient.getMyInfo();
-        if (userInfo.getAvatar()!=null&&!StringUtil.isEmpty(userInfo.getAvatarFile().toString())) {
+        if (userInfo.getAvatar() != null && !StringUtil.isEmpty(userInfo.getAvatarFile().toString())) {
             //  circleImageView.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatar()));
             Glide.with(IndexActivity.this)
                     .load(userInfo.getAvatarFile())
@@ -570,20 +606,6 @@ public class IndexActivity extends BaseActivity {
         setRedPointDrag();
 
 
-        frameLayout = findViewById(R.id.fg_indexFragment);
-
-        if (messageFragment == null) {
-            messageFragment = new MessageFragment();
-        }
-        /*
-          初始用Message Fragment显示
-         */
-        fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.fg_indexFragment, messageFragment);
-        transaction.commit();
-
-
     }
 
     /**
@@ -740,9 +762,7 @@ public class IndexActivity extends BaseActivity {
                     setIbIndexBottomCheckState_Checked(ibIndexBottomMessage);
 
                     //页面切换
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    transaction.replace(R.id.fg_indexFragment, messageFragment);
-                    transaction.commit();
+                    vpIndexFragmentPager.setCurrentItem(0);
                 }
                 break;
             case R.id.ib_indexBottomFriend:
@@ -758,12 +778,7 @@ public class IndexActivity extends BaseActivity {
                     setIbIndexBottomCheckState_Checked(ibIndexBottomFriend);
 
                     //页面切换
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    if (friendFragment == null) {
-                        friendFragment = new FriendFragment();
-                    }
-                    transaction.replace(R.id.fg_indexFragment, friendFragment);
-                    transaction.commit();
+                    vpIndexFragmentPager.setCurrentItem(1);
                 }
                 break;
             case R.id.ib_indexBottomDynamic:
@@ -778,12 +793,7 @@ public class IndexActivity extends BaseActivity {
                     //将当前View设置为选中状态
                     setIbIndexBottomCheckState_Checked(ibIndexBottomDynamic);
                     //页面切换
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    if (dynamicFragment == null) {
-                        dynamicFragment = new DynamicFragment();
-                    }
-                    transaction.replace(R.id.fg_indexFragment, dynamicFragment);
-                    transaction.commit();
+                    vpIndexFragmentPager.setCurrentItem(2);
                 }
                 break;
         }
@@ -869,7 +879,7 @@ public class IndexActivity extends BaseActivity {
                         return;
                     }
                 }
-                String strings = getLocationInfoMation() ;
+                String strings = getLocationInfoMation();
                 getCityAndWeather(strings);
                 break;
 

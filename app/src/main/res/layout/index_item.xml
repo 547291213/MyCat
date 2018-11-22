@@ -1,44 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rl_indexMainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:id="@+id/rl_indexMainLayout"
-    >
+    android:orientation="vertical">
     <!--<com.example.xkfeng.mycat.DrawableView.RedPointView-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="100dp"-->
-        <!--android:text="100"-->
-        <!--android:textSize="22sp"-->
-        <!--android:gravity="center_horizontal"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="100dp"-->
+    <!--android:text="100"-->
+    <!--android:textSize="22sp"-->
+    <!--android:gravity="center_horizontal"-->
 
-        <!--/>-->
-
-    <FrameLayout
-        android:id="@+id/fg_indexFragment"
+    <!--/>-->
+    <com.example.xkfeng.mycat.DrawableView.ViewPagerSlide
+        android:id="@+id/vp_indexFragmentPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
+        android:layout_above="@id/ll_indexbottomLayout"
         />
 
     <!--<Button-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="searcherBtn"-->
-        <!--android:onClick="intoSearchView"-->
-        <!--/>-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="searcherBtn"-->
+    <!--android:onClick="intoSearchView"-->
+    <!--/>-->
 
     <LinearLayout
         android:id="@+id/ll_indexbottomLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
         android:background="@color/white"
-        >
-
+        android:orientation="horizontal">
 
 
         <com.example.xkfeng.mycat.DrawableView.IndexBottomLayout
@@ -74,8 +70,7 @@
             app:iconWidth="50dp"
             app:range="1.2"
             app:smallIconSrc="@drawable/pre_person_small"
-            app:title="好友"
-            >
+            app:title="好友">
 
         </com.example.xkfeng.mycat.DrawableView.IndexBottomLayout>
 
@@ -91,14 +86,12 @@
             app:iconWidth="50dp"
             app:range="1.2"
             app:smallIconSrc="@drawable/pre_star_small"
-            app:title="动态"
-            >
+            app:title="动态">
 
 
         </com.example.xkfeng.mycat.DrawableView.IndexBottomLayout>
 
     </LinearLayout>
-
 
 
 </RelativeLayout>

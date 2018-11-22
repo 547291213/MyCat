@@ -3,7 +3,6 @@ package com.example.xkfeng.mycat.Fragment;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,10 +10,10 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -31,7 +30,6 @@ import com.example.xkfeng.mycat.Activity.SearchActivity;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.ListSlideView;
 import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
-import com.example.xkfeng.mycat.DrawableView.RedPointView;
 import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
 import com.example.xkfeng.mycat.Model.JPushMessageInfo;
 import com.example.xkfeng.mycat.Model.MessageInfo;
@@ -68,14 +66,14 @@ public class MessageFragment extends Fragment {
 
     @BindView(R.id.rv_messageRecyclerView)
     EmptyRecyclerView rvMessageRecyclerView;
+    @BindView(R.id.srl_messageRefreshLayout)
+    SwipeRefreshLayout srlMessageRefreshLayout;
 
     private View view;
     private static final String TAG = "MessageFragment";
 
     private DisplayMetrics metrics;
     private Context mContext;
-    private QucikAdapterWrapter<MessageInfo> qucikAdapterWrapter;
-    private QuickAdapter<MessageInfo> quickAdapter;
 
     public static int STATUSBAR_PADDING_lEFT;
     public static int STATUSBAR_PADDING_TOP;
@@ -123,9 +121,8 @@ public class MessageFragment extends Fragment {
          */
 //        JMessageClient.registerEventReceiver(this);
 
+        Log.d(TAG, "onCreateView: HHHHH");
         return view;
-
-
     }
 
     @Override
@@ -173,11 +170,39 @@ public class MessageFragment extends Fragment {
         initRecyclerView();
 
         /**
-         * 设置消息列表
+         * 下拉刷新
          */
-//        setMessageList();
+        initRefreshLayout();
+
+    }
+
+    /**
+     * 下拉刷新的初始化
+     */
+    private void initRefreshLayout() {
+
+        srlMessageRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+
+                srlMessageRefreshLayout.setRefreshing(true);
+            }
+        });
 
 
+        srlMessageRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //刷新数据
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        initData();
+                    }
+                });
+
+            }
+        });
     }
 
     /**
@@ -252,7 +277,10 @@ public class MessageFragment extends Fragment {
             if (jpushQuickAdapterWrapter != null)
                 jpushQuickAdapterWrapter.notifyDataSetChanged();
         }
-
+        /**
+         * 关闭刷新器，表示数据同步成功
+         */
+        srlMessageRefreshLayout.setRefreshing(false);
     }
 
 
@@ -272,10 +300,12 @@ public class MessageFragment extends Fragment {
             @Override
             public void convert(final VH vh, final JPushMessageInfo data, int position) {
 
+                //设置标题
                 ((TextView) vh.getView(R.id.tv_meessageTitle)).setText(data.getTitle());
+                //设置内容
                 ((TextView) vh.getView(R.id.tv_messageContent)).setText(data.getContent());
+                //设置时间
                 ((TextView) vh.getView(R.id.tv_meessageTime)).setText(data.getTime());
-
 
                 /**
                  * BUG
@@ -300,15 +330,15 @@ public class MessageFragment extends Fragment {
 
                             @Override
                             public void onRedViewClickDown() {
-                                if (handler != null){
+                                if (handler != null) {
                                     handler.removeCallbacks(runnable);
                                 }
                             }
 
                             @Override
                             public void onRedViewCLickUp() {
-                                if (handler != null){
-                                    handler.postDelayed(runnable ,1000) ;
+                                if (handler != null) {
+                                    handler.postDelayed(runnable, 1000);
                                 }
                             }
                         });
@@ -321,11 +351,14 @@ public class MessageFragment extends Fragment {
                 /**
                  * 根据是否存在未读的消息来进行文本显示
                  */
-                if (Integer.parseInt(data.getUnReadCount()) > 0){
-                    ((ListSlideView)vh.getView(R.id.listlide)).setMarkReadViewText(true);
-                }else {
-                    ((ListSlideView)vh.getView(R.id.listlide)).setMarkReadViewText(false);
+                if (Integer.parseInt(data.getUnReadCount()) > 0) {
+                    ((ListSlideView) vh.getView(R.id.listlide)).setMarkReadViewText(true);
+                } else {
+                    ((ListSlideView) vh.getView(R.id.listlide)).setMarkReadViewText(false);
                 }
+                /**
+                 * 滑动消息栏点击事件实现
+                 */
                 ((ListSlideView) vh.getView(R.id.listlide)).setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
                     @Override
                     public void topViewClick(View view) {
@@ -335,21 +368,19 @@ public class MessageFragment extends Fragment {
 
                     @Override
                     public void flagViewClick(View view) {
-
-                        Toast.makeText(mContext, "flagMarkView", Toast.LENGTH_SHORT).show();
                         /**
                          * 如果显示的文本为标记已读
                          */
-                        if (getContext().getResources().getString(R.string.listSlideView_markRead).equals(((TextView)view).getText())){
+                        if (getContext().getResources().getString(R.string.listSlideView_markRead).equals(((TextView) view).getText())) {
                             //将显示的文本呢修改为标记未读
-                            ((TextView)view).setText(getContext().getResources().getString(R.string.listSlideView_markUnread));
+                            ((TextView) view).setText(getContext().getResources().getString(R.string.listSlideView_markUnread));
                             //做标记已读的处理
                             data.setUnReadCount(0 + "");
                             data.getConversation().setUnReadMessageCnt(0);
                             jpushQuickAdapterWrapter.notifyDataSetChanged();
                         } else {
                             //将显示的文本呢修改为标记已读
-                            ((TextView)view).setText(getContext().getResources().getString(R.string.listSlideView_markRead));
+                            ((TextView) view).setText(getContext().getResources().getString(R.string.listSlideView_markRead));
                             //做标记未读的处理
                             data.setUnReadCount(1 + "");
                             data.getConversation().setUnReadMessageCnt(1);
@@ -400,106 +431,6 @@ public class MessageFragment extends Fragment {
         rvMessageRecyclerView.setmEmptyView(tvMessageEmptyView);
         rvMessageRecyclerView.setAdapter(jpushQuickAdapterWrapter);
 
-
-    }
-
-    /**
-     * 消息列表内容的初始化
-     */
-    private void setMessageList() {
-
-        List<String> list = new ArrayList<>();
-        list.add("设置为置顶消息");
-        list.add("删除");
-        popupMenuLayout_CONTENT = new PopupMenuLayout(mContext, list, PopupMenuLayout.CONTENT_POPUP);
-
-        List<MessageInfo> messageInfoList = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            if (i % 3 == 0) {
-                MessageInfo messageInfo = new MessageInfo("", "Hello world!", "value ;" + i, "19:58", "12");
-                messageInfoList.add(messageInfo);
-            } else {
-                MessageInfo messageInfo = new MessageInfo("", "Hello world!", "value ;" + i, "19:58", "false");
-                messageInfoList.add(messageInfo);
-            }
-        }
-
-        quickAdapter = new QuickAdapter<MessageInfo>(messageInfoList) {
-            @Override
-            public int getLayoutId(int viewType) {
-                return R.layout.message_list_item;
-            }
-
-            @Override
-            public void convert(VH vh, MessageInfo data, final int position) {
-
-//           Toast.makeText(mContext, "data : " + position, Toast.LENGTH_SHORT).show();
-
-                ((TextView) vh.getView(R.id.tv_meessageTitle)).setText(data.getTitle());
-                ((TextView) vh.getView(R.id.tv_messageContent)).setText(data.getContent());
-                ((TextView) vh.getView(R.id.tv_meessageTime)).setText(data.getTime());
-
-                ((ListSlideView) vh.getView(R.id.listlide)).setStickyViewHelper(data.getMessageNotRead());
-
-                ((ListSlideView) vh.getView(R.id.listlide)).setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
-                    @Override
-                    public void topViewClick(View view) {
-
-                        Toast.makeText(mContext, "topViewClick", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void flagViewClick(View view) {
-                        Toast.makeText(mContext, "flagViewClick", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void deleteViewClick(View view) {
-                        Toast.makeText(mContext, "deleteViewClick", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void contentViewLongClick(View view) {
-
-                        /**
-                         * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
-                         * 由于contentView还未绘制，这时候的width、height都是0。
-                         * 因此需要通过measure测量出contentView的大小，才能进行计算。
-                         */
-                        popupMenuLayout_CONTENT.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getWidth()),
-                                DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getHeight()));
-                        ;
-                        popupMenuLayout_CONTENT.showAsDropDown(view,
-                                DensityUtil.getScreenWidth(getContext()) / 2 - popupMenuLayout_CONTENT.getContentView().getMeasuredWidth() / 2
-                                , -view.getHeight() - popupMenuLayout_CONTENT.getContentView().getMeasuredHeight());
-
-                    }
-
-                    @Override
-                    public void contentViewClick(View view) {
-
-                        Toast.makeText(getContext(), "Message Click", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                List<String> list = new ArrayList<>();
-                list.add("设置为置顶消息");
-                list.add("删除");
-                popupMenuLayout_CONTENT = new PopupMenuLayout(mContext, list, PopupMenuLayout.CONTENT_POPUP);
-
-            }
-
-        };
-
-        qucikAdapterWrapter = new QucikAdapterWrapter<MessageInfo>(quickAdapter);
-        View addView = LayoutInflater.from(getContext()).inflate(R.layout.ad_item_layout, null);
-        qucikAdapterWrapter.setAdView(addView);
-
-        rvMessageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-        rvMessageRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-        rvMessageRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        rvMessageRecyclerView.setmEmptyView(tvMessageEmptyView);
-        rvMessageRecyclerView.setAdapter(qucikAdapterWrapter);
 
     }
 
@@ -616,61 +547,6 @@ public class MessageFragment extends Fragment {
             }
         });
     }
-
-
-    /**
-     * 设置滑动View的相关属性
-     */
-    private void setSlideView() {
-
-        List<String> list = new ArrayList<>();
-        list.add("设置为置顶消息");
-        list.add("删除");
-        popupMenuLayout_CONTENT = new PopupMenuLayout(mContext, list, PopupMenuLayout.CONTENT_POPUP);
-
-//        listSlideView = (ListSlideView) view.findViewById(R.id.listlide);
-//        listSlideView.setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
-//            @Override
-//            public void topViewClick(View view) {
-//
-//                Toast.makeText(mContext, "topViewClick", Toast.LENGTH_SHORT).show();
-//            }
-//
-//            @Override
-//            public void flagViewClick(View view) {
-//                Toast.makeText(mContext, "flagViewClick", Toast.LENGTH_SHORT).show();
-//            }
-//
-//            @Override
-//            public void deleteViewClick(View view) {
-//                Toast.makeText(mContext, "deleteViewClick", Toast.LENGTH_SHORT).show();
-//            }
-//
-//            @Override
-//            public void contentViewLongClick(View view) {
-//
-//                /**
-//                 * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
-//                 * 由于contentView还未绘制，这时候的width、height都是0。
-//                 * 因此需要通过measure测量出contentView的大小，才能进行计算。
-//                 */
-//                popupMenuLayout_CONTENT.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getWidth()),
-//                        DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getHeight()));
-//                ;
-//                popupMenuLayout_CONTENT.showAsDropDown(view,
-//                        DensityUtil.getScreenWidth(getContext()) / 2 - popupMenuLayout_CONTENT.getContentView().getMeasuredWidth() / 2
-//                        , -view.getHeight() - popupMenuLayout_CONTENT.getContentView().getMeasuredHeight());
-//
-//            }
-//
-//            @Override
-//            public void contentViewClick(View view) {
-//
-//                Toast.makeText(getContext(), "Message Click", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-    }
-
 
     @Override
     public void onDestroyView() {
