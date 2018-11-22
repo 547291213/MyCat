@@ -130,7 +130,13 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
      * 设置文本内容
      */
     public void setRedPointViewText(String string) {
+
         if (mShowView != null && mShowView instanceof TextView) {
+
+            if (Integer.parseInt(string) <= 0){
+                mShowView.setVisibility(View.INVISIBLE);
+                return ;
+            }
 
             if (Integer.parseInt(string) > 9) {
                 mShowView.getLayoutParams().width = DensityUtil.dip2px(mContext, 24 + Integer.parseInt(string)/25);
@@ -143,7 +149,6 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
                 ((TextView) mShowView).setText("99+");
             } else {
                 ((TextView) mShowView).setText(string);
-
             }
         }
 

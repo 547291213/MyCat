@@ -3,8 +3,11 @@ package com.example.xkfeng.mycat.Fragment;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,12 +15,14 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +31,9 @@ import com.example.xkfeng.mycat.Activity.SearchActivity;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.ListSlideView;
 import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
+import com.example.xkfeng.mycat.DrawableView.RedPointView;
 import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
+import com.example.xkfeng.mycat.Model.JPushMessageInfo;
 import com.example.xkfeng.mycat.Model.MessageInfo;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.RecyclerDefine.EmptyRecyclerView;
@@ -34,12 +41,19 @@ import com.example.xkfeng.mycat.RecyclerDefine.QucikAdapterWrapter;
 import com.example.xkfeng.mycat.RecyclerDefine.QuickAdapter;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.PromptContent;
+import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.enums.ContentType;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.UserInfo;
 
 public class MessageFragment extends Fragment {
 
@@ -71,6 +85,23 @@ public class MessageFragment extends Fragment {
     private PopupMenuLayout popupMenuLayout_CONTENT;
     private PopupMenuLayout popupMenuLayout_MENU;
 
+
+    private List<Conversation> conversationList;
+    private Conversation conversation;
+
+    private List<JPushMessageInfo> jPushMessageInfoList;
+    private JPushMessageInfo jPushMessageInfo;
+
+    private QucikAdapterWrapter<JPushMessageInfo> jpushQuickAdapterWrapter;
+    private QuickAdapter<JPushMessageInfo> jpushQuickAdapter;
+
+    private Handler handler;
+    private Runnable runnable ;
+
+
+    private static final int INT_NULL = 0;
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -81,9 +112,34 @@ public class MessageFragment extends Fragment {
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
         mContext = getContext();
 
+        /**
+         * 注册事件接收
+         */
+//        JMessageClient.registerEventReceiver(this);
+
         return view;
 
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        /**
+         * 定时拉取数据
+         */
+
+        handlerForTimer();
+    }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (handler != null) {
+            handler.removeCallbacks(runnable);
+            handler = null;
+        }
     }
 
     @Override
@@ -100,15 +156,183 @@ public class MessageFragment extends Fragment {
          */
         setIndexTitleLayout();
 
-        /*
-         设置侧滑消息栏属性
+        /**
+         * 初始化消息列表
          */
-//        setSlideView();
+        initData();
+
+        /**
+         * 初始化RecyclerView的属性
+         */
+        initRecyclerView();
 
         /**
          * 设置消息列表
          */
-        setMessageList();
+//        setMessageList();
+
+
+    }
+
+    /**
+     * 定时每两秒拉取一次数据
+     */
+    private void handlerForTimer() {
+        if (handler == null){
+            handler = new Handler() ;
+        }
+        if (runnable == null){
+            runnable = new Runnable() {
+                @Override
+                public void run() {
+                    initData();
+                    handler.postDelayed(this , 2000) ;
+                }
+            };
+        }
+        handler.postDelayed( runnable ,2000);
+    }
+
+
+    /**
+     * 使用情况：
+     * 1，登陆的时候初始化
+     * 将从JPush从获取的消息列表转到为JPushMessageInfo列表对象
+     * 2，定时任务
+     * 定时从Jpush上拉取数据，同步更新
+     */
+    private void initData() {
+
+        conversationList = JMessageClient.getConversationList();
+
+        if (jPushMessageInfoList == null) {
+            jPushMessageInfoList = new ArrayList<>();
+        } else {
+            jPushMessageInfoList.clear();
+        }
+
+        for (Conversation conversation : conversationList) {
+            jPushMessageInfo = new JPushMessageInfo();
+            if (conversation.getLatestMessage().getContent().getContentType() == ContentType.prompt) {
+                jPushMessageInfo.setContent(((PromptContent) conversation.getLatestMessage().getContent()).getPromptText());
+            } else {
+                jPushMessageInfo.setContent(((TextContent) conversation.getLatestMessage().getContent()).getText());
+            }
+            jPushMessageInfo.setMsgID(conversation.getId()); //消息ID
+            jPushMessageInfo.setUserName(((UserInfo) conversation.getTargetInfo()).getUserName());//用户名
+            jPushMessageInfo.setTitle(conversation.getTitle()); //标题
+            jPushMessageInfo.setUnReadCount(conversation.getUnReadMsgCnt()+"");//当前会话未读消息数
+
+            //规范化时间
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+            jPushMessageInfo.setTime("Time " + sdf.format(conversation.getLatestMessage().getCreateTime()));
+            //设置会话
+            jPushMessageInfo.setConversation(conversation);
+            //获取会话发送方的头像，没有则设置为默认头像
+            if (conversation.getAvatarFile() == null) {
+//                Log.d(TAG, "initData: null");
+                jPushMessageInfo.setImg("");
+            } else {
+                jPushMessageInfo.setImg(conversation.getAvatarFile().toURI() + "");
+            }
+            //将数据添加到列表中
+            jPushMessageInfoList.add(jPushMessageInfo);
+
+            /**
+             * 更新
+             */
+            if (jpushQuickAdapterWrapter != null)
+                jpushQuickAdapterWrapter.notifyDataSetChanged();
+        }
+
+    }
+
+
+    private void initRecyclerView() {
+
+        List<String> list = new ArrayList<>();
+        list.add("设置为置顶消息");
+        list.add("删除");
+        popupMenuLayout_CONTENT = new PopupMenuLayout(mContext, list, PopupMenuLayout.CONTENT_POPUP);
+
+        jpushQuickAdapter = new QuickAdapter<JPushMessageInfo>(jPushMessageInfoList) {
+            @Override
+            public int getLayoutId(int viewType) {
+                return R.layout.message_list_item;
+            }
+
+            @Override
+            public void convert(VH vh, JPushMessageInfo data, int position) {
+
+                ((TextView) vh.getView(R.id.tv_meessageTitle)).setText(data.getTitle());
+                ((TextView) vh.getView(R.id.tv_messageContent)).setText(data.getContent());
+                ((TextView) vh.getView(R.id.tv_meessageTime)).setText(data.getTime());
+
+                RedPointViewHelper stickyViewHelper = new RedPointViewHelper(getContext() ,
+                        ((View)vh.getView(R.id.redpoint_view_message)) ,R.layout.item_drag_view ) ;
+                stickyViewHelper.setRedPointViewText(data.getUnReadCount());
+
+                if (TextUtils.isEmpty(data.getImg()))
+                {
+                    ((ImageView) vh.getView(R.id.pciv_messageHeaderImage)).setImageResource(R.mipmap.log);
+                }else {
+                    ((ImageView) vh.getView(R.id.pciv_messageHeaderImage)).setImageURI(Uri.parse(data.getImg()));
+                }
+
+                ((ListSlideView) vh.getView(R.id.listlide)).setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
+                    @Override
+                    public void topViewClick(View view) {
+
+                        Toast.makeText(mContext, "topViewClick", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void flagViewClick(View view) {
+                        Toast.makeText(mContext, "flagViewClick", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void deleteViewClick(View view) {
+                        Toast.makeText(mContext, "deleteViewClick", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void contentViewLongClick(View view) {
+
+                        /**
+                         * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
+                         * 由于contentView还未绘制，这时候的width、height都是0。
+                         * 因此需要通过measure测量出contentView的大小，才能进行计算。
+                         */
+                        popupMenuLayout_CONTENT.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getWidth()),
+                                DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getHeight()));
+                        ;
+                        popupMenuLayout_CONTENT.showAsDropDown(view,
+                                DensityUtil.getScreenWidth(getContext()) / 2 - popupMenuLayout_CONTENT.getContentView().getMeasuredWidth() / 2
+                                , -view.getHeight() - popupMenuLayout_CONTENT.getContentView().getMeasuredHeight());
+
+                    }
+
+                    @Override
+                    public void contentViewClick(View view) {
+
+                        Toast.makeText(getContext(), "Message Click", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        };
+        jpushQuickAdapterWrapter = new QucikAdapterWrapter<JPushMessageInfo>(jpushQuickAdapter);
+
+
+        View addView = LayoutInflater.from(getContext()).inflate(R.layout.ad_item_layout, null);
+        jpushQuickAdapterWrapter.setAdView(addView);
+
+        rvMessageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        rvMessageRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        rvMessageRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        rvMessageRecyclerView.setmEmptyView(tvMessageEmptyView);
+        rvMessageRecyclerView.setAdapter(jpushQuickAdapterWrapter);
+
 
     }
 
