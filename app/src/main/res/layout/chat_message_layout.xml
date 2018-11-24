@@ -38,87 +38,52 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/fl_keyBroadLayout"
-        android:orientation="vertical"
         android:background="@color/white"
-        >
+        android:orientation="vertical">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="44dp">
 
+            <ImageView
+                android:id="@+id/iv_chatVoiceImg"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_voice_gray"
+                android:scaleType="center"
+                />
             <io.github.rockerhieu.emojicon.EmojiconEditText
                 android:id="@+id/editEmojicon"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="输入聊天内容"
-                android:lineSpacingExtra="9dp"
+                android:layout_height="match_parent"
+                android:layout_weight="4"
+                android:focusableInTouchMode="true"
+                android:focusedByDefault="false"
+                android:layout_gravity="left|bottom"
                 android:paddingLeft="7dp"
                 emojicon:emojiconSize="28sp"
-                android:layout_weight="4"
+                android:textSize="16sp"
                 />
 
+            <ImageView
+                android:id="@+id/iv_chatEmojiImg"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_emoji_gray"
+                android:scaleType="center"
+
+                />
             <ImageView
                 android:id="@+id/iv_sendImage"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginRight="5dp"
-                android:src="@drawable/ic_send_gray"
-                android:layout_above="@id/ll_messageImageLayout"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
                 android:layout_alignParentRight="true"
-
+                android:layout_marginRight="5dp"
+                android:src="@drawable/ic_add_gray"
+                android:scaleType="center"
                 />
 
         </LinearLayout>
-
-
-        <LinearLayout
-            android:id="@+id/ll_messageImageLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
-
-            <ImageView
-
-                android:id="@+id/iv_chatVoiceImg"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/ic_voice_gray" />
-
-            <ImageView
-
-                android:id="@+id/iv_chatAlbumImg"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/ic_album_gray" />
-
-            <ImageView
-
-                android:id="@+id/iv_chatCameraImg"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/ic_camera_gray" />
-
-            <ImageView
-
-                android:id="@+id/iv_chatEmojiImg"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/ic_emoji_gray" />
-
-            <ImageView
-
-                android:id="@+id/iv_chatAddImg"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/ic_add_gray" />
-
-
-        </LinearLayout>
-
 
     </LinearLayout>
 

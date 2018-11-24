@@ -49,5 +49,15 @@
         <item name="colorAccent">#ffE91E63</item>
     </style>
 
+    <!--voice short recort-dialog-->
+    <style name="mycat_record_voice_dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowBackground">@color/gray</item>
+    </style>
+
 
 </resources>
