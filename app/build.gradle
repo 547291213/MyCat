@@ -145,6 +145,15 @@ dependencies {
 
     //android百分比布局
     implementation 'com.android.support:percent:27.1.1'
+
+    //Badi Map API
     implementation files('libs/IndoorscapeAlbumPlugin.jar')
     implementation files('libs/BaiduLBS_Android.jar')
+
+    //android emoji
+    //can't user
+    //implementation 'com.vanniktech:emoji-ios:0.5.1'
+
+    implementation 'io.github.rockerhieu:emojicon:1.4.1'
+
 }

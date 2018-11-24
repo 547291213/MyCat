@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.xkfeng.mycat.DrawableView.KeyBoradRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:emojicon="http://schemas.android.com/tools"
+    android:id="@+id/rl_rootLayoutView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#f3f3f3"
 
     >
+
     <com.example.xkfeng.mycat.DrawableView.IndexTitleLayout
         android:id="@+id/indexTitleLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         app:layoutBackground="@drawable/title_gradient"
         app:leftBackground="@drawable/contacts_gray"
         app:middleText="User"
@@ -18,28 +22,117 @@
 
         />
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_messageRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/ll_chatBottomLayout"
+        android:layout_below="@id/indexTitleLayout"
+
+        >
+
+    </android.support.v7.widget.RecyclerView>
 
     <LinearLayout
         android:id="@+id/ll_chatBottomLayout"
-        android:visibility="gone"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/fl_keyBroadLayout"
+        android:orientation="vertical"
         android:background="@color/white"
-        android:layout_alignParentBottom="true">
-        <EditText
-            android:id="@+id/et_chatEdit"
-            android:layout_width="0dp"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="44dp">
+
+            <io.github.rockerhieu.emojicon.EmojiconEditText
+                android:id="@+id/editEmojicon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="输入聊天内容"
+                android:lineSpacingExtra="9dp"
+                android:paddingLeft="7dp"
+                emojicon:emojiconSize="28sp"
+                android:layout_weight="4"
+                />
+
+            <ImageView
+                android:id="@+id/iv_sendImage"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/ic_send_gray"
+                android:layout_above="@id/ll_messageImageLayout"
+                android:layout_alignParentRight="true"
+
+                />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/ll_messageImageLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
-        <Button
-            android:id="@+id/bt_chatSend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="发送"/>
+            >
+
+            <ImageView
+
+                android:id="@+id/iv_chatVoiceImg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_voice_gray" />
+
+            <ImageView
+
+                android:id="@+id/iv_chatAlbumImg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_album_gray" />
+
+            <ImageView
+
+                android:id="@+id/iv_chatCameraImg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_camera_gray" />
+
+            <ImageView
+
+                android:id="@+id/iv_chatEmojiImg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_emoji_gray" />
+
+            <ImageView
+
+                android:id="@+id/iv_chatAddImg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_add_gray" />
+
+
+        </LinearLayout>
+
 
     </LinearLayout>
 
 
-</RelativeLayout>
+    <FrameLayout
+        android:id="@+id/fl_keyBroadLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="0.1dp" />
+    </FrameLayout>
+
+
+</com.example.xkfeng.mycat.DrawableView.KeyBoradRelativeLayout>
