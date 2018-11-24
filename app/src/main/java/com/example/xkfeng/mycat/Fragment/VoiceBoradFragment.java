@@ -18,7 +18,7 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class VoiceFragment extends Fragment {
+public class VoiceBoradFragment extends Fragment {
 
     @BindView(R.id.inVoiceImg)
     CircleImageView inVoiceImg;
@@ -26,7 +26,7 @@ public class VoiceFragment extends Fragment {
     private View view;
     private Context mContext;
     private boolean isClicked = false ;
-    private static final String TAG = "VoiceFragment";
+    private static final String TAG = "VoiceBoradFragment";
 
     @Nullable
     @Override

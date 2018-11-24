@@ -11,25 +11,22 @@ import android.view.ViewGroup;
 
 import com.example.xkfeng.mycat.R;
 
-public class NullFrameFragment extends Fragment {
+public class AddBoradFragment extends Fragment {
 
     private View view ;
-    private static final String TAG = "NullFrameFragment";
     private Context mContext ;
+    private static final String TAG = "AddBoradFragment";
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        view = inflater.inflate(R.layout.null_framefragment_layout , container ,false) ;
-
+        view = inflater.inflate(R.layout.add_borad_fragment , container , false) ;
         mContext = getContext() ;
-
-        return view;
+        return view ;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
     }
 }

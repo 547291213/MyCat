@@ -4,16 +4,15 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
-import android.text.InputType;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -21,18 +20,15 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.KeyBoradRelativeLayout;
-import com.example.xkfeng.mycat.Fragment.NullFrameFragment;
-import com.example.xkfeng.mycat.Fragment.VoiceFragment;
+import com.example.xkfeng.mycat.Fragment.AddBoradFragment;
+import com.example.xkfeng.mycat.Fragment.NullBoradFragment;
+import com.example.xkfeng.mycat.Fragment.VoiceBoradFragment;
 import com.example.xkfeng.mycat.R;
-import com.example.xkfeng.mycat.SqlHelper.LoginSQLDao;
+import com.example.xkfeng.mycat.Util.DensityUtil;
 
 import java.util.List;
 
@@ -53,6 +49,9 @@ public class ChatMsgActivity extends BaseActivity implements
         EmojiconsFragment.OnEmojiconBackspaceClickedListener,
         KeyBoradRelativeLayout.KeyBoradStateListener {
 
+    enum SendOrAdd{
+        send , add
+    };
 
     private static final String TAG = "ChatMsgActivity";
     @BindView(R.id.rl_rootLayoutView)
@@ -72,32 +71,35 @@ public class ChatMsgActivity extends BaseActivity implements
     @BindView(R.id.fl_keyBroadLayout)
     FrameLayout flKeyBroadLayout;
 
+    //附加Fragment
+    private AddBoradFragment addBoradFragment ;
     //录音Fragment
-    private VoiceFragment voiceFragment;
-    private boolean voiceBroadIsOpen = false;
+    private VoiceBoradFragment voiceFragment;
     //空布局的fragment
-    private NullFrameFragment nullFrameFragment;
-
+    private NullBoradFragment nullBoradFragment;
+    //控制系统软键盘的显示和隐藏
     private InputMethodManager inputMethodManager;
     //系统软键盘高度
     private static int KEY_BROAD_HEIGHT = 770;
+    //默认最小的软键盘高度阈值
     private static int MIN_KEYBROAD_HITGHT = 100;
-
-    //是否第一次获取系统软键盘高度
-    //整个程序运行期间执行一次
-    private static boolean FIRST_GET_KEYBROAD_HEIGHT = true;
-    //是否第一次获取EmojiEdit的焦点
-    //每次进入当前界面都需要执行一次
-    private boolean EMOJIEDIT_FIRST_FOCUS = true;
-
     //emoji表情键盘是否打开
     private boolean emojiKeyBroadIsOpen = false;
+    //录音fragment是否打开
+    private boolean voiceBroadIsOpen = false;
+    //addBroadFragment是否打开
+    private boolean addBroadIsOpen = false ;
     //系统软键盘是否打开
     private boolean systemSoftKeyBoradIsOpen = false;
+    //会话
     private Conversation conversation;
-
+    //会话列表
     private List<Message> messageList;
-
+    // 如果有数据记录那么会修改为static
+    // send：表示发送功能
+    // add：表示附加功能
+    // 默认为add
+    private int sendOrAdd = SendOrAdd.add.ordinal();
 
     //    【A】stateUnspecified：软键盘的状态并没有指定，系统将选择一个合适的状态或依赖于主题的设置
 //　　【B】stateUnchanged：当这个activity出现时，软键盘将一直保持在上一个activity里的状态，无论是隐藏还是显示
@@ -114,31 +116,114 @@ public class ChatMsgActivity extends BaseActivity implements
         setContentView(R.layout.chat_message_layout);
         ButterKnife.bind(this);
 
-
-//        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN );
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN |
                 WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-
+        initTitleView();
         initInputView();
         initMessageView();
     }
+
+    //初始化顶部标题
+    private void initTitleView() {
+
+        //沉浸式状态栏
+        DensityUtil.fullScreen(this);
+
+//        设置内边距
+//        其中left right bottom都用现有的
+//        top设置为现在的topPadding+状态栏的高度
+//        表现为将indexTitleLayout显示的数据放到状态栏下面
+        indexTitleLayout.setPadding(indexTitleLayout.getPaddingLeft(),
+                indexTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(this),
+                indexTitleLayout.getPaddingRight(),
+                indexTitleLayout.getPaddingBottom());
+
+
+//        设置点击事件监听
+        indexTitleLayout.setTitleItemClickListener(new IndexTitleLayout.TitleItemClickListener() {
+            @Override
+            public void leftViewClick(View view) throws Exception {
+                /**
+                 * 退出当前Activity
+                 */
+
+                finish();
+            }
+
+            @Override
+            public void middleViewClick(View view) {
+
+            }
+
+            @Override
+            public void rightViewClick(View view) {
+
+            }
+        });
+    }
+
 
     /**
      * 初始化输入键盘
      */
     private void initInputView() {
 
-        voiceFragment = new VoiceFragment();
-        nullFrameFragment = new NullFrameFragment();
+        //根布局相关设置
+        setRlRootLayoutView();
+
+        //设置EmojiEdit相关属性
+        setEditEmojionView();
+
+        addBoradFragment = new AddBoradFragment();
+        voiceFragment = new VoiceBoradFragment();
+        nullBoradFragment = new NullBoradFragment();
         inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
+
+    }
+
+    /**
+     * 初始化消息列表
+     */
+    private void initMessageView() {
+        conversation = JMessageClient.getSingleConversation(getIntent().getStringExtra("userName"));
+
+        if (conversation != null) {
+
+            messageList = conversation.getAllMessage();
+
+            Log.d(TAG, "initView: " + messageList.get(0).getCreateTime());
+        }
+    }
+
+    /**
+     * 根布局相关设置
+     */
+    private void setRlRootLayoutView() {
+
+        //监听系统键盘的打开或者关闭
+        //并且做出一些调整
         rlRootLayoutView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 if (getSupportSoftInputHeight() > MIN_KEYBROAD_HITGHT) {
                     systemSoftKeyBoradIsOpen = true;
                 } else {
+                    /**
+                     * 源代码
+                     * if(!hasFragmentOpen())
+                     * BUG：
+                     *    每次进入该Activity，第一部点击emojiEdit，第二部点击返回，会发现系统软键盘撤销
+                     * 但是我们frameLayout的Height仍然为系统软件盘的高度，且以空白布局呈现在eojiEdit下，而且界面有重绘，存在偏移现象
+                     *
+                     * 原因：
+                     *    经过反复测试，每次进入该Activity时，系统软键盘并不会显示，那么就是直接调用
+                     *    setNullInput()方法，在该方法中会设置FrameLayout的高度为1，但是在我们第一步点击emojiEdit的时候又会设置
+                     *    FrameLayout的高度为系统软键盘高度。
+                     *解决办法：
+                     *    让setNullInput只在经过了键盘显示之后才能调用。
+                     */
                     if (!hasFragmentOpen() && systemSoftKeyBoradIsOpen) {
                         setNullInput();
                     }
@@ -148,11 +233,26 @@ public class ChatMsgActivity extends BaseActivity implements
             }
         });
 
+
         /**
+         ****废弃****
          * 绑定监听事件
          * 监听系统软键盘是否打开
+         * ****无法实时监听系统软键盘的打开与否。已废弃：
+         * 原因：
+         * 当设置了InputMode为WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
+         * 且底部始终放置了一个跟系统软键盘一样高度的frameLayout（大部分时间高度一致）
+         * 所以所居的onSizeChange不会完全随着软键盘的显示或者隐藏而发生改动。
+         * 那么也就没法实时监听软键盘的打开/关闭状态
+         *
          */
         rlRootLayoutView.setKeyBoradStateListener(this);
+    }
+
+    /**
+     * 设置emojiEdit相关属性
+     */
+    private void setEditEmojionView() {
 
         /**
          * 当每次进入当前界面的时候，
@@ -176,20 +276,35 @@ public class ChatMsgActivity extends BaseActivity implements
                 }
             }
         });
-    }
 
-    /**
-     * 初始化消息列表
-     */
-    private void initMessageView() {
-        conversation = JMessageClient.getSingleConversation(getIntent().getStringExtra("userName"));
+        /**
+         * 随文本变动，
+         * 界面布局，
+         * 部分按钮的功能都要随之改变
+         */
+        editEmojicon.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-        if (conversation != null) {
+            }
 
-            messageList = conversation.getAllMessage();
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //如果为空
+                if (TextUtils.isEmpty(s)){
+                    sendOrAdd = SendOrAdd.add.ordinal() ;
+                    ivSendImage.setImageResource(R.drawable.ic_add_gray);
+                }else {
+                    sendOrAdd = SendOrAdd.send.ordinal() ;
+                    ivSendImage.setImageResource(R.drawable.ic_send_blue);
+                }
+            }
 
-            Log.d(TAG, "initView: " + messageList.get(0).getCreateTime());
-        }
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     @OnClick({R.id.iv_sendImage, R.id.iv_chatVoiceImg,
@@ -201,37 +316,52 @@ public class ChatMsgActivity extends BaseActivity implements
                 onEditEmojionFocused(view);
                 break;
             case R.id.iv_sendImage:
-                Toast.makeText(this, "SEND", Toast.LENGTH_SHORT).show();
+                if(sendOrAdd == SendOrAdd.send.ordinal()){
+                    /**
+                     * 走消息发送的逻辑
+                     */
+
+                }else {
+                    /**
+                     * 走打开特殊消息布局的逻辑
+                     */
+                    if (addBroadIsOpen){
+                        isOpenAddBorad(false);
+                    }else {
+                        isOpenAddBorad(true);
+                    }
+                }
                 break;
             case R.id.iv_chatVoiceImg:
 
                 if (voiceBroadIsOpen) {
-                    isOpenVoiceBroad(false);
+                    isOpenVoiceBorad(false);
                 } else {
                     // 如果当前存在有其它Fragment处于打开的状态
                     // 直接切换界面
-                    isOpenVoiceBroad(true);
+                    isOpenVoiceBorad(true);
                 }
-                Toast.makeText(this, "VOICE", Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.iv_chatEmojiImg:
 
                 if (emojiKeyBroadIsOpen == true) {
                     //关闭
-                    isOpenEmojiKeyBroad(view, false);
+                    isOpenEmojiBorad(view, false);
                 } else if (emojiKeyBroadIsOpen == false) {
                     //打开
-                    isOpenEmojiKeyBroad(view, true);
+                    isOpenEmojiBorad(view, true);
                 }
                 break;
 
         }
     }
 
+
     /**
-     * 1 对当前已经打开的其他键盘进行打开判断和处理
-     * 2 打开系统软键盘
+     * 1 设置底部fragmeLayout高度和系统软件盘高度一致
+     * 2 复原所有已经打开的fragment
+     * 3 打开系统软键盘
      *
      * @param view editEmoji
      */
@@ -239,6 +369,140 @@ public class ChatMsgActivity extends BaseActivity implements
         flKeyBroadLayout.getLayoutParams().height = KEY_BROAD_HEIGHT;
         recoveryFragment();
         showSoftInput(view);
+    }
+
+
+    private void isOpenAddBorad(boolean isOpen){
+
+        if (isOpen){
+            //清除焦点
+            editEmojicon.clearFocus();
+            //关闭系统软键盘
+            hideSoftInput(editEmojicon);
+
+            //判断是否有正在正在显示fragment，
+            //如果有将其样式回复
+            if (!recoveryFragment()) { }
+            //改变样式
+            ivSendImage.setImageResource(R.drawable.ic_add_blue);
+            //设置布局属性
+            flKeyBroadLayout.getLayoutParams().height = KEY_BROAD_HEIGHT;
+            flKeyBroadLayout.setVisibility(View.VISIBLE);
+            //设置add键盘状态为打开
+            addBroadIsOpen = true;
+            //打开add键盘
+            setAddInput() ;
+        } else {
+            //改变样式
+            ivSendImage.setImageResource(R.drawable.ic_add_gray);
+            //设置add键盘状态为未打开
+            addBroadIsOpen = false;
+            flKeyBroadLayout.getLayoutParams().height = 1;
+            //关闭voice键盘
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fl_keyBroadLayout, nullBoradFragment)
+                    .commit();
+        }
+
+    }
+
+    /**
+     * 打开还是关闭Voice-record界面
+     *
+     * @param isOpen true：打开  flase：关闭
+     */
+    private void isOpenVoiceBorad(boolean isOpen) {
+        if (isOpen) {
+
+            //清除焦点
+            editEmojicon.clearFocus();
+            //关闭系统软键盘
+            hideSoftInput(editEmojicon);
+
+            //判断是否有正在正在显示fragment，
+            //如果有将其样式回复
+            if (!recoveryFragment()) {
+            }
+            //改变样式
+            ivChatVoiceImg.setImageResource(R.drawable.ic_voice_blue);
+            //设置布局属性
+            flKeyBroadLayout.getLayoutParams().height = KEY_BROAD_HEIGHT;
+            flKeyBroadLayout.setVisibility(View.VISIBLE);
+            //设置voice键盘状态为打开
+            voiceBroadIsOpen = true;
+            //打开Voice键盘
+            setVoiceInput();
+        } else {
+            //改变样式
+            ivChatVoiceImg.setImageResource(R.drawable.ic_voice_gray);
+            //设置voice键盘状态为未打开
+            voiceBroadIsOpen = false;
+            flKeyBroadLayout.getLayoutParams().height = 1;
+            //关闭voice键盘
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fl_keyBroadLayout, nullBoradFragment)
+                    .commit();
+        }
+    }
+
+    /**
+     * 打开还是关闭Emoji表情键盘
+     *
+     * @param view   绑定的控件
+     * @param isOpen 是否打开
+     */
+    private void isOpenEmojiBorad(View view, boolean isOpen) {
+
+        if (isOpen) {
+            //清除焦点
+            editEmojicon.clearFocus();
+            //关闭系统软键盘
+            hideSoftInput(editEmojicon);
+            //判断是否有正在正在显示fragment，
+            //如果有将其样式回复
+            if (!recoveryFragment()) {
+            }
+            //改变样式
+            ivChatEmojiImg.setImageResource(R.drawable.ic_emoji_blue);
+            //设置布局属性
+            flKeyBroadLayout.getLayoutParams().height = KEY_BROAD_HEIGHT;
+            flKeyBroadLayout.setVisibility(View.VISIBLE);
+            //设置emoji键盘状态为打开
+            emojiKeyBroadIsOpen = true;
+            //显示emoji表情键盘
+            setEmojiInput(false);
+        } else {
+            //改变样式
+            ivChatEmojiImg.setImageResource(R.drawable.ic_emoji_gray);
+            //关闭系统软键盘
+//            hideSoftInput(ivChatEmojiImg);
+            //设置emoji键盘状态为未打开
+            emojiKeyBroadIsOpen = false;
+            flKeyBroadLayout.getLayoutParams().height = 1;
+
+            //关闭emoji键盘
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fl_keyBroadLayout, nullBoradFragment)
+                    .commit();
+        }
+
+    }
+
+    /**
+     * @param view
+     */
+    private void showSoftInput(View view) {
+        inputMethodManager.showSoftInput(view, 0);
+    }
+
+    /**
+     * @param view
+     */
+    private void hideSoftInput(View view) {
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     /**
@@ -258,6 +522,11 @@ public class ChatMsgActivity extends BaseActivity implements
             flag = true;
             voiceBroadIsOpen = false;
             ivChatVoiceImg.setImageResource(R.drawable.ic_voice_gray);
+        }else if (addBroadIsOpen){
+            flag = true;
+            addBroadIsOpen = false;
+            ivSendImage.setImageResource(R.drawable.ic_add_gray);
+
         }
         return flag;
     }
@@ -273,138 +542,12 @@ public class ChatMsgActivity extends BaseActivity implements
             flag = true;
         } else if (voiceBroadIsOpen) {
             flag = true;
+        }else if (addBroadIsOpen){
+            flag = true ;
         }
         return flag;
     }
 
-    /**
-     * 打开还是关闭Voice-record界面
-     *
-     * @param isOpen true：打开  flase：关闭
-     */
-    private void isOpenVoiceBroad(boolean isOpen) {
-        if (isOpen) {
-
-            //清除焦点
-            editEmojicon.clearFocus();
-            //关闭系统软键盘
-            hideSoftInput(editEmojicon);
-
-            //改变样式
-            ivChatVoiceImg.setImageResource(R.drawable.ic_voice_blue);
-            if (!recoveryFragment()) {
-            }
-            //设置布局属性
-            flKeyBroadLayout.getLayoutParams().height = KEY_BROAD_HEIGHT;
-            flKeyBroadLayout.setVisibility(View.VISIBLE);
-
-            //设置voice键盘状态为打开
-            voiceBroadIsOpen = true;
-            if (systemSoftKeyBoradIsOpen == true) {
-                //关闭系统软键盘
-                hideSoftInput(editEmojicon);
-                //打开Voice键盘
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        setVoiceInput();
-                    }
-                }, 200);
-            } else {
-                //打开Voice键盘
-                setVoiceInput();
-            }
-        } else {
-            //改变样式
-            ivChatVoiceImg.setImageResource(R.drawable.ic_voice_gray);
-            //如果系统软键盘处于打开状态
-            //关闭系统软键盘
-//           hideSoftInput(editEmojicon);
-
-
-            //设置voice键盘状态为未打开
-            voiceBroadIsOpen = false;
-            flKeyBroadLayout.getLayoutParams().height = 1;
-            //关闭voice键盘
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fl_keyBroadLayout, nullFrameFragment)
-                    .commit();
-        }
-    }
-
-    /**
-     * 打开还是关闭Emoji表情键盘
-     *
-     * @param view   绑定的控件
-     * @param isOpen 是否打开
-     */
-    private void isOpenEmojiKeyBroad(View view, boolean isOpen) {
-
-        if (isOpen) {
-
-            //清除焦点
-            editEmojicon.clearFocus();
-            //关闭系统软键盘
-            hideSoftInput(editEmojicon);
-
-            //改变样式
-            ivChatEmojiImg.setImageResource(R.drawable.ic_emoji_blue);
-            if (!recoveryFragment()) {
-            }
-            //设置布局属性
-            flKeyBroadLayout.getLayoutParams().height = KEY_BROAD_HEIGHT;
-            flKeyBroadLayout.setVisibility(View.VISIBLE);
-
-            //设置emoji键盘状态为打开
-            emojiKeyBroadIsOpen = true;
-            if (systemSoftKeyBoradIsOpen == true) {
-                //关闭系统软键盘
-                hideSoftInput(editEmojicon);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        //调用具体的显示方法
-                        setEmojiInput(false);
-                    }
-                }, 200);
-            } else {
-                //调用具体的显示方法
-                setEmojiInput(false);
-                //     Log.d(TAG, "isOpenEmojiKeyBroad: onlvClick: " + emojiKeyBroadIsOpen);
-            }
-        } else {
-
-            //改变样式
-            ivChatEmojiImg.setImageResource(R.drawable.ic_emoji_gray);
-            //关闭系统软键盘
-//            hideSoftInput(ivChatEmojiImg);
-            //设置emoji键盘状态为未打开
-            emojiKeyBroadIsOpen = false;
-            flKeyBroadLayout.getLayoutParams().height = 1;
-
-            //关闭emoji键盘
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fl_keyBroadLayout, nullFrameFragment)
-                    .commit();
-        }
-
-    }
-
-    /**
-     * @param view
-     */
-    private void showSoftInput(View view) {
-        inputMethodManager.showSoftInput(view, 0);
-    }
-
-    /**
-     * @param view
-     */
-    private void hideSoftInput(View view) {
-        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
 
     /**
      * 设置布局表情键盘，特殊消息键盘的高度
@@ -468,6 +611,16 @@ public class ChatMsgActivity extends BaseActivity implements
 
 
     /**
+     * 设置显示Add界面
+     */
+    private void setAddInput(){
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fl_keyBroadLayout , addBoradFragment)
+                .commit() ;
+    }
+
+    /**
      * 设置显示Voice界面
      */
     private void setVoiceInput() {
@@ -494,12 +647,12 @@ public class ChatMsgActivity extends BaseActivity implements
      */
     private void setNullInput() {
         //关闭voice键盘
-        ViewGroup.LayoutParams params = flKeyBroadLayout.getLayoutParams() ;
-        params.height = 1 ;
+        ViewGroup.LayoutParams params = flKeyBroadLayout.getLayoutParams();
+        params.height = 1;
         flKeyBroadLayout.setLayoutParams(params);
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fl_keyBroadLayout, nullFrameFragment)
+                .replace(R.id.fl_keyBroadLayout, nullBoradFragment)
                 .commit();
 
     }
@@ -526,14 +679,27 @@ public class ChatMsgActivity extends BaseActivity implements
 
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             Log.d(TAG, "onKeyDown: back");
-            if (emojiKeyBroadIsOpen == true) {
-                isOpenEmojiKeyBroad(editEmojicon, false);
+            if (hasFragmentOpen() == true) {
+
+                if (emojiKeyBroadIsOpen)
+                {
+                    isOpenEmojiBorad(editEmojicon, false);
+                }else if (addBroadIsOpen){
+                    isOpenAddBorad(false);
+                }else if (voiceBroadIsOpen){
+                    isOpenVoiceBorad(false);
+                }
                 return false;
             }
         }
         return super.onKeyDown(keyCode, event);
     }
 
+    /**
+     * 废弃
+     * @param state
+     */
+    @Deprecated
     @Override
     public void stateChange(int state) {
         switch (state) {

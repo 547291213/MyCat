@@ -16,10 +16,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         app:layoutBackground="@drawable/title_gradient"
-        app:leftBackground="@drawable/contacts_gray"
+        app:leftBackground="@drawable/back_white"
         app:middleText="User"
         app:middleTextColor="@color/light_blue"
-
+        app:rightBackground="@drawable/contacts_gray"
         />
 
     <android.support.v7.widget.RecyclerView
@@ -92,7 +92,8 @@
         android:id="@+id/fl_keyBroadLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        >
 
         <TextView
             android:layout_width="wrap_content"
