@@ -19,9 +19,6 @@ import butterknife.Unbinder;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class VoiceBoradFragment extends Fragment {
-
-    @BindView(R.id.inVoiceImg)
-    CircleImageView inVoiceImg;
     Unbinder unbinder;
     private View view;
     private Context mContext;
@@ -49,22 +46,4 @@ public class VoiceBoradFragment extends Fragment {
         unbinder.unbind();
     }
 
-    @OnClick(R.id.inVoiceImg)
-    public void onViewClicked(View view) {
-
-        if (!isClicked){
-            isClicked = true ;
-            Glide.with(mContext)
-                    .load(R.drawable.ic_invoice_blue)
-                    .into(inVoiceImg) ;
-        }else {
-            isClicked = false ;
-
-            Glide.with(mContext)
-                    .load(R.drawable.ic_invoice_black)
-                    .into(inVoiceImg) ;
-
-
-        }
-    }
 }

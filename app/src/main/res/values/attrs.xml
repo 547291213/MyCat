@@ -29,6 +29,7 @@
     </declare-styleable>
 
 
+    <!--顶部标题栏统一样式-->
     <declare-styleable name="IndexTitleStyle" >
         <attr name="leftBackground" format="reference" />
         <attr name="leftText" format="string" />
@@ -45,6 +46,7 @@
 
     </declare-styleable>
 
+    <!--水波纹动画统一样式-->
     <declare-styleable name="WaveView" >
 
         <attr name="waveleLength" format="dimension" />
@@ -54,4 +56,30 @@
         <attr name="waveHeight" format="dimension" />
         <attr name="duration" format="dimension"  />
     </declare-styleable>
+
+    <!--描述数音量大小的View样式-->
+    <declare-styleable name="VoiceStyle">
+        <attr name="middlerLineHeight" format="dimension" />
+        <attr name="middlerLineColor" format="color" />
+        <attr name="voiceLineColor" format="color" />
+        <attr name="sensibility">
+            <enum name="one" value="1" />
+            <enum name="two" value="2" />
+            <enum name="three" value="3" />
+            <enum name="four" value="4" />
+        </attr>
+        <attr name="maxVolume" format="integer" />
+        <attr name="fineness" >
+            <enum name="one" value="1" />
+            <enum name="two" value="2" />
+            <enum name="three" value="3" />
+            <enum name="four" value="4" />
+            <enum name="file" value="5" />
+            <enum name="six" value="6" />
+            <enum name="seven" value="7" />
+        </attr>
+        <attr name="minVolume" format="dimension" />
+        <attr name="lineSpeed" format="dimension" />
+    </declare-styleable>
+
 </resources>

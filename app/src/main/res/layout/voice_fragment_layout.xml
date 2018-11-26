@@ -5,20 +5,11 @@
     android:orientation="vertical"
     >
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/inVoiceImg"
-        android:layout_width="160dp"
-        android:layout_height="160dp"
-        android:layout_gravity="center_horizontal"
-        android:src="@drawable/ic_invoice_black"
-        />
-
-    <TextView
-        android:layout_width="wrap_content"
+    <com.example.xkfeng.mycat.DrawableView.VoiceUtil.RecordVoiceButton
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="点击录音"
-        android:textSize="26sp"
-        android:layout_gravity="center"
+        android:textSize="22sp"
+        android:background="@drawable/btn_state_drawable"
         />
-
 </LinearLayout>

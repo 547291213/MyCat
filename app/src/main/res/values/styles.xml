@@ -12,8 +12,6 @@
     </style>
 
 
-
-
     <style name="ActionSheetDialogAnimation" parent="@android:style/Animation.Dialog">
         <item name="android:windowEnterAnimation">@anim/bottom_anim_dialog_in</item>
         <item name="android:windowExitAnimation">@anim/bottom_anim_dialog_out</item>
@@ -28,7 +26,9 @@
     <!--android:paddingRight="10dp"-->
     <!--android:paddingTop="2dp"-->
     <!--android:paddingBottom="2dp"-->
-    <style name="SlideTextViewStyle" >
+
+    <!--滑动会话布局-->
+    <style name="SlideTextViewStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:textSize">18sp</item>
@@ -49,14 +49,16 @@
         <item name="colorAccent">#ffE91E63</item>
     </style>
 
+
     <!--voice short recort-dialog-->
+    <!--luyin style-->
     <style name="mycat_record_voice_dialog">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowIsFloating">true</item>
-        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowIsTranslucent">false</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:backgroundDimEnabled">false</item>
-        <item name="android:windowBackground">@color/gray</item>
+        <item name="android:backgroundDimEnabled">true</item>
+
     </style>
 
 
