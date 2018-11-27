@@ -20,6 +20,10 @@
     //获取设备网络状态，禁用后无法获取网络状态
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
+
+    <!--获取音量需要的权限-->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <!--Baidu app-key  NIMmHgy2KDKAvBmZkN7rAHG2z7kaMuYa-->
 
 

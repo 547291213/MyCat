@@ -76,6 +76,10 @@ public class VoiceLineView extends View {
         Pause
     }
 
+    /**
+     * 暂停还是开启，
+     * 默认为暂停
+     */
     private int continueOrPause = ContinueOrPause.Pause.ordinal();
 
 
