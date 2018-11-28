@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   style="@style/mycat_chat_item_sent_layout"
+    >
+
+    <!-- 时间戳 -->
+    <TextView
+        android:id="@+id/mycat_send_time_txt"
+        style="@style/mycat_chat_item_date_style"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp">
+
+        <!-- 头像 -->
+        <ImageView
+            android:id="@+id/mycat_avatar_iv"
+            style="@style/mycat_chat_item_send_avatar"/>
+
+        <!--录音图像布局-->
+        <FrameLayout
+            android:id="@+id/mycat_voice_fl"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/mycat_avatar_iv"
+            android:gravity="right">
+
+            <!--录音时长-->
+            <TextView
+                android:id="@+id/mycat_msg_content"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginRight="5.57dp"
+                android:background="@drawable/mycat_msg_send_bg"
+                android:maxWidth="220dp"/>
+
+            <ImageView
+                android:id="@+id/mycat_voice_iv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|right"
+                android:layout_marginRight="20dp"
+                android:background="@drawable/mycat_chat_item_voice_anim"/>
+
+
+            <TextView
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="14dp"
+                android:id="@+id/jmui_voice_length_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="10"
+                android:textColor="#4D9999"
+                android:textSize="16sp"/>
+        </FrameLayout>
+
+        <!--是否已读？-->
+        <TextView
+            android:id="@+id/text_receipt"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="7dp"
+            android:textSize="12sp"
+            android:layout_toLeftOf="@id/mycat_voice_fl"
+            android:layout_width="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_height="wrap_content"/>
+        <!--重发-->
+        <ImageButton
+            android:id="@+id/mycat_fail_resend_ib"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="6.67dp"
+            android:layout_toLeftOf="@id/mycat_voice_fl"
+            android:background="@drawable/send_message_failed"
+            android:clickable="true"
+            android:scaleType="fitCenter"
+            android:visibility="gone"/>
+
+        <!--加载IMG-->
+        <ImageView
+            android:id="@+id/mycat_sending_iv"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="6.67dp"
+            android:layout_toLeftOf="@id/mycat_voice_fl"
+            android:src="@drawable/mycat_sending_img"
+            />
+
+    </RelativeLayout>
+
+
+</LinearLayout>

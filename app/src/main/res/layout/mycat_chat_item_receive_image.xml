@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    style="@style/mycat_chat_item_receive_layout"
+    >
+    <!--时间戳-->
+    <TextView
+        android:id="@+id/mycat_send_time_txt"
+        style="@style/mycat_chat_item_date_style"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp">
+
+        <!-- 头像 -->
+        <ImageView
+            android:id="@+id/mycat_avatar_iv"
+            style="@style/mycat_chat_item_receive_avatar"/>
+
+        <!--user name-->
+        <TextView
+            android:id="@+id/mycat_display_name_tv"
+            style="@style/mycat_chat_display_name_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/mycat_avatar_iv"/>
+
+        <!--略缩图-->
+        <FrameLayout
+            android:id="@+id/fl_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/mycat_display_name_tv"
+            android:layout_marginLeft="3dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/mycat_avatar_iv"
+            android:background="@drawable/mycat_msg_receive_bg"
+            android:maxWidth="200.0dip">
+
+
+            <ImageView
+                android:id="@+id/mycat_picture_iv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginBottom="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginTop="2dp"
+                android:scaleType="centerCrop"/>
+
+
+        </FrameLayout>
+
+        <!--重发？？？？应该没有用-->
+        <ImageButton
+
+            android:id="@+id/mycat_fail_resend_ib"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/fl_image"
+            android:background="@null"
+            android:clickable="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/send_message_failed"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+
+
+
+</LinearLayout>

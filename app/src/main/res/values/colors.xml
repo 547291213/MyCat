@@ -24,4 +24,6 @@
     <!-- A dark gray, equivalent to 0xffaaaaaa -->
     <color name="darker_gray">#aaa</color>
 
+    <color name="chat_text_color">#0B1816</color>
+
 </resources>

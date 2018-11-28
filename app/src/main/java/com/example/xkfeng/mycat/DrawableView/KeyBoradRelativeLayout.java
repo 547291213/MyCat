@@ -56,6 +56,10 @@ public class KeyBoradRelativeLayout extends RelativeLayout {
         this.keyBoradStateListener = keyBoradStateListener;
     }
 
+    /**
+     * 废弃
+     */
+    @Deprecated
     public interface KeyBoradStateListener{
         public void stateChange(int state) ;
     }
