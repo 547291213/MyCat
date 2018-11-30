@@ -31,4 +31,9 @@
     <string name="listSlideView_markUnread">标记未读</string>
     <string name="listSlideView_markRead">标记已读</string>
     <string name="listSlideView_delete">删除</string>
+    
+    
+    <!--time util-->
+    <string name="morning">上午</string>
+    <string name="afternoon">下午</string>
 </resources>

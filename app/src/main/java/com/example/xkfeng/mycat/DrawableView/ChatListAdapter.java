@@ -12,6 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +35,9 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
+
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.Util.DialogHelper;
 
 public class ChatListAdapter extends BaseAdapter {
 
@@ -67,7 +73,6 @@ public class ChatListAdapter extends BaseAdapter {
     //diy Message
     private final int DIY_MESSAGE = 13;
 
-    //sum of the view type
     private final int SUM_VIEW_TYPE = 14;
 
     private long groupId;
@@ -80,12 +85,9 @@ public class ChatListAdapter extends BaseAdapter {
     private List<Message> mMsgList = new ArrayList<>();
     public static final int PAGE_MESSAGE_COUNT = 18;
     private int mOffSet = PAGE_MESSAGE_COUNT;
-
-    //position of the first message
-    private int mStart;
-    //image-message queue
-    private Queue<Message> mMsgQueue = new LinkedList<>();
-    private Dialog dialog;
+    private int positionOfFirstMsg = 0;
+    private Queue<Message> mImgMsgQueue = new LinkedList<>();
+    private Dialog reSendDialog;
     private boolean mHasLastPage = false;
     private ContentLongClickListener mLongClickListener;
 
@@ -103,7 +105,7 @@ public class ChatListAdapter extends BaseAdapter {
         layoutInflater = LayoutInflater.from(mContext);
         this.mMsgList = mConversation.getMessagesFromNewest(0, mOffSet);
         reverse(mMsgList);
-        mStart = mMsgList.size();
+        positionOfFirstMsg = mMsgList.size();
         if (mConversation.getType() == ConversationType.single) {
             //单聊
             UserInfo userInfo = (UserInfo) mConversation.getTargetInfo();
@@ -127,20 +129,12 @@ public class ChatListAdapter extends BaseAdapter {
         checkSendingImg();
     }
 
-    /**
-     * list reverse
-     *
-     * @param list for message
-     */
     private void reverse(List list) {
         if (list != null) {
             Collections.reverse(list);
         }
     }
 
-    /**
-     * 下拉刷新
-     */
     public void dropDownRefresh() {
         if (mConversation != null) {
             List<Message> messageList = mConversation.getMessagesFromNewest(mMsgList.size(), PAGE_MESSAGE_COUNT);
@@ -170,49 +164,35 @@ public class ChatListAdapter extends BaseAdapter {
         return mOffSet;
     }
 
-    //下拉刷新后调用
     public void refreshStartPosition() {
-        mStart += mOffSet;
+        positionOfFirstMsg += mOffSet;
     }
 
-    //有新的消息时，自增首条消息的位置
     private void increaseStartPosition() {
-        mStart++;
+        positionOfFirstMsg++;
     }
 
-    //存在处于创建的图片需要发送到队列中
     private void checkSendingImg() {
-        //遍历所有消息，如果存在正在创建的图片消息，
-        // 添加到队列
         for (Message message : mMsgList) {
             if (message.getStatus() == MessageStatus.created &&
                     message.getContentType() == ContentType.image) {
-                mMsgQueue.offer(message);
+                mImgMsgQueue.offer(message);
             }
         }
-
-        if (mMsgQueue.size() > 0) {
-            Message message = mMsgQueue.element();
+        if (mImgMsgQueue.size() > 0) {
+            Message message = mImgMsgQueue.element();
             sendImgMsg(message);
         }
-        //update data
         notifyDataSetChanged();
     }
 
-    /**
-     * outSize calls
-     *
-     * @param msgId for image message
-     */
     public void setSendImgMsg(int msgId) {
         Message message = mConversation.getMessage(msgId);
         if (message != null) {
             mMsgList.add(message);
-            mMsgQueue.offer(message);
-            //消息自增
+            mImgMsgQueue.offer(message);
             increaseStartPosition();
-            //发送图片消息
-            sendImgMsg(mMsgQueue.element());
+            sendImgMsg(mImgMsgQueue.element());
         }
     }
 
@@ -227,10 +207,10 @@ public class ChatListAdapter extends BaseAdapter {
             @Override
             public void gotResult(int i, String s) {
                 //out of the queue
-                mMsgQueue.poll();
+                mImgMsgQueue.poll();
                 //if queue isn't null , continue to send next
-                if (!mMsgQueue.isEmpty()) {
-                    sendImgMsg(mMsgQueue.element());
+                if (!mImgMsgQueue.isEmpty()) {
+                    sendImgMsg(mImgMsgQueue.element());
                 }
                 //update data
                 notifyDataSetChanged();
@@ -239,26 +219,16 @@ public class ChatListAdapter extends BaseAdapter {
 
     }
 
-    /**
-     * add message to list ，
-     * increase start position
-     * update data
-     *
-     * @param message
-     */
     public void addMsgToList(Message message) {
         mMsgList.add(message);
         increaseStartPosition();
         notifyDataSetChanged();
     }
 
-    /**
-     * @param messages
-     */
     public void addMsgListToList(List<Message> messages) {
         mMsgList.addAll(messages);
         /**
-         * @TODU the jcat isn's do this
+         * @TODO the jcat isn's do this
          */
         for (Message message : messages) {
             increaseStartPosition();
@@ -288,8 +258,6 @@ public class ChatListAdapter extends BaseAdapter {
         });
     }
 
-    //back out message
-    //用撤回后event下发的消息去替换掉原有的消息
     public void backOutMessage(Message backOutMsg) {
         List<Message> backOutMsgList = new ArrayList<>();
         int i = 0;
@@ -305,24 +273,19 @@ public class ChatListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    /**
-     * @return last Msg
-     */
     public Message getLastMsg() {
         if (mMsgList.size() <= 0) {
             return null;
         } else {
-            return mMsgList.get(mMsgList.size() - 1) ;
+            return mMsgList.get(mMsgList.size() - 1);
         }
     }
 
-    /**
-     * get message for position
-     *
-     * @param pos
-     * @return
-     */
     public Message getMessage(int pos) {
+
+        if (pos < 0 || pos >= mMsgList.size()) {
+            return null;
+        }
         return mMsgList.get(pos);
     }
 
@@ -359,7 +322,6 @@ public class ChatListAdapter extends BaseAdapter {
     @Override
     public int getItemViewType(int position) {
         Message msg = mMsgList.get(position);
-        //是文字类型或者自定义类型（用来显示群成员变化消息）
         switch (msg.getContentType()) {
             case text:
                 return msg.getDirect() == MessageDirect.send ? TYPE_SEND_TEXT
@@ -390,15 +352,48 @@ public class ChatListAdapter extends BaseAdapter {
         }
     }
 
-//    private View createViewByType(Message msg , int position){
-//        switch (msg.getContentType())
-//        {
-//            case text:
-////                return getItemViewType(position) == TYPE_SEND_TEXT ?
-////                        layoutInflater.inflate(R.layout) : layoutInflater.inflate() ;
-//        }
-//
-//    }
+    private View createViewByType(Message msg, int position) {
+        switch (msg.getContentType()) {
+            case text:
+                return getItemViewType(position) == TYPE_SEND_TEXT ?
+                        layoutInflater.inflate(R.layout.mycat_chat_item_send_txt, null, false) :
+                        layoutInflater.inflate(R.layout.mycat_chat_item_receive_txt, null, false);
+
+            case image:
+                return getItemViewType(position) == TYPE_SEND_IMAGE ?
+                        layoutInflater.inflate(R.layout.mycat_chat_item_send_image, null, false) :
+                        layoutInflater.inflate(R.layout.mycat_chat_item_receive_image, null, false);
+
+            case file:
+                return getItemViewType(position) == TYPE_SEND_FILE ?
+                        layoutInflater.inflate(R.layout.mycat_chat_item_send_file, null, false) :
+                        layoutInflater.inflate(R.layout.mycat_chat_item_receive_file, null, false);
+
+            case voice:
+                return getItemViewType(position) == TYPE_SEND_VOICE ?
+                        layoutInflater.inflate(R.layout.mycat_chat_item_send_voice, null, false) :
+                        layoutInflater.inflate(R.layout.mycat_chat_item_receive_voice, null, false);
+
+            case video:
+                return getItemViewType(position) == TYPE_SEND_MOVIE ?
+                        layoutInflater.inflate(R.layout.mycat_chat_item_send_video, null, false) :
+                        layoutInflater.inflate(R.layout.mycat_chat_item_receive_video, null, false);
+
+            case location:
+                return getItemViewType(position) == TYPE_SEND_POSITION ?
+                        layoutInflater.inflate(R.layout.mycat_chat_item_send_location, null, false) :
+                        layoutInflater.inflate(R.layout.mycat_chat_item_receive_location, null, false);
+
+            case custom:
+            case eventNotification:
+            case prompt:
+                return layoutInflater.inflate(R.layout.mycat_chat_item_group_change, null, false);
+            default:
+                return layoutInflater.inflate(R.layout.mycat_chat_item_group_change, null, false);
+
+        }
+
+    }
 
     @Override
     public Object getItem(int position) {
@@ -407,12 +402,150 @@ public class ChatListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        return null;
+        final Message msg = mMsgList.get(position);
+        //消息接收方发送已读回执
+        //如果处于消息接收方，并且消息处于未读状态，需要发送消息回执
+        if (msg.getDirect() == MessageDirect.receive && !msg.haveRead()) {
+            msg.setHaveRead(new BasicCallback() {
+                @Override
+                public void gotResult(int i, String s) {
+
+                }
+            });
+        }
+
+        final UserInfo userInfo = msg.getFromUser();
+        ViewHolder viewHolder = null;
+        if (convertView == null) {
+
+            viewHolder = new ViewHolder();
+            convertView = createViewByType(msg, position);
+            viewHolder.msgTime = (TextView) convertView.findViewById(R.id.mycat_send_time_txt);
+            viewHolder.headIcon = (ImageView) convertView.findViewById(R.id.mycat_avatar_iv);
+            viewHolder.displayName = (TextView) convertView.findViewById(R.id.mycat_display_name_tv);
+            viewHolder.txtContent = (TextView) convertView.findViewById(R.id.mycat_msg_content);
+            viewHolder.sendingIv = (ImageView) convertView.findViewById(R.id.mycat_sending_iv);
+            viewHolder.resend = (ImageButton) convertView.findViewById(R.id.mycat_fail_resend_ib);
+//            viewHolder.ivDocument = (ImageView) convertView.findViewById(R.id.iv_document);
+            viewHolder.text_receipt = (TextView) convertView.findViewById(R.id.text_receipt);
+            switch (msg.getContentType()) {
+                case text:
+                    viewHolder.ll_businessCard = (LinearLayout) convertView.findViewById(R.id.ll_businessCard);
+                    viewHolder.business_head = (ImageView) convertView.findViewById(R.id.business_head);
+                    viewHolder.tv_nickUser = (TextView) convertView.findViewById(R.id.tv_nickUser);
+                    viewHolder.tv_userName = (TextView) convertView.findViewById(R.id.tv_userName);
+
+                    break;
+
+                case image:
+
+                    viewHolder.picture = (ImageView) convertView.findViewById(R.id.mycat_picture_iv);
+                    viewHolder.progressTv = (TextView) convertView.findViewById(R.id.mycat_progress_tv);
+                    break;
+                case video:
+                    break;
+                case voice:
+                    viewHolder.voice = (ImageView) convertView.findViewById(R.id.mycat_voice_iv);
+                    viewHolder.voiceLength = (TextView) convertView.findViewById(R.id.mycat_msg_content);
+                    viewHolder.readStatus = (ImageView) convertView.findViewById(R.id.mycat_read_status_iv);
+                    break;
+                case location:
+//                    viewHolder.location = (TextView) convertView.findViewById(R.id.mycat_loc_desc);
+                    viewHolder.picture = (ImageView) convertView.findViewById(R.id.mycat_picture_iv);
+//                    viewHolder.locationView = convertView.findViewById(R.id.location_view);
+                    break;
+                case custom:
+                case prompt:
+                case eventNotification:
+//                    viewHolder.groupChange = (TextView) convertView.findViewById(R.id.mycat_group_content);
+                    break;
+            }
+
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
+
+
+        return convertView;
     }
 
     class ViewHolder {
+        public TextView msgTime;
+        public ImageView headIcon;
+        public ImageView ivDocument;
+        public TextView displayName;
+        public TextView txtContent;
+        public ImageView picture;
+        public TextView progressTv;
+        public ImageButton resend;
+        public TextView voiceLength;
+        public ImageView voice;
+        public ImageView readStatus;
+        public TextView location;
+        public TextView groupChange;
+        public ImageView sendingIv;
+        public LinearLayout contentLl;
+        public TextView sizeTv;
+        public LinearLayout videoPlay;
+        public TextView alreadySend;
+        public View locationView;
+        public LinearLayout ll_businessCard;
+        public ImageView business_head;
+        public TextView tv_nickUser;
+        public TextView tv_userName;
+        public TextView text_receipt;
+        public TextView fileLoad;
+
 
     }
+
+
+    public void showReSendDialog(ViewHolder viewHolder, final Message msg) {
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.mycat_cancel_btn:
+                        reSendDialog.dismiss();
+                        break;
+
+                    case R.id.mycat_commit_btn:
+                        reSendDialog.dismiss();
+                        switch (msg.getContentType()) {
+                            case text:
+                            case voice:
+
+                                break;
+
+                            case image:
+
+                                break;
+
+                            case file:
+
+                                break;
+
+                            default:
+
+                                break;
+                        }
+                        break;
+
+                    default:
+                        reSendDialog.dismiss();
+                        break;
+                }
+            }
+        };
+
+        reSendDialog = DialogHelper.createResendDialog(mContext, listener);
+        reSendDialog.show();
+    }
+
+
+
+
 
     public abstract class ContentLongClickListener implements View.OnLongClickListener {
         @Override
