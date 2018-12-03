@@ -13,6 +13,10 @@ import java.util.Date;
 
 import static com.example.xkfeng.mycat.Util.TimeUtil.Time_Difference.*;
 
+/**
+ * time utils
+ * 时间与毫秒的切换，毫秒与日期切换，时间转换为仿QQ消息时间格式的实现
+ */
 public class TimeUtil {
 
     enum Time_Difference {
@@ -73,6 +77,9 @@ public class TimeUtil {
      * 前置条件外部实现：时间显示的间隔：当两次发送或收取消息间隔大于5分钟，则显示新的时间
      */
     public String getDetailTime() {
+        if(mContext == null || msgTime == 0){
+            return "";
+        }
         String result = null;
         Date date = new Date(msgTime);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -165,11 +172,9 @@ public class TimeUtil {
      * @return true is leap year , false is non-leap year
      */
     private boolean yearIsLeap(int year) {
-
         if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
             return true;
         }
-
         return false;
     }
 }

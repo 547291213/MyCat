@@ -86,6 +86,7 @@ public class PopupMenuLayout extends PopupWindow {
 
             relativeLayout.setBackgroundResource(R.drawable.ic_dialog2);
 
+
         }
 
         //初始化列表内容Adapter
