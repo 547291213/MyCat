@@ -154,6 +154,10 @@ dependencies {
     //can't user
     //implementation 'com.vanniktech:emoji-ios:0.5.1'
 
+    //emoji
     implementation 'io.github.rockerhieu:emojicon:1.4.1'
+
+    //photo View
+    implementation 'com.github.chrisbanes:PhotoView:2.0.0'
 
 }

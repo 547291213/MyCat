@@ -163,6 +163,17 @@
 
             />
 
+        <!--Activity : friend Info-->
+        <activity android:name=".Activity.FriendInfoActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+
+            />
+
+        <!--Activity : this user is not your friend-->
+        <activity android:name=".Activity.GroupNotFriendActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+
+            />
 
         <!--for take photo-->
         <provider

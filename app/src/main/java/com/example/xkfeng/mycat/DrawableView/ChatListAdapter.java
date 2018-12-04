@@ -3,14 +3,18 @@ package com.example.xkfeng.mycat.DrawableView;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.media.MediaExtractor;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -25,6 +29,9 @@ import java.util.Queue;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
+import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
+import cn.jpush.im.android.api.content.FileContent;
+import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageDirect;
@@ -36,8 +43,17 @@ import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 
+import com.example.xkfeng.mycat.Activity.FriendInfoActivity;
+import com.example.xkfeng.mycat.Activity.GroupNotFriendActivity;
+import com.example.xkfeng.mycat.Activity.IsFirstActivity;
+import com.example.xkfeng.mycat.Activity.UserInfoActivity;
+import com.example.xkfeng.mycat.Model.User;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DialogHelper;
+import com.example.xkfeng.mycat.Util.HandleResponseCode;
+import com.example.xkfeng.mycat.Util.ITosast;
+import com.example.xkfeng.mycat.Util.StaticValueHelper;
+import com.example.xkfeng.mycat.Util.TimeUtil;
 
 public class ChatListAdapter extends BaseAdapter {
 
@@ -83,14 +99,14 @@ public class ChatListAdapter extends BaseAdapter {
     private int mWidth;
     private Conversation mConversation;
     private List<Message> mMsgList = new ArrayList<>();
-    public static final int PAGE_MESSAGE_COUNT = 18;
+    public static final int PAGE_MESSAGE_COUNT = 15;
     private int mOffSet = PAGE_MESSAGE_COUNT;
     private int positionOfFirstMsg = 0;
     private Queue<Message> mImgMsgQueue = new LinkedList<>();
     private Dialog reSendDialog;
     private boolean mHasLastPage = false;
     private ContentLongClickListener mLongClickListener;
-
+    private ChatListAdapterController mController;
 
     public ChatListAdapter(Activity activity, Conversation conversation, ContentLongClickListener contentLongClickListener) {
         this.mActivity = activity;
@@ -105,6 +121,8 @@ public class ChatListAdapter extends BaseAdapter {
         layoutInflater = LayoutInflater.from(mContext);
         this.mMsgList = mConversation.getMessagesFromNewest(0, mOffSet);
         reverse(mMsgList);
+
+        mController = new ChatListAdapterController(mContext, this, conversation, mMsgList, contentLongClickListener, dm.density);
         positionOfFirstMsg = mMsgList.size();
         if (mConversation.getType() == ConversationType.single) {
             //单聊
@@ -115,6 +133,7 @@ public class ChatListAdapter extends BaseAdapter {
                     public void gotResult(int i, String s, Bitmap bitmap) {
                         if (i == 0) {
                             notifyDataSetChanged();
+                            Log.d(TAG, "gotResult: notifyDataSetChanged");
                         }
                     }
                 });
@@ -206,13 +225,10 @@ public class ChatListAdapter extends BaseAdapter {
         imgMsg.setOnSendCompleteCallback(new BasicCallback() {
             @Override
             public void gotResult(int i, String s) {
-                //out of the queue
                 mImgMsgQueue.poll();
-                //if queue isn't null , continue to send next
                 if (!mImgMsgQueue.isEmpty()) {
                     sendImgMsg(mImgMsgQueue.element());
                 }
-                //update data
                 notifyDataSetChanged();
             }
         });
@@ -355,31 +371,42 @@ public class ChatListAdapter extends BaseAdapter {
     private View createViewByType(Message msg, int position) {
         switch (msg.getContentType()) {
             case text:
+                Log.d(TAG, "createViewByType: text");
                 return getItemViewType(position) == TYPE_SEND_TEXT ?
-                        layoutInflater.inflate(R.layout.mycat_chat_item_send_txt, null, false) :
-                        layoutInflater.inflate(R.layout.mycat_chat_item_receive_txt, null, false);
+                        layoutInflater.inflate(R.layout.mycat_chat_item_send_txt, null) :
+                        layoutInflater.inflate(R.layout.mycat_chat_item_receive_txt, null);
 
             case image:
+
+                Log.d(TAG, "createViewByType: image");
                 return getItemViewType(position) == TYPE_SEND_IMAGE ?
                         layoutInflater.inflate(R.layout.mycat_chat_item_send_image, null, false) :
                         layoutInflater.inflate(R.layout.mycat_chat_item_receive_image, null, false);
 
             case file:
+
+                Log.d(TAG, "createViewByType: file");
                 return getItemViewType(position) == TYPE_SEND_FILE ?
                         layoutInflater.inflate(R.layout.mycat_chat_item_send_file, null, false) :
                         layoutInflater.inflate(R.layout.mycat_chat_item_receive_file, null, false);
 
             case voice:
+
+                Log.d(TAG, "createViewByType: voice");
                 return getItemViewType(position) == TYPE_SEND_VOICE ?
                         layoutInflater.inflate(R.layout.mycat_chat_item_send_voice, null, false) :
                         layoutInflater.inflate(R.layout.mycat_chat_item_receive_voice, null, false);
 
             case video:
+
+                Log.d(TAG, "createViewByType: video");
                 return getItemViewType(position) == TYPE_SEND_MOVIE ?
                         layoutInflater.inflate(R.layout.mycat_chat_item_send_video, null, false) :
                         layoutInflater.inflate(R.layout.mycat_chat_item_receive_video, null, false);
 
             case location:
+
+                Log.d(TAG, "createViewByType: location");
                 return getItemViewType(position) == TYPE_SEND_POSITION ?
                         layoutInflater.inflate(R.layout.mycat_chat_item_send_location, null, false) :
                         layoutInflater.inflate(R.layout.mycat_chat_item_receive_location, null, false);
@@ -387,8 +414,11 @@ public class ChatListAdapter extends BaseAdapter {
             case custom:
             case eventNotification:
             case prompt:
+
+                Log.d(TAG, "createViewByType: custom");
                 return layoutInflater.inflate(R.layout.mycat_chat_item_group_change, null, false);
             default:
+                Log.d(TAG, "createViewByType: custom");
                 return layoutInflater.inflate(R.layout.mycat_chat_item_group_change, null, false);
 
         }
@@ -405,25 +435,19 @@ public class ChatListAdapter extends BaseAdapter {
         final Message msg = mMsgList.get(position);
         //消息接收方发送已读回执
         //如果处于消息接收方，并且消息处于未读状态，需要发送消息回执
-        if (msg.getDirect() == MessageDirect.receive && !msg.haveRead()) {
-            msg.setHaveRead(new BasicCallback() {
-                @Override
-                public void gotResult(int i, String s) {
+        sendReadReceipt(msg);
 
-                }
-            });
-        }
-
-        final UserInfo userInfo = msg.getFromUser();
         ViewHolder viewHolder = null;
+        Log.d(TAG, "getView: convertView");
         if (convertView == null) {
 
             viewHolder = new ViewHolder();
             convertView = createViewByType(msg, position);
             viewHolder.msgTime = (TextView) convertView.findViewById(R.id.mycat_send_time_txt);
             viewHolder.headIcon = (ImageView) convertView.findViewById(R.id.mycat_avatar_iv);
-            viewHolder.displayName = (TextView) convertView.findViewById(R.id.mycat_display_name_tv);
             viewHolder.txtContent = (TextView) convertView.findViewById(R.id.mycat_msg_content);
+
+            viewHolder.displayName = (TextView) convertView.findViewById(R.id.mycat_display_name_tv);
             viewHolder.sendingIv = (ImageView) convertView.findViewById(R.id.mycat_sending_iv);
             viewHolder.resend = (ImageButton) convertView.findViewById(R.id.mycat_fail_resend_ib);
 //            viewHolder.ivDocument = (ImageView) convertView.findViewById(R.id.iv_document);
@@ -443,6 +467,23 @@ public class ChatListAdapter extends BaseAdapter {
                     viewHolder.progressTv = (TextView) convertView.findViewById(R.id.mycat_progress_tv);
                     break;
                 case video:
+                    break;
+
+                case file:
+                    String extra = msg.getContent().getStringExtra("video");
+                    if (!TextUtils.isEmpty(extra)) {
+//                        viewHolder.picture = (ImageView) convertView.findViewById(R.id.jmui_picture_iv);
+//                        viewHolder.progressTv = (TextView) convertView.findViewById(R.id.jmui_progress_tv);
+//                        viewHolder.videoPlay = (LinearLayout) convertView.findViewById(R.id.message_item_video_play);
+                    } else {
+//                        viewHolder.progressTv = (TextView) convertView.findViewById(R.id.jmui_progress_tv);
+//                        viewHolder.contentLl = (LinearLayout) convertView.findViewById(R.id.jmui_send_file_ll);
+//                        viewHolder.sizeTv = (TextView) convertView.findViewById(R.id.jmui_send_file_size);
+//                        viewHolder.alreadySend = (TextView) convertView.findViewById(R.id.file_already_send);
+                    }
+                    if (msg.getDirect().equals(MessageDirect.receive)) {
+//                        viewHolder.fileLoad = (TextView) convertView.findViewById(R.id.mycat_send_file_load);
+                    }
                     break;
                 case voice:
                     viewHolder.voice = (ImageView) convertView.findViewById(R.id.mycat_voice_iv);
@@ -466,8 +507,190 @@ public class ChatListAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
+        if (viewHolder != null) {
+            dealWithTime(viewHolder, msg, position);
+            showHeadImage(viewHolder, msg);
+            headImgClick(viewHolder, msg, position);
+            processVariousMsg(viewHolder, msg, position);
+            msgReceiptionSituation(viewHolder, msg);
 
+        }
         return convertView;
+    }
+
+    private void sendReadReceipt(Message msg) {
+        if (msg.getDirect() == MessageDirect.receive && !msg.haveRead()) {
+            msg.setHaveRead(new BasicCallback() {
+                @Override
+                public void gotResult(int i, String s) {
+
+                }
+            });
+        }
+    }
+
+
+    private void dealWithTime(ViewHolder viewHolder, Message msg, int position) {
+        long nowDate = msg.getCreateTime();
+        if (mOffSet == PAGE_MESSAGE_COUNT) {
+
+            if (position == 0 || position % 18 == 0) {
+                viewHoldShowTime(viewHolder, nowDate);
+            } else {
+                long lastDate = mMsgList.get(position - 1).getCreateTime();
+                if (lastDate - nowDate > 300000) {
+                    viewHoldShowTime(viewHolder, nowDate);
+                } else {
+                    viewHoldHideTime(viewHolder);
+                }
+            }
+        } else {
+            if (position == 0 || (position - mOffSet) % 18 == 0) {
+                viewHoldShowTime(viewHolder, nowDate);
+            } else {
+                long lastDate = mMsgList.get(position - 1).getCreateTime();
+                if (lastDate - nowDate > 300000) {
+                    viewHoldShowTime(viewHolder, nowDate);
+                } else {
+                    viewHoldHideTime(viewHolder);
+                }
+            }
+        }
+
+    }
+
+    private void viewHoldShowTime(ViewHolder viewHolder, long nowDate) {
+        TimeUtil timeUtil = new TimeUtil(mContext, nowDate);
+        viewHolder.msgTime.setVisibility(View.VISIBLE);
+        viewHolder.msgTime.setText(timeUtil.getDetailTime());
+    }
+
+    private void viewHoldHideTime(ViewHolder viewHolder) {
+        viewHolder.msgTime.setVisibility(View.GONE);
+    }
+
+    private void showHeadImage(final ViewHolder viewHolder, Message msg) {
+        if (viewHolder.headIcon == null) {
+            return;
+        }
+        final UserInfo userInfo = msg.getFromUser();
+        if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
+
+            userInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
+                @Override
+                public void gotResult(int i, String s, Bitmap bitmap) {
+                    switch (i) {
+                        case 0:
+                            viewHolder.headIcon.setImageBitmap(bitmap);
+                            break;
+                        default:
+                            HandleResponseCode.onHandle(mContext, i);
+                            break;
+                    }
+                }
+            });
+        } else {
+            viewHolder.headIcon.setImageResource(R.mipmap.log);
+        }
+
+    }
+
+    private void headImgClick(ViewHolder viewHolder, final Message msg, int position) {
+
+        viewHolder.headIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                if (msg.getDirect() == MessageDirect.send) {
+                    intent.setClass(mContext, UserInfoActivity.class);
+                    mContext.startActivity(intent);
+                } else {
+                    UserInfo userInfo = msg.getFromUser();
+                    intent.putExtra(StaticValueHelper.TARGET_ID, userInfo.getUserName());
+                    intent.putExtra(StaticValueHelper.TARGET_APP_KEY, userInfo.getAppKey());
+                    intent.putExtra(StaticValueHelper.GROUP_ID, groupId);
+                    if (userInfo.isFriend()) {
+                        intent.setClass(mContext, FriendInfoActivity.class);
+                    } else {
+                        intent.setClass(mContext, GroupNotFriendActivity.class);
+                    }
+                    ((Activity) mContext).startActivityForResult(intent, StaticValueHelper.REQUET_CODE_FRIEND_INFO);
+                }
+            }
+        });
+
+        viewHolder.headIcon.setTag(position);
+        viewHolder.headIcon.setOnLongClickListener(mLongClickListener);
+    }
+
+    private void processVariousMsg(ViewHolder holder, Message msg, int position) {
+        switch (msg.getContentType()) {
+            case text:
+                TextContent textContent = (TextContent) msg.getContent();
+                String extraBusiness = textContent.getStringExtra("businessCard");
+                if (extraBusiness != null) {
+                    holder.txtContent.setVisibility(View.GONE);
+                    holder.ll_businessCard.setVisibility(View.VISIBLE);
+                    //mController.handleBusinessCard(msg, holder, position);
+                } else {
+                    holder.ll_businessCard.setVisibility(View.GONE);
+                    holder.txtContent.setVisibility(View.VISIBLE);
+                    mController.handleTextMessage(holder, msg, position);
+                }
+                break;
+            case image:
+                mController.handleImgMessage(holder, msg, position);
+                break;
+            case file:
+                FileContent fileContent = (FileContent) msg.getContent();
+                String extra = fileContent.getStringExtra("video");
+                if (!TextUtils.isEmpty(extra)) {
+                    //mController.handleVideo(msg, holder, position);
+                } else {
+                    //mController.handleFileMsg(msg, holder, position);
+                }
+                break;
+            case voice:
+                //mController.handleVoiceMsg(msg, holder, position);
+                break;
+            case location:
+                //mController.handleLocationMsg(msg, holder, position);
+                break;
+            case eventNotification:
+                //mController.handleGroupChangeMsg(msg, holder);
+                break;
+            case prompt:
+                //mController.handlePromptMsg(msg, holder);
+                break;
+            default:
+                //mController.handleCustomMsg(msg, holder);
+
+        }
+    }
+
+    private void msgReceiptionSituation(ViewHolder viewHolder, Message msg) {
+
+        if (msg.getDirect() == MessageDirect.send && !msg.getContentType().equals(ContentType.custom) && !msg.getContentType().equals(ContentType.custom)) {
+
+            if (msg.getUnreceiptCnt() == 0) {
+                if (msg.getTargetType() == ConversationType.group) {
+                    viewHolder.text_receipt.setText("全部已读");
+                } else if (!((UserInfo) msg.getTargetInfo()).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
+                    viewHolder.text_receipt.setText("已读");
+                }
+                viewHolder.text_receipt.setTextColor(mContext.getResources().getColor(R.color.message_already_receipt));
+            } else {
+
+                if (msg.getTargetType() == ConversationType.group) {
+                    viewHolder.text_receipt.setTextColor(Integer.parseInt(msg.getUnreceiptCnt() + "人未读"));
+                } else if (!((UserInfo) msg.getTargetInfo()).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
+                    viewHolder.text_receipt.setText("未读");
+                }
+                viewHolder.text_receipt.setTextColor(mContext.getResources().getColor(R.color.message_no_receipt));
+            }
+        }
+
+
     }
 
     class ViewHolder {
@@ -501,7 +724,7 @@ public class ChatListAdapter extends BaseAdapter {
     }
 
 
-    public void showReSendDialog(ViewHolder viewHolder, final Message msg) {
+    public void showReSendDialog(final ViewHolder viewHolder, final Message msg) {
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -515,19 +738,19 @@ public class ChatListAdapter extends BaseAdapter {
                         switch (msg.getContentType()) {
                             case text:
                             case voice:
-
+                                resendTxtOrVoice(viewHolder, msg);
                                 break;
 
                             case image:
-
+                                resendImage(viewHolder, msg);
                                 break;
 
                             case file:
-
+                                resendFile(viewHolder, msg);
                                 break;
 
                             default:
-
+                                ITosast.showShort(mContext, "未知类型").show();
                                 break;
                         }
                         break;
@@ -540,14 +763,75 @@ public class ChatListAdapter extends BaseAdapter {
         };
 
         reSendDialog = DialogHelper.createResendDialog(mContext, listener);
+        reSendDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
         reSendDialog.show();
     }
 
+    private void resendTxtOrVoice(final ViewHolder holder, Message msg) {
+        holder.resend.setVisibility(View.GONE);
+        holder.sendingIv.setVisibility(View.VISIBLE);
+        holder.sendingIv.startAnimation(mController.mSendingAnim);
+
+        if (!msg.isSendCompleteCallbackExists()) {
+            msg.setOnSendCompleteCallback(new BasicCallback() {
+                @Override
+                public void gotResult(int i, String s) {
+
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
+                    HandleResponseCode.onHandle(mContext, i);
+                }
+            });
+        }
+        MessageSendingOptions options = new MessageSendingOptions();
+        options.setNeedReadReceipt(true);
+        JMessageClient.sendMessage(msg, options);
+    }
 
 
+    private void resendImage(final ViewHolder holder, Message msg) {
+        holder.resend.setVisibility(View.GONE);
+        holder.sendingIv.setVisibility(View.VISIBLE);
+        holder.sendingIv.startAnimation(mController.mSendingAnim);
+        holder.picture.setAlpha((float) 0.7);
+        holder.progressTv.setVisibility(View.VISIBLE);
+
+        msg.setOnContentUploadProgressCallback(new ProgressUpdateCallback() {
+            @Override
+            public void onProgressUpdate(final double v) {
+
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        holder.progressTv.setText(("" + v * 100) + "%");
+                    }
+                });
+            }
+        });
+        if (!msg.isSendCompleteCallbackExists()) {
+            msg.setOnSendCompleteCallback(new BasicCallback() {
+                @Override
+                public void gotResult(int i, String s) {
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
+                    holder.picture.setAlpha((float) 1.0);
+                    holder.progressTv.setVisibility(View.GONE);
+                    HandleResponseCode.onHandle(mContext, i);
+                }
+            });
+        }
+    }
 
 
-    public abstract class ContentLongClickListener implements View.OnLongClickListener {
+    private void resendFile(ViewHolder holder, Message msg) {
+
+        if (holder.contentLl != null) {
+
+        }
+    }
+
+
+    public abstract static class ContentLongClickListener implements View.OnLongClickListener {
         @Override
         public boolean onLongClick(View v) {
 

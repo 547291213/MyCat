@@ -2,11 +2,13 @@
 
 buildscript {
 
+
     repositories {
         mavenCentral()
         maven {
             url "https://jitpack.io"
         }
+
         google()
         jcenter()
 
@@ -24,7 +26,10 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven { url "https://jitpack.io" }
+
     }
+
 }
 
 task clean(type: Delete) {

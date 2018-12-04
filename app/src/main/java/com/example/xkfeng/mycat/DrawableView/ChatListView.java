@@ -3,6 +3,7 @@ package com.example.xkfeng.mycat.DrawableView;
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
@@ -15,23 +16,31 @@ import android.widget.RelativeLayout;
 
 import com.example.xkfeng.mycat.R;
 
+/**
+ * 自定义的ListView
+ * 用于显示聊天界面的内容
+ * 主要是添加了顶部可隐藏的加载布局
+ * （当处于拉取数据的状态时，会显示加载布局，其余时间隐藏，具体的数据加载由ChatListAdapter实现）
+ * 主要逻辑为：
+ *     每次打开当前界面，下拉可以刷新，拉取上一页的数据
+ *     其余情况，每页面容许的最大消息数目为18，当当页面的消息数目为18，且满足下拉的状态的时候，
+ *     会拉取上一页的数据
+ */
 public class ChatListView extends ListView implements AbsListView.OnScrollListener {
 
     private boolean isDropDownStyle = true;
     private Context mContext;
-    private static final int PAGE_MESSAGE_COUNT = 18;
+    private static final int PAGE_MESSAGE_COUNT = 15;
 
-    //current scroll sattus
     private int currentScrollSatus;
-    //current header status
     private int currentHeaderStatus;
 
-    //whether reach top , when has reached top ,
-    // don't show header layout
+    //no use
+    @Deprecated
     private boolean isReachTop = false;
 
     //about header view
-    private RelativeLayout headerLayout;
+    private LinearLayout headerLayout;
     private LinearLayout loadingLayout;
     private ImageView loadingImage;
     private int headerOringnalHeight;
@@ -56,12 +65,15 @@ public class ChatListView extends ListView implements AbsListView.OnScrollListen
     private OnScrollListener onScrollListener;
     private OnDropDownListener onDropDownListener;
 
+    private static final String TAG = "ChatListView";
     public ChatListView(Context context) {
         this(context, null);
     }
 
     public ChatListView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        mContext = context ;
         initDropDown();
         super.setOnScrollListener(this);
     }
@@ -85,7 +97,7 @@ public class ChatListView extends ListView implements AbsListView.OnScrollListen
         }
         // headerLayout is null
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        headerLayout = (RelativeLayout) inflater.inflate(R.layout.drop_down_refresh_layout, this, false);
+        headerLayout = (LinearLayout) inflater.inflate(R.layout.drop_down_refresh_layout, this, false);
         loadingImage = headerLayout.findViewById(R.id.iv_loadingImg);
         loadingLayout = headerLayout.findViewById(R.id.ll_loadingLayout);
         addHeaderView(headerLayout);
@@ -115,15 +127,17 @@ public class ChatListView extends ListView implements AbsListView.OnScrollListen
                 break;
 
             case MotionEvent.ACTION_MOVE:
-
                 actionMoveY = ev.getY();
                 break;
 
             case MotionEvent.ACTION_UP:
+                if (!isVerticalScrollBarEnabled()) {
+                    setVerticalScrollBarEnabled(true);
+                }
                 break;
         }
 
-        return super.onTouchEvent(ev);
+        return true;
     }
 
 
@@ -131,7 +145,7 @@ public class ChatListView extends ListView implements AbsListView.OnScrollListen
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         if (isDropDownStyle) {
             currentScrollSatus = scrollState;
-
+            Log.d(TAG, "onScrollStateChanged: ");
             if (currentScrollSatus == SCROLL_STATE_IDLE) {
                 isReachTop = false;
             }
@@ -146,8 +160,9 @@ public class ChatListView extends ListView implements AbsListView.OnScrollListen
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
         if (isDropDownStyle) {
+            Log.d(TAG, "onScroll: ");
             if (currentScrollSatus == SCROLL_STATE_TOUCH_SCROLL && currentHeaderStatus != HEADER_STATUS_LOADING &&
-                    firstVisibleItem == 0 && actionMoveY - actionDownY > 0) {
+                    firstVisibleItem == 0 && actionMoveY - actionDownY > 0 && mOffSet == PAGE_MESSAGE_COUNT) {
                 onDropDown();
             } else if (currentScrollSatus == SCROLL_STATE_FLING && currentHeaderStatus != HEADER_STATUS_LOADING &&
                     firstVisibleItem == 0) {
@@ -173,6 +188,8 @@ public class ChatListView extends ListView implements AbsListView.OnScrollListen
     public void onDropDown() {
 
         if (currentHeaderStatus != HEADER_STATUS_LOADING && isDropDownStyle && onDropDownListener != null) {
+
+            Log.d(TAG, "onDropDown: ");
             onDropDownBegin();
             onDropDownListener.onDropDown();
 
@@ -262,6 +279,7 @@ public class ChatListView extends ListView implements AbsListView.OnScrollListen
     public int getHeaderHeight() {
         return headerOringnalHeight;
     }
+
 
     /**
      * measure header layout

@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -18,10 +17,14 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.xkfeng.mycat.DrawableView.ChatListAdapter;
+import com.example.xkfeng.mycat.DrawableView.ChatListAdapter.ContentLongClickListener;
+import com.example.xkfeng.mycat.DrawableView.ChatListView;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.KeyBoradRelativeLayout;
 import com.example.xkfeng.mycat.Fragment.AddBoradFragment;
@@ -49,9 +52,16 @@ public class ChatMsgActivity extends BaseActivity implements
         EmojiconsFragment.OnEmojiconBackspaceClickedListener,
         KeyBoradRelativeLayout.KeyBoradStateListener {
 
-    enum SendOrAdd{
-        send , add
-    };
+
+    enum SendOrAdd {
+        send, add
+    }
+
+    ;
+
+    @BindView(R.id.clv_messageListView)
+    ChatListView clvMessageListView;
+    private ChatListAdapter chatListAdapter ;
 
     private static final String TAG = "ChatMsgActivity";
     @BindView(R.id.rl_rootLayoutView)
@@ -66,13 +76,12 @@ public class ChatMsgActivity extends BaseActivity implements
     ImageView ivChatVoiceImg;
     @BindView(R.id.iv_chatEmojiImg)
     ImageView ivChatEmojiImg;
-    @BindView(R.id.rv_messageRecyclerView)
-    RecyclerView rvMessageRecyclerView;
+
     @BindView(R.id.fl_keyBroadLayout)
     FrameLayout flKeyBroadLayout;
 
     //附加Fragment
-    private AddBoradFragment addBoradFragment ;
+    private AddBoradFragment addBoradFragment;
     //录音Fragment
     private VoiceBoradFragment voiceFragment;
     //空布局的fragment
@@ -88,7 +97,7 @@ public class ChatMsgActivity extends BaseActivity implements
     //录音fragment是否打开
     private boolean voiceBroadIsOpen = false;
     //addBroadFragment是否打开
-    private boolean addBroadIsOpen = false ;
+    private boolean addBroadIsOpen = false;
     //系统软键盘是否打开
     private boolean systemSoftKeyBoradIsOpen = false;
     //会话
@@ -100,6 +109,7 @@ public class ChatMsgActivity extends BaseActivity implements
     // add：表示附加功能
     // 默认为add
     private int sendOrAdd = SendOrAdd.add.ordinal();
+
 
     //    【A】stateUnspecified：软键盘的状态并没有指定，系统将选择一个合适的状态或依赖于主题的设置
 //　　【B】stateUnchanged：当这个activity出现时，软键盘将一直保持在上一个activity里的状态，无论是隐藏还是显示
@@ -113,7 +123,7 @@ public class ChatMsgActivity extends BaseActivity implements
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.chat_message_layout);
+        setContentView(R.layout.chat_message_layout_test);
         ButterKnife.bind(this);
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN |
@@ -122,6 +132,7 @@ public class ChatMsgActivity extends BaseActivity implements
         initTitleView();
         initInputView();
         initMessageView();
+        Log.d(TAG, "onCreate: ");
     }
 
     //初始化顶部标题
@@ -188,14 +199,39 @@ public class ChatMsgActivity extends BaseActivity implements
      */
     private void initMessageView() {
         conversation = JMessageClient.getSingleConversation(getIntent().getStringExtra("userName"));
-
+        if (conversation == null) {
+            conversation = Conversation.createSingleConversation(getIntent().getStringExtra("userName"));
+            Log.d(TAG, "initMessageView: conversion is null ");
+        }
         if (conversation != null) {
-
+            chatListAdapter = new ChatListAdapter(ChatMsgActivity.this , conversation, longClickListener);
+            rlRootLayoutView.init();
+            rlRootLayoutView.setChatListAadapter(chatListAdapter);
+            rlRootLayoutView.getmChatListView().setOnDropDownListener(new ChatListView.OnDropDownListener() {
+                @Override
+                public void onDropDown() {
+                    Toast.makeText(ChatMsgActivity.this, "onDrop Down", Toast.LENGTH_SHORT).show();
+                }
+            });
+            rlRootLayoutView.setToBottom();
+            rlRootLayoutView.getmChatListView().setDividerHeight(0);
+//            rlRootLayoutView.setToBottom();
             messageList = conversation.getAllMessage();
 
             Log.d(TAG, "initView: " + messageList.get(0).getCreateTime());
         }
+
     }
+
+    private ContentLongClickListener longClickListener = new ChatListAdapter.ContentLongClickListener(){
+
+        @Override
+        public void onContentLoingClick(int pos, View view) {
+
+            Toast.makeText(ChatMsgActivity.this, "content long click", Toast.LENGTH_SHORT).show();
+        }
+    }  ;
+
 
     /**
      * 根布局相关设置
@@ -291,11 +327,11 @@ public class ChatMsgActivity extends BaseActivity implements
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 //如果为空
-                if (TextUtils.isEmpty(s)){
-                    sendOrAdd = SendOrAdd.add.ordinal() ;
+                if (TextUtils.isEmpty(s)) {
+                    sendOrAdd = SendOrAdd.add.ordinal();
                     ivSendImage.setImageResource(R.drawable.ic_add_gray);
-                }else {
-                    sendOrAdd = SendOrAdd.send.ordinal() ;
+                } else {
+                    sendOrAdd = SendOrAdd.send.ordinal();
                     ivSendImage.setImageResource(R.drawable.ic_send_blue);
                 }
             }
@@ -316,18 +352,18 @@ public class ChatMsgActivity extends BaseActivity implements
                 onEditEmojionFocused(view);
                 break;
             case R.id.iv_sendImage:
-                if(sendOrAdd == SendOrAdd.send.ordinal()){
+                if (sendOrAdd == SendOrAdd.send.ordinal()) {
                     /**
                      * 走消息发送的逻辑
                      */
 
-                }else {
+                } else {
                     /**
                      * 走打开特殊消息布局的逻辑
                      */
-                    if (addBroadIsOpen){
+                    if (addBroadIsOpen) {
                         isOpenAddBorad(false);
-                    }else {
+                    } else {
                         isOpenAddBorad(true);
                     }
                 }
@@ -372,9 +408,9 @@ public class ChatMsgActivity extends BaseActivity implements
     }
 
 
-    private void isOpenAddBorad(boolean isOpen){
+    private void isOpenAddBorad(boolean isOpen) {
 
-        if (isOpen){
+        if (isOpen) {
             //清除焦点
             editEmojicon.clearFocus();
             //关闭系统软键盘
@@ -382,7 +418,8 @@ public class ChatMsgActivity extends BaseActivity implements
 
             //判断是否有正在正在显示fragment，
             //如果有将其样式回复
-            if (!recoveryFragment()) { }
+            if (!recoveryFragment()) {
+            }
             //改变样式
             ivSendImage.setImageResource(R.drawable.ic_add_blue);
             //设置布局属性
@@ -391,7 +428,7 @@ public class ChatMsgActivity extends BaseActivity implements
             //设置add键盘状态为打开
             addBroadIsOpen = true;
             //打开add键盘
-            setAddInput() ;
+            setAddInput();
         } else {
             //改变样式
             ivSendImage.setImageResource(R.drawable.ic_add_gray);
@@ -522,7 +559,7 @@ public class ChatMsgActivity extends BaseActivity implements
             flag = true;
             voiceBroadIsOpen = false;
             ivChatVoiceImg.setImageResource(R.drawable.ic_voice_gray);
-        }else if (addBroadIsOpen){
+        } else if (addBroadIsOpen) {
             flag = true;
             addBroadIsOpen = false;
             ivSendImage.setImageResource(R.drawable.ic_add_gray);
@@ -542,8 +579,8 @@ public class ChatMsgActivity extends BaseActivity implements
             flag = true;
         } else if (voiceBroadIsOpen) {
             flag = true;
-        }else if (addBroadIsOpen){
-            flag = true ;
+        } else if (addBroadIsOpen) {
+            flag = true;
         }
         return flag;
     }
@@ -613,11 +650,11 @@ public class ChatMsgActivity extends BaseActivity implements
     /**
      * 设置显示Add界面
      */
-    private void setAddInput(){
+    private void setAddInput() {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fl_keyBroadLayout , addBoradFragment)
-                .commit() ;
+                .replace(R.id.fl_keyBroadLayout, addBoradFragment)
+                .commit();
     }
 
     /**
@@ -681,12 +718,11 @@ public class ChatMsgActivity extends BaseActivity implements
             Log.d(TAG, "onKeyDown: back");
             if (hasFragmentOpen() == true) {
 
-                if (emojiKeyBroadIsOpen)
-                {
+                if (emojiKeyBroadIsOpen) {
                     isOpenEmojiBorad(editEmojicon, false);
-                }else if (addBroadIsOpen){
+                } else if (addBroadIsOpen) {
                     isOpenAddBorad(false);
-                }else if (voiceBroadIsOpen){
+                } else if (voiceBroadIsOpen) {
                     isOpenVoiceBorad(false);
                 }
                 return false;
@@ -697,6 +733,7 @@ public class ChatMsgActivity extends BaseActivity implements
 
     /**
      * 废弃
+     *
      * @param state
      */
     @Deprecated

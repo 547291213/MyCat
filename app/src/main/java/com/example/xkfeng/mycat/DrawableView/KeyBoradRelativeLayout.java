@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 
+import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.SqlHelper.LoginSQLDao;
 
 /**
@@ -21,6 +22,9 @@ public class KeyBoradRelativeLayout extends RelativeLayout {
     private KeyBoradStateListener keyBoradStateListener;
     private static final String TAG = "KeyBoradRelativeLayout";
 
+    private ChatListView mChatListView ;
+
+
     public KeyBoradRelativeLayout(Context context) {
         super(context);
     }
@@ -32,6 +36,41 @@ public class KeyBoradRelativeLayout extends RelativeLayout {
     public KeyBoradRelativeLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
+
+    public void init(){
+        mChatListView  = (ChatListView) findViewById(R.id.clv_messageListView) ;
+    }
+
+    private boolean mChatListViewIsNull(){
+        return mChatListView == null ;
+    }
+
+    public void setChatListAadapter(ChatListAdapter chatListAadapter){
+
+        mChatListView.setAdapter(chatListAadapter);
+    }
+
+    public void setToPosition(int position){
+        if (mChatListViewIsNull()){return ;}
+        mChatListView.smoothScrollToPosition(position);
+    }
+
+    public ChatListView getmChatListView(){
+        return mChatListView ;
+    }
+
+    public void setToBottom(){
+        if (mChatListViewIsNull()){return ;}
+
+        mChatListView.clearFocus();
+        mChatListView.post(new Runnable() {
+            @Override
+            public void run() {
+                mChatListView.setSelection(mChatListView.getAdapter().getCount() - 1);
+            }
+        }) ;
+    }
+
 
     @Override
     protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
