@@ -62,7 +62,7 @@ public class ChatListView extends ListView implements AbsListView.OnScrollListen
 
     private int mOffSet = PAGE_MESSAGE_COUNT;
 
-    private OnScrollListener onScrollListener;
+//    private OnScrollListener onScrollListener;
     private OnDropDownListener onDropDownListener;
 
     private static final String TAG = "ChatListView";
@@ -74,8 +74,10 @@ public class ChatListView extends ListView implements AbsListView.OnScrollListen
         super(context, attrs);
 
         mContext = context ;
+
         initDropDown();
-        super.setOnScrollListener(this);
+
+//        super.setOnScrollListener(this);
     }
 
     /**
@@ -151,9 +153,9 @@ public class ChatListView extends ListView implements AbsListView.OnScrollListen
             }
         }
 
-        if (onScrollListener != null) {
-            onScrollListener.onScrollStateChanged(view, scrollState);
-        }
+//        if (onScrollListener != null) {
+//            onScrollListener.onScrollStateChanged(view, scrollState);
+//        }
     }
 
     @Override
@@ -176,9 +178,9 @@ public class ChatListView extends ListView implements AbsListView.OnScrollListen
             }
         }
 
-        if (onScrollListener != null) {
-            onScrollListener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
-        }
+//        if (onScrollListener != null) {
+//            onScrollListener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+//        }
     }
 
 
@@ -267,10 +269,10 @@ public class ChatListView extends ListView implements AbsListView.OnScrollListen
         this.mOffSet = mOffSet;
     }
 
-    @Override
-    public void setOnScrollListener(OnScrollListener onScrollListener) {
-        this.onScrollListener = onScrollListener;
-    }
+//    @Override
+//    public void setOnScrollListener(OnScrollListener onScrollListener) {
+//        this.onScrollListener = onScrollListener;
+//    }
 
 
     /**

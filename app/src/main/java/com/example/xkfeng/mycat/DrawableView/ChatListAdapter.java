@@ -440,7 +440,6 @@ public class ChatListAdapter extends BaseAdapter {
         ViewHolder viewHolder = null;
         Log.d(TAG, "getView: convertView");
         if (convertView == null) {
-
             viewHolder = new ViewHolder();
             convertView = createViewByType(msg, position);
             viewHolder.msgTime = (TextView) convertView.findViewById(R.id.mycat_send_time_txt);
@@ -538,7 +537,7 @@ public class ChatListAdapter extends BaseAdapter {
                 viewHoldShowTime(viewHolder, nowDate);
             } else {
                 long lastDate = mMsgList.get(position - 1).getCreateTime();
-                if (lastDate - nowDate > 300000) {
+                if (nowDate - lastDate   > 300000) {
                     viewHoldShowTime(viewHolder, nowDate);
                 } else {
                     viewHoldHideTime(viewHolder);
@@ -549,7 +548,7 @@ public class ChatListAdapter extends BaseAdapter {
                 viewHoldShowTime(viewHolder, nowDate);
             } else {
                 long lastDate = mMsgList.get(position - 1).getCreateTime();
-                if (lastDate - nowDate > 300000) {
+                if (nowDate - lastDate > 300000) {
                     viewHoldShowTime(viewHolder, nowDate);
                 } else {
                     viewHoldHideTime(viewHolder);

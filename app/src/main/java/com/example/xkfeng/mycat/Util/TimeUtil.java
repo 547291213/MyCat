@@ -87,8 +87,12 @@ public class TimeUtil {
         String oldY = oldTime.substring(0, 4);
         int oldM = Integer.parseInt(oldTime.substring(5, 7));
         int oldD = Integer.parseInt(oldTime.substring(8, 10));
-        int oldHour = Integer.parseInt(oldTime.substring(11, 13));
-        int oldMinutes = Integer.parseInt(oldTime.substring(14, 16));
+        /**
+         * 小时和分钟是需要具体显示的数据
+         * 转为int，存在显示BUG，比如分钟为05，就会直接显示5，效果很差
+         */
+        String oldHour = oldTime.substring(11, 13);
+        String oldMinutes = oldTime.substring(14, 16);
 
         String newTime = TimeUtil.ms2date("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis());
         String newY = newTime.substring(0, 4);
@@ -129,8 +133,15 @@ public class TimeUtil {
 
 
     private String prindTimeForSwitch(int diffTimeValue, Date date, int oldM, int oldD,
-                                      int oldHour, int oldMinutes) {
+                                      String oldHour, String oldMinutes) {
         switch (diffTimeValue) {
+            case 0 :
+                if (Integer.parseInt(oldHour) > AT_MOON){
+                    return mContext.getResources().getString(R.string.afternoon) + " " + oldHour + ":" + oldM ;
+                }else {
+                    return mContext.getResources().getString(R.string.morning) + " " + oldHour + ":" + oldM ;
+
+                }
             case 1:
                 return "昨天 " + oldHour + ":" + oldMinutes;
             case 2:
