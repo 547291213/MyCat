@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.example.xkfeng.mycat.DrawableView.UserInfoScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:id="@+id/uisv_scrollView"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <include
+                android:id="@+id/userInfoLayout"
+                layout="@layout/userinfo_item"
+
+                />
+
+            <TextView
+                android:id="@+id/tv_personallyLaber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:layout_marginTop="10dp"
+                android:text="个性标签"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_below="@id/userInfoLayout"
+                android:layout_alignParentLeft="true"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:textSize="28sp"
+                android:textStyle="bold|italic"
+                android:drawableRight="@drawable/bigger"
+
+                />
+
+            <TextView
+
+                android:id="@+id/tv_lookPersonallyLaberView"
+                android:layout_width="match_parent"
+                android:layout_height="500dp"
+                android:background="@color/gray"
+                android:layout_marginTop="20dp"
+                android:text="查看个性标签"
+                android:gravity="center"
+                android:textStyle="italic"
+                android:textSize="30sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_below="@id/tv_personallyLaber"
+                />
+
+
+        </RelativeLayout>
+
+    </com.example.xkfeng.mycat.DrawableView.UserInfoScrollView>
+
+
+
+    <Button
+        android:id="@+id/bt_sendMsgBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="发送消息"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:background="@drawable/btn_state_drawable"
+        android:alpha="1"
+        android:layout_alignParentBottom="true"
+
+        />
+    <com.example.xkfeng.mycat.DrawableView.IndexTitleLayout
+        android:id="@+id/indexTitleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:leftBackground="@drawable/back_blue"
+
+        android:visibility="invisible"
+        />
+
+    <!--<TextView-->
+    <!--android:id="@+id/tv_title"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="55dp"-->
+    <!--android:background="#00000000"-->
+    <!--android:gravity="center|bottom"-->
+    <!--android:paddingBottom="10dp"-->
+    <!--android:text="我是标题"-->
+    <!--android:textColor="@color/transparent"-->
+    <!--android:textSize="18sp"-->
+    <!--android:visibility="invisible"-->
+    <!--/>-->
+
+</RelativeLayout>

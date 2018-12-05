@@ -163,6 +163,13 @@ public class ChatListView extends ListView implements OnScrollListener {
                 actionMovePointY = event.getY();
                 break;
             case MotionEvent.ACTION_UP:
+
+                /**
+                 *
+                 */
+                actionDownPointY = 0 ;
+                actionMovePointY = 0 ;
+
                 if (!isVerticalScrollBarEnabled()) {
                     setVerticalScrollBarEnabled(true);
                 }
@@ -208,7 +215,7 @@ public class ChatListView extends ListView implements OnScrollListener {
             }
         }
 
-        if (onScrollListener != null) {
+        if (onScrollListener != null && actionMovePointY - actionDownPointY > 10 ) {
             onScrollListener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
         }
     }

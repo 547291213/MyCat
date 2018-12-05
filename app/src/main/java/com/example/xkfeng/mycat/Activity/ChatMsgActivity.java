@@ -1,9 +1,11 @@
 package com.example.xkfeng.mycat.Activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.text.Editable;
@@ -36,8 +38,11 @@ import com.example.xkfeng.mycat.Model.Gradle;
 import com.example.xkfeng.mycat.NetWork.HttpHelper;
 import com.example.xkfeng.mycat.NetWork.NetCallBackResultBean;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.RxBus.RxBus;
 import com.example.xkfeng.mycat.Util.DensityUtil;
+import com.example.xkfeng.mycat.Util.ITosast;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +51,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.options.MessageSendingOptions;
 import io.github.rockerhieu.emojicon.EmojiconEditText;
 import io.github.rockerhieu.emojicon.EmojiconGridFragment;
 import io.github.rockerhieu.emojicon.EmojiconsFragment;
@@ -119,6 +126,10 @@ public class ChatMsgActivity extends BaseActivity implements
     // 默认为add
     private int sendOrAdd = SendOrAdd.add.ordinal();
 
+    private static final int REFRESH_LAST_PAGE = 0x123;
+
+    private UIHandler uiHandler;
+
 
     //    【A】stateUnspecified：软键盘的状态并没有指定，系统将选择一个合适的状态或依赖于主题的设置
 //　　【B】stateUnchanged：当这个activity出现时，软键盘将一直保持在上一个activity里的状态，无论是隐藏还是显示
@@ -138,6 +149,7 @@ public class ChatMsgActivity extends BaseActivity implements
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN |
                 WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
+        uiHandler = new UIHandler(this);
         initTitleView();
         initInputView();
         initMessageView();
@@ -212,13 +224,39 @@ public class ChatMsgActivity extends BaseActivity implements
             Log.d(TAG, "initMessageView: conversion is null ");
         }
         if (conversation != null) {
-            chatListAdapter = new ChatListAdapter(ChatMsgActivity.this , conversation, longClickListener);
+            chatListAdapter = new ChatListAdapter(ChatMsgActivity.this, conversation, longClickListener);
             rlRootLayoutView.init();
             rlRootLayoutView.setChatListAadapter(chatListAdapter);
             rlRootLayoutView.getmChatListView().setOnDropDownListener(new ChatListView.OnDropDownListener() {
                 @Override
                 public void onDropDown() {
-                    Toast.makeText(ChatMsgActivity.this, "onDrop Down", Toast.LENGTH_SHORT).show();
+
+                    uiHandler.sendEmptyMessageAtTime(REFRESH_LAST_PAGE, 1000);
+                }
+            });
+            rlRootLayoutView.getmChatListView().setOnScrollListener(new AbsListView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(AbsListView absListView, int i) {
+
+                }
+
+                @Override
+                public void onScroll(AbsListView absListView, int i, int i1, int i2) {
+
+                    if (systemSoftKeyBoradIsOpen) {
+                        //关闭系统软键盘
+                        hideSoftInput(editEmojicon);
+                    }
+                    if (hasFragmentOpen() == true) {
+
+                        if (emojiKeyBroadIsOpen) {
+                            isOpenEmojiBorad(editEmojicon, false);
+                        } else if (addBroadIsOpen) {
+                            isOpenAddBorad(false);
+                        } else if (voiceBroadIsOpen) {
+                            isOpenVoiceBorad(false);
+                        }
+                    }
                 }
             });
             rlRootLayoutView.setToBottom();
@@ -355,6 +393,12 @@ public class ChatMsgActivity extends BaseActivity implements
     @OnClick({R.id.iv_sendImage, R.id.iv_chatVoiceImg,
             R.id.iv_chatEmojiImg, R.id.editEmojicon})
     public void onIvClick(View view) {
+
+        /**
+         * 为了给与用户更好的体验。
+         * 在底部任意布局点击的时候完成聊天列表到底部的滑动，
+         */
+        smoothScrollToBottom();
         switch (view.getId()) {
             case R.id.editEmojicon:
                 //关闭掉emoji表情键盘
@@ -365,6 +409,7 @@ public class ChatMsgActivity extends BaseActivity implements
                     /**
                      * 走消息发送的逻辑
                      */
+                    sendTextContentMsg(view) ;
 
                 } else {
                     /**
@@ -378,7 +423,6 @@ public class ChatMsgActivity extends BaseActivity implements
                 }
                 break;
             case R.id.iv_chatVoiceImg:
-
                 if (voiceBroadIsOpen) {
                     isOpenVoiceBorad(false);
                 } else {
@@ -389,7 +433,6 @@ public class ChatMsgActivity extends BaseActivity implements
                 break;
 
             case R.id.iv_chatEmojiImg:
-
                 if (emojiKeyBroadIsOpen == true) {
                     //关闭
                     isOpenEmojiBorad(view, false);
@@ -411,11 +454,26 @@ public class ChatMsgActivity extends BaseActivity implements
      * @param view editEmoji
      */
     private void onEditEmojionFocused(View view) {
+        smoothScrollToBottom();
         flKeyBroadLayout.getLayoutParams().height = KEY_BROAD_HEIGHT;
         recoveryFragment();
         showSoftInput(view);
     }
 
+    private void sendTextContentMsg(View view){
+        String msgConetnt  = editEmojicon.getText().toString() ;
+        Message msg ;
+        TextContent textContent =new TextContent(msgConetnt) ;
+        msg = conversation.createSendMessage(textContent) ;
+        MessageSendingOptions options = new MessageSendingOptions();
+        options.setNeedReadReceipt(true);
+        JMessageClient.sendMessage(msg , options);
+//        important : mark receive ....
+        chatListAdapter.addMsgFromReceiveToList(msg);
+
+        editEmojicon.setText("");
+
+    }
 
     private void isOpenAddBorad(boolean isOpen) {
 
@@ -594,6 +652,12 @@ public class ChatMsgActivity extends BaseActivity implements
         return flag;
     }
 
+    private void smoothScrollToBottom() {
+        clvMessageListView.requestLayout();
+        if (clvMessageListView.getAdapter().getCount() > 0)
+            clvMessageListView.smoothScrollToPosition(clvMessageListView.getAdapter().getCount() - 1);
+
+    }
 
     /**
      * 设置布局表情键盘，特殊消息键盘的高度
@@ -738,6 +802,43 @@ public class ChatMsgActivity extends BaseActivity implements
             }
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    class UIHandler extends Handler {
+
+        private WeakReference<ChatMsgActivity> activity;
+
+        public UIHandler(ChatMsgActivity activity) {
+            this.activity = new WeakReference<ChatMsgActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+            ChatMsgActivity chatMsgActivity = activity.get();
+            switch (msg.what) {
+                case REFRESH_LAST_PAGE:
+                    /**
+                     * 默认拉取消息的速度过快，
+                     * 效果很不好，所以采用Handler延时的处理方式
+                     */
+                    chatListAdapter.dropDownRefresh();
+                    rlRootLayoutView.getmChatListView().onDropDownComplete();
+                    if (chatMsgActivity.chatListAdapter.ismHasLastPage()){
+                        chatMsgActivity.rlRootLayoutView.getmChatListView().setSelection(chatMsgActivity.chatListAdapter.getmOffSet());
+                    }else {
+                        chatMsgActivity.rlRootLayoutView.getmChatListView().setSelection(0);
+                    }
+
+                    //更新当前页面的消息总数
+                    chatMsgActivity.rlRootLayoutView.getmChatListView().setOffset(chatMsgActivity.chatListAdapter.getmOffSet());
+                    break;
+
+                default:
+                    ITosast.showShort(chatMsgActivity, "尚未知道的类型").show();
+                    break;
+            }
+        }
     }
 
     /**

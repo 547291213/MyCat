@@ -13,8 +13,9 @@
         android:layout_marginTop="5dp"
         >
 
-        <ImageView
-            android:id="@+id/mycat_avatar_iv"
+        <de.hdodenhof.circleimageview.CircleImageView
+
+        android:id="@+id/mycat_avatar_iv"
             style="@style/mycat_chat_item_receive_avatar" />
 
 

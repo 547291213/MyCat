@@ -129,7 +129,8 @@
 
         </LinearLayout>
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
+
             android:id="@+id/mycat_avatar_iv"
             style="@style/mycat_chat_item_send_avatar" />
 

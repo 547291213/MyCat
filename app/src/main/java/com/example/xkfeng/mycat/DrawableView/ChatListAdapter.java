@@ -42,6 +42,7 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import com.example.xkfeng.mycat.Activity.FriendInfoActivity;
 import com.example.xkfeng.mycat.Activity.GroupNotFriendActivity;
@@ -133,7 +134,6 @@ public class ChatListAdapter extends BaseAdapter {
                     public void gotResult(int i, String s, Bitmap bitmap) {
                         if (i == 0) {
                             notifyDataSetChanged();
-                            Log.d(TAG, "gotResult: notifyDataSetChanged");
                         }
                     }
                 });
@@ -240,6 +240,7 @@ public class ChatListAdapter extends BaseAdapter {
         increaseStartPosition();
         notifyDataSetChanged();
     }
+
     public void addMsgListToList(List<Message> messages) {
         mMsgList.addAll(messages);
         /**
@@ -370,42 +371,36 @@ public class ChatListAdapter extends BaseAdapter {
     private View createViewByType(Message msg, int position) {
         switch (msg.getContentType()) {
             case text:
-                Log.d(TAG, "createViewByType: text");
                 return getItemViewType(position) == TYPE_SEND_TEXT ?
                         layoutInflater.inflate(R.layout.mycat_chat_item_send_txt, null) :
                         layoutInflater.inflate(R.layout.mycat_chat_item_receive_txt, null);
 
             case image:
 
-                Log.d(TAG, "createViewByType: image");
                 return getItemViewType(position) == TYPE_SEND_IMAGE ?
                         layoutInflater.inflate(R.layout.mycat_chat_item_send_image, null, false) :
                         layoutInflater.inflate(R.layout.mycat_chat_item_receive_image, null, false);
 
             case file:
 
-                Log.d(TAG, "createViewByType: file");
                 return getItemViewType(position) == TYPE_SEND_FILE ?
                         layoutInflater.inflate(R.layout.mycat_chat_item_send_file, null, false) :
                         layoutInflater.inflate(R.layout.mycat_chat_item_receive_file, null, false);
 
             case voice:
 
-                Log.d(TAG, "createViewByType: voice");
                 return getItemViewType(position) == TYPE_SEND_VOICE ?
                         layoutInflater.inflate(R.layout.mycat_chat_item_send_voice, null, false) :
                         layoutInflater.inflate(R.layout.mycat_chat_item_receive_voice, null, false);
 
             case video:
 
-                Log.d(TAG, "createViewByType: video");
                 return getItemViewType(position) == TYPE_SEND_MOVIE ?
                         layoutInflater.inflate(R.layout.mycat_chat_item_send_video, null, false) :
                         layoutInflater.inflate(R.layout.mycat_chat_item_receive_video, null, false);
 
             case location:
 
-                Log.d(TAG, "createViewByType: location");
                 return getItemViewType(position) == TYPE_SEND_POSITION ?
                         layoutInflater.inflate(R.layout.mycat_chat_item_send_location, null, false) :
                         layoutInflater.inflate(R.layout.mycat_chat_item_receive_location, null, false);
@@ -414,10 +409,8 @@ public class ChatListAdapter extends BaseAdapter {
             case eventNotification:
             case prompt:
 
-                Log.d(TAG, "createViewByType: custom");
                 return layoutInflater.inflate(R.layout.mycat_chat_item_group_change, null, false);
             default:
-                Log.d(TAG, "createViewByType: custom");
                 return layoutInflater.inflate(R.layout.mycat_chat_item_group_change, null, false);
 
         }
@@ -441,7 +434,7 @@ public class ChatListAdapter extends BaseAdapter {
             viewHolder = new ViewHolder();
             convertView = createViewByType(msg, position);
             viewHolder.msgTime = (TextView) convertView.findViewById(R.id.mycat_send_time_txt);
-            viewHolder.headIcon = (ImageView) convertView.findViewById(R.id.mycat_avatar_iv);
+            viewHolder.headIcon = (CircleImageView) convertView.findViewById(R.id.mycat_avatar_iv);
             viewHolder.txtContent = (TextView) convertView.findViewById(R.id.mycat_msg_content);
 
             viewHolder.displayName = (TextView) convertView.findViewById(R.id.mycat_display_name_tv);
@@ -503,7 +496,6 @@ public class ChatListAdapter extends BaseAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
 
-        Log.d(TAG, "getView: convertView getTag");
         }
 
         if (viewHolder != null) {
@@ -542,7 +534,7 @@ public class ChatListAdapter extends BaseAdapter {
                 viewHoldShowTime(viewHolder, nowDate);
             } else {
                 long lastDate = mMsgList.get(position - 1).getCreateTime();
-                if (nowDate - lastDate   > 300000) {
+                if (nowDate - lastDate > 300000) {
                     viewHoldShowTime(viewHolder, nowDate);
                 } else {
                     viewHoldHideTime(viewHolder);
@@ -616,7 +608,10 @@ public class ChatListAdapter extends BaseAdapter {
                     if (userInfo.isFriend()) {
                         intent.setClass(mContext, FriendInfoActivity.class);
                     } else {
-                        intent.setClass(mContext, GroupNotFriendActivity.class);
+//                        @TODO
+//                        重要逻辑有待修改
+//                        intent.setClass(mContext, GroupNotFriendActivity.class);
+                        intent.setClass(mContext, FriendInfoActivity.class);
                     }
                     ((Activity) mContext).startActivityForResult(intent, StaticValueHelper.REQUET_CODE_FRIEND_INFO);
                 }
@@ -637,7 +632,14 @@ public class ChatListAdapter extends BaseAdapter {
                     holder.ll_businessCard.setVisibility(View.VISIBLE);
                     //mController.handleBusinessCard(msg, holder, position);
                 } else {
-                    holder.ll_businessCard.setVisibility(View.GONE);
+                    /**
+                     * BUG .
+                     * 当前作为发送方，发送消息后，
+                     * ll_businessCard为null，加载布局报nullPointerException
+                     */
+                    if (holder.ll_businessCard != null){
+                        holder.ll_businessCard.setVisibility(View.GONE);
+                    }
                     holder.txtContent.setVisibility(View.VISIBLE);
                     mController.handleTextMessage(holder, msg, position);
                 }
@@ -699,7 +701,7 @@ public class ChatListAdapter extends BaseAdapter {
 
     class ViewHolder {
         public TextView msgTime;
-        public ImageView headIcon;
+        public CircleImageView headIcon;
         public ImageView ivDocument;
         public TextView displayName;
         public TextView txtContent;
