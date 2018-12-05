@@ -240,7 +240,6 @@ public class ChatListAdapter extends BaseAdapter {
         increaseStartPosition();
         notifyDataSetChanged();
     }
-
     public void addMsgListToList(List<Message> messages) {
         mMsgList.addAll(messages);
         /**
@@ -438,7 +437,6 @@ public class ChatListAdapter extends BaseAdapter {
         sendReadReceipt(msg);
 
         ViewHolder viewHolder = null;
-        Log.d(TAG, "getView: convertView");
         if (convertView == null) {
             viewHolder = new ViewHolder();
             convertView = createViewByType(msg, position);
@@ -504,6 +502,8 @@ public class ChatListAdapter extends BaseAdapter {
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
+
+        Log.d(TAG, "getView: convertView getTag");
         }
 
         if (viewHolder != null) {
@@ -511,6 +511,11 @@ public class ChatListAdapter extends BaseAdapter {
             showHeadImage(viewHolder, msg);
             headImgClick(viewHolder, msg, position);
             processVariousMsg(viewHolder, msg, position);
+            /**
+             * 有趣的BUG ，
+             * 注释掉该方法后：
+             *
+             */
             msgReceiptionSituation(viewHolder, msg);
 
         }

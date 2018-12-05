@@ -36,4 +36,12 @@
     <!--time util-->
     <string name="morning">上午</string>
     <string name="afternoon">下午</string>
+
+    <!--last message style-->
+    <string name="last_msg_image">[图片]</string>
+    <string name="last_msg_file">[文件]</string>
+    <string name="last_msg_voice">[录音]</string>
+    <string name="last_msg_movie">[视频]</string>
+    <string name="last_msg_location">[位置]</string>
+    <string name="last_msg_custom">[未知信息]</string>
 </resources>

@@ -20,6 +20,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import com.example.xkfeng.mycat.DrawableView.ChatListAdapter;
@@ -30,10 +32,15 @@ import com.example.xkfeng.mycat.DrawableView.KeyBoradRelativeLayout;
 import com.example.xkfeng.mycat.Fragment.AddBoradFragment;
 import com.example.xkfeng.mycat.Fragment.NullBoradFragment;
 import com.example.xkfeng.mycat.Fragment.VoiceBoradFragment;
+import com.example.xkfeng.mycat.Model.Gradle;
+import com.example.xkfeng.mycat.NetWork.HttpHelper;
+import com.example.xkfeng.mycat.NetWork.NetCallBackResultBean;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,6 +52,8 @@ import io.github.rockerhieu.emojicon.EmojiconEditText;
 import io.github.rockerhieu.emojicon.EmojiconGridFragment;
 import io.github.rockerhieu.emojicon.EmojiconsFragment;
 import io.github.rockerhieu.emojicon.emoji.Emojicon;
+
+import static com.baidu.mapapi.BMapManager.getContext;
 
 
 public class ChatMsgActivity extends BaseActivity implements
@@ -61,7 +70,7 @@ public class ChatMsgActivity extends BaseActivity implements
 
     @BindView(R.id.clv_messageListView)
     ChatListView clvMessageListView;
-    private ChatListAdapter chatListAdapter ;
+    private ChatListAdapter chatListAdapter;
 
     private static final String TAG = "ChatMsgActivity";
     @BindView(R.id.rl_rootLayoutView)
@@ -191,7 +200,6 @@ public class ChatMsgActivity extends BaseActivity implements
         nullBoradFragment = new NullBoradFragment();
         inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
-
     }
 
     /**
@@ -215,7 +223,8 @@ public class ChatMsgActivity extends BaseActivity implements
             });
             rlRootLayoutView.setToBottom();
             rlRootLayoutView.getmChatListView().setDividerHeight(0);
-//            rlRootLayoutView.setToBottom();
+
+
             messageList = conversation.getAllMessage();
 
             Log.d(TAG, "initView: " + messageList.get(0).getCreateTime());
@@ -223,14 +232,14 @@ public class ChatMsgActivity extends BaseActivity implements
 
     }
 
-    private ContentLongClickListener longClickListener = new ChatListAdapter.ContentLongClickListener(){
+    private ContentLongClickListener longClickListener = new ChatListAdapter.ContentLongClickListener() {
 
         @Override
         public void onContentLoingClick(int pos, View view) {
 
             Toast.makeText(ChatMsgActivity.this, "content long click", Toast.LENGTH_SHORT).show();
         }
-    }  ;
+    };
 
 
     /**

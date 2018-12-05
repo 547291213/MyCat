@@ -101,7 +101,7 @@ public class MessageFragment extends Fragment {
     private QucikAdapterWrapter<JPushMessageInfo> jpushQuickAdapterWrapter;
     private QuickAdapter<JPushMessageInfo> jpushQuickAdapter;
 
-    public static final int REQUEST_CHATMESSAGE  = 101 ;
+    public static final int REQUEST_CHATMESSAGE = 101;
 
     /**
      * 可拖动的红点个数
@@ -258,12 +258,25 @@ public class MessageFragment extends Fragment {
             if (conversation.getLatestMessage().getContent().getContentType() == ContentType.prompt) {
                 jPushMessageInfo.setContent(((PromptContent) conversation.getLatestMessage().getContent()).getPromptText());
             } else {
-                jPushMessageInfo.setContent(((TextContent) conversation.getLatestMessage().getContent()).getText());
+                if (conversation.getLatestMessage().getContentType() == ContentType.text) {
+                    jPushMessageInfo.setContent(((TextContent) conversation.getLatestMessage().getContent()).getText());
+                } else if (conversation.getLatestMessage().getContentType() == ContentType.image) {
+                    jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_image));
+                } else if (conversation.getLatestMessage().getContentType() == ContentType.file) {
+                    jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_file));
+                } else if (conversation.getLatestMessage().getContentType() == ContentType.location) {
+                    jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_location));
+                } else if (conversation.getLatestMessage().getContentType() == ContentType.voice) {
+                    jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_voice));
+                } else {
+                    jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_custom));
+                }
+
             }
             jPushMessageInfo.setMsgID(conversation.getId()); //消息ID
             jPushMessageInfo.setUserName(((UserInfo) conversation.getTargetInfo()).getUserName());//用户名
-            jPushMessageInfo.setTitle(conversation.getTitle()); //标题
             jPushMessageInfo.setUnReadCount(conversation.getUnReadMsgCnt() + "");//当前会话未读消息数
+            jPushMessageInfo.setTitle(conversation.getTitle()); //标题
 
             //规范化时间
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
@@ -444,10 +457,10 @@ public class MessageFragment extends Fragment {
                         /**
                          * 需要把与之会话的UserName传递过去
                          */
-                        Intent intent = new Intent() ;
-                        intent.setClass(getContext() ,ChatMsgActivity.class) ;
-                        intent.putExtra("userName" , data.getUserName());
-                        startActivityForResult(intent , REQUEST_CHATMESSAGE );
+                        Intent intent = new Intent();
+                        intent.setClass(getContext(), ChatMsgActivity.class);
+                        intent.putExtra("userName", data.getUserName());
+                        startActivityForResult(intent, REQUEST_CHATMESSAGE);
 
                     }
                 });
