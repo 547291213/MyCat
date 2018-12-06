@@ -41,6 +41,7 @@ import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.RxBus.RxBus;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
+import com.example.xkfeng.mycat.Util.StaticValueHelper;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -52,8 +53,11 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.enums.ConversationType;
+import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
 import io.github.rockerhieu.emojicon.EmojiconEditText;
 import io.github.rockerhieu.emojicon.EmojiconGridFragment;
@@ -130,6 +134,10 @@ public class ChatMsgActivity extends BaseActivity implements
 
     private UIHandler uiHandler;
 
+    private String mTargetId;
+    private String mTargetAappkey ;
+
+
 
     //    【A】stateUnspecified：软键盘的状态并没有指定，系统将选择一个合适的状态或依赖于主题的设置
 //　　【B】stateUnchanged：当这个activity出现时，软键盘将一直保持在上一个activity里的状态，无论是隐藏还是显示
@@ -146,6 +154,12 @@ public class ChatMsgActivity extends BaseActivity implements
         setContentView(R.layout.chat_message_layout_test);
         ButterKnife.bind(this);
 
+        JMessageClient.registerEventReceiver(this);
+
+        mTargetId = getIntent().getStringExtra(StaticValueHelper.TARGET_ID) ;
+        mTargetAappkey = getIntent().getStringExtra(StaticValueHelper.TARGET_APP_KEY) ;
+
+        Log.d(TAG, "onCreate: mTargetId : " + mTargetId + "  mTargetAppkey :" +  mTargetAappkey);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN |
                 WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
@@ -262,10 +276,8 @@ public class ChatMsgActivity extends BaseActivity implements
             rlRootLayoutView.setToBottom();
             rlRootLayoutView.getmChatListView().setDividerHeight(0);
 
-
             messageList = conversation.getAllMessage();
 
-            Log.d(TAG, "initView: " + messageList.get(0).getCreateTime());
         }
 
     }
@@ -388,6 +400,42 @@ public class ChatMsgActivity extends BaseActivity implements
 
             }
         });
+    }
+
+
+    /**
+     *
+     * 接收消息事件
+     * 该方法由极光自动调用
+     * 处于子线程中
+     * @param event
+     */
+    public void onEvent(MessageEvent event){
+        final Message message = event.getMessage() ;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (message.getTargetType() == ConversationType.single){
+
+                    UserInfo userInfo = (UserInfo) message.getTargetInfo();
+                    String targetId = userInfo.getUserName() ;
+                    String targetAppkey = userInfo.getAppKey() ;
+                    Log.d(TAG, "run: msg-single targetId :" + targetId + "  targetAppkey :" + targetAppkey);
+
+                    if (targetAppkey.equals(mTargetAappkey) && targetId.equals(mTargetId)){
+                        Message lastMsg =chatListAdapter.getLastMsg() ;
+                        if (lastMsg != null && lastMsg.getId() != message.getId()){
+                            chatListAdapter.addMsgToList(message);
+                        }else {
+                            chatListAdapter.notifyDataSetChanged();
+                        }
+                    }
+                }else {
+                    Toast.makeText(ChatMsgActivity.this, "onEvent 群聊消息尚未处理", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
     }
 
     @OnClick({R.id.iv_sendImage, R.id.iv_chatVoiceImg,
@@ -839,6 +887,14 @@ public class ChatMsgActivity extends BaseActivity implements
                     break;
             }
         }
+    }
+
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        JMessageClient.unRegisterEventReceiver(this);
     }
 
     /**

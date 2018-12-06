@@ -12,6 +12,9 @@ public class StaticValueHelper {
 
     public static final String NOTENAME = "noteName" ;
 
+    public static final String TARGET_INFO = "tarrgetInfo" ;
+
+
     public static final  int REQUET_CODE_FRIEND_INFO = 1 ;
 
     

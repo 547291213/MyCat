@@ -98,6 +98,7 @@ public class SetNoteNameActivity extends BaseActivity {
                                                         .show();
 
 //                                                HandleResponseCode.onHandle(SetNoteNameActivity.this , i);
+                                                
                                                 break;
                                         }
                                     }

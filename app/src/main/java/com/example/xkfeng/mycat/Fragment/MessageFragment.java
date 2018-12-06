@@ -41,6 +41,7 @@ import com.example.xkfeng.mycat.RecyclerDefine.EmptyRecyclerView;
 import com.example.xkfeng.mycat.RecyclerDefine.QucikAdapterWrapter;
 import com.example.xkfeng.mycat.RecyclerDefine.QuickAdapter;
 import com.example.xkfeng.mycat.Util.DensityUtil;
+import com.example.xkfeng.mycat.Util.StaticValueHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -114,7 +115,6 @@ public class MessageFragment extends Fragment {
 
 
     private static final int INT_NULL = 0;
-
 
     @Nullable
     @Override
@@ -462,7 +462,9 @@ public class MessageFragment extends Fragment {
                          */
                         Intent intent = new Intent();
                         intent.setClass(getContext(), ChatMsgActivity.class);
-                        intent.putExtra("userName", data.getUserName());
+                        intent.putExtra(StaticValueHelper.USER_NAME, data.getUserName());
+                        intent.putExtra(StaticValueHelper.TARGET_ID ,data.getUserName()) ; //data.getConversation().getTargetId()
+                        intent.putExtra(StaticValueHelper.TARGET_APP_KEY , data.getConversation().getTargetAppKey()) ; //data.getConversation().getTargetAppKey()
                         startActivityForResult(intent, REQUEST_CHATMESSAGE);
 
                     }
