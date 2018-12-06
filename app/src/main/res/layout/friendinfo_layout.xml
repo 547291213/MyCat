@@ -83,8 +83,8 @@
         android:id="@+id/indexTitleLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:leftBackground="@drawable/back_blue"
-
+        app:leftBackground="@drawable/back_white"
+        app:rightBackground="@drawable/ic_ellipsis_white_32"
         android:visibility="invisible"
         />
 

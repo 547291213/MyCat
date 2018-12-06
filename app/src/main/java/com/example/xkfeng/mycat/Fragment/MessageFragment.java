@@ -274,7 +274,10 @@ public class MessageFragment extends Fragment {
 
             }
             jPushMessageInfo.setMsgID(conversation.getId()); //消息ID
-            jPushMessageInfo.setUserName(((UserInfo) conversation.getTargetInfo()).getUserName());//用户名
+            //消息用户名默认设置为备注的名称，如果没有备注，则设置为用户名
+            String msgTitleName = TextUtils.isEmpty(((UserInfo) conversation.getTargetInfo()).getNotename()) ? (((UserInfo) conversation.getTargetInfo()).getUserName()) :
+                    ((UserInfo)conversation.getTargetInfo()).getNotename() ;
+            jPushMessageInfo.setUserName(msgTitleName);//用户名
             jPushMessageInfo.setUnReadCount(conversation.getUnReadMsgCnt() + "");//当前会话未读消息数
             jPushMessageInfo.setTitle(conversation.getTitle()); //标题
 

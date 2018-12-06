@@ -8,6 +8,7 @@
     <color name="gray">#1000</color>
     <color name="orange">#ff5e00</color>
     <color name="red">#efe90a0a</color>
+    <color name="light_red">#EFF87D6C</color>
     <color name="light_blue">#57faff</color>
     <color name="passwordText_blue">#31dccd</color>
     <color name="blue">#118dda</color>

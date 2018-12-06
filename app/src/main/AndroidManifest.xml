@@ -169,6 +169,18 @@
 
             />
 
+        <!--Activity ; friend setting -->
+        <activity android:name=".Activity.FriendSettingActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+
+            />
+
+        <!--Activity : seting firned note name -->
+        <activity android:name=".Activity.SetNoteNameActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+
+            />
+
         <!--Activity : this user is not your friend-->
         <activity android:name=".Activity.GroupNotFriendActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"

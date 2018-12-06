@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <LinearLayout
+        android:id="@+id/ll_titleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/light_red"
+        android:gravity="center_vertical"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        >
+
+        <TextView
+            android:id="@+id/tv_setNoteTitleBack"
+            android:layout_height="32dp"
+            android:layout_width="wrap_content"
+            android:text="返回"
+            android:textSize="16sp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginBottom="3dp"
+            android:textColor="@color/white"
+            android:drawableLeft="@drawable/ic_back_white_16"
+            android:gravity="center"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="备注名"
+            android:drawableRight="@drawable/bigger"
+            android:layout_marginLeft="10dp"
+            />
+        <EditText
+            android:id="@+id/et_setNoteNameEdit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hello world"
+            android:textSize="16sp"
+            android:layout_marginLeft="10dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/bt_setNoteNameCompleteBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:text="完成"
+        android:textColor="@color/white"
+        />
+</LinearLayout>

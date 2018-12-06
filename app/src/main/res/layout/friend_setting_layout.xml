@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:attr="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/lighter_gray"
+    android:orientation="vertical">
+
+    <com.example.xkfeng.mycat.DrawableView.IndexTitleLayout
+        android:id="@+id/indexTitleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:leftBackground="@drawable/back_white"
+        app:middleText="好友设置"
+        app:middleTextColor="@color/white"
+        app:layoutBackground="@drawable/title_gradient"
+
+        ></com.example.xkfeng.mycat.DrawableView.IndexTitleLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/rl_noteNameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/friend_setting_layout_drawable"
+        android:gravity="center_vertical"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="备注名"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tv_nodeName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:drawableRight="@drawable/bigger"
+            android:text="lalallala"
+            android:textSize="20sp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_sendBusinessLayout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/friend_setting_layout_drawable"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="发送明信片"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:drawableRight="@drawable/bigger"
+            android:textSize="20sp" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/rl_addBlackListLayout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/friend_setting_layout_drawable"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="5"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_gravity="left|center_vertical"
+            android:text="加入黑名单"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+
+            />
+
+        <com.suke.widget.SwitchButton
+            android:id="@+id/sb_vibrationBtn"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            attr:sb_checked_color="@Color/blue"
+            android:layout_gravity="right|center_vertical"
+            />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/bt_deleteFriendBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/friend_setting_layout_delete_friend"
+        android:text="删除好友"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        />
+
+
+</LinearLayout>

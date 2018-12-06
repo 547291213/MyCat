@@ -1,11 +1,16 @@
 package com.example.xkfeng.mycat.Activity;
 
 import android.app.Dialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Typeface;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -23,6 +28,7 @@ import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.DialogHelper;
 import com.example.xkfeng.mycat.Util.HandleResponseCode;
+import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.StaticValueHelper;
 import com.example.xkfeng.mycat.Util.StringUtil;
 import com.example.xkfeng.mycat.Util.TimeUtil;
@@ -76,9 +82,9 @@ public class FriendInfoActivity extends BaseActivity {
     private String mTargetUser;
     private String mTargetAppKey;
     private long mGroupId;
-    private Dialog mLoadingDialog ;
-    private boolean flag  = true ;
-    private int height ;
+    private Dialog mLoadingDialog;
+    private boolean flag = true;
+    private int height;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -109,18 +115,11 @@ public class FriendInfoActivity extends BaseActivity {
         tvLookPersonallyLaberView.setTypeface(typeface);
 
 
-        /**
-         * 设置显示用户名
-         */
-        indexTitleLayout.setMiddleText(JMessageClient.getMyInfo().getUserName() + "的资料");
-
         ViewTreeObserver viewTreeObserver = ivUserinfoImage.getViewTreeObserver();
         viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                Log.d(TAG, "onGlobalLayout: befor: " + uisvScrollView.getPaddingTop());
                 indexTitleLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                Log.d(TAG, "onGlobalLayout: after : " + uisvScrollView.getPaddingTop());
                 height = ivUserinfoImage.getHeight();
                 uisvScrollView.setSmoothScrollingEnabled(true);
                 uisvScrollView.setScrollChangedListener(new UserInfoScrollView.ScrollChangedListener() {
@@ -138,12 +137,9 @@ public class FriendInfoActivity extends BaseActivity {
                             indexTitleLayout.setMiddleTextColor(Color.argb((int) 0, 144, 151, 166));
                             //隐藏返回按钮
                             indexTitleLayout.setLeftBtnVisiavle(View.GONE);
+                            indexTitleLayout.setRightBtnVisiavle(View.GONE);
+
                             indexTitleLayout.setVisibility(View.VISIBLE);
-
-//                            Animation animation = AnimationUtils.loadAnimation(UserInfoActivity.this , R.anim.userinof_bkimg_scale) ;
-//                            ivUserinfoImage.startAnimation(animation);
-
-                            Log.d(TAG, "onScrollChanged: startAnimator");
                         }
 
                         if (y <= 0) {
@@ -158,11 +154,9 @@ public class FriendInfoActivity extends BaseActivity {
                              * 起点处下拉
                              * 实现布局缩放，图片会跟随布局缩放
                              */
-                             llUserinfoImgBgLayout.setScaleX((float) (1.0 - y * 1.0 / 2000));
+                            llUserinfoImgBgLayout.setScaleX((float) (1.0 - y * 1.0 / 2000));
                             llUserinfoImgBgLayout.setScaleY((float) (1.0 - y * 1.0 / 800));
-                            //ivUserinfoImage.setImageMatrix(matrix);
                             llUserinfoImgBgLayout.setScrollY((int) (-uisvScrollView.getScrollY() * llUserinfoImgBgLayout.getScaleY()));
-//                            llUserinfoImgBgLayout.scrollTo();
 
                             /**
                              * 设置标题栏属性
@@ -176,10 +170,12 @@ public class FriendInfoActivity extends BaseActivity {
                             indexTitleLayout.setMiddleTextColor(Color.argb((int) alpha, 255, 255, 255));
                             indexTitleLayout.setBackgroundColor(Color.argb((int) alpha, 144, 151, 166));
                             indexTitleLayout.setLeftBtnDrawable(R.drawable.back_white);
+                            indexTitleLayout.setRightBtnDrawable(R.drawable.ic_ellipsis_white_32);
 
 
                             //显示返回按钮
                             indexTitleLayout.setLeftBtnVisiavle(View.VISIBLE);
+                            indexTitleLayout.setRightBtnVisiavle(View.VISIBLE);
 
 
                             /**
@@ -191,7 +187,7 @@ public class FriendInfoActivity extends BaseActivity {
                             indexTitleLayout.setBackgroundColor(Color.argb((int) 255, 144, 151, 166));
 
                             indexTitleLayout.setLeftBtnDrawable(R.drawable.back_blue);
-
+                            indexTitleLayout.setRightBtnDrawable(R.drawable.ic_ellipsis_blue_32);
                             //显示返回按钮
                             indexTitleLayout.setLeftBtnVisiavle(View.VISIBLE);
                             /**
@@ -211,27 +207,6 @@ public class FriendInfoActivity extends BaseActivity {
     private void setIndexTitleLayout() {
         //沉浸式状态栏
         DensityUtil.fullScreen(this);
-
-//        设置内边距
-//        其中left right bottom都用现有的
-//        top设置为现在的topPadding+状态栏的高度
-//        表现为将indexTitleLayout显示的数据放到状态栏下面
-
-        /**
-         *
-         * 注意------这里特殊
-         * 因为该方法需要随用户滑动而不断地调用，
-         * 而初始默认paddingTop为0，如果按照之前的调用方式
-         * 那么paddingTop就会一直累加
-         *
-         * paddingTop的具体竖直具体可以参考下面的log打印数据
-         *
-         */
-//        Log.d(TAG, "setIndexTitleLayout: " +
-//                " OriginTop:" + indexTitleLayout.getPaddingTop()+
-//                " STATUS_TOP:" + MessageFragment.STATUSBAR_PADDING_TOP  +
-//                " statusHeight:" + DensityUtil.getStatusHeight(this));
-
 
         indexTitleLayout.setPadding(MessageFragment.STATUSBAR_PADDING_lEFT,
                 MessageFragment.STATUSBAR_PADDING_TOP,
@@ -256,22 +231,40 @@ public class FriendInfoActivity extends BaseActivity {
 
             @Override
             public void rightViewClick(View view) {
+                Intent intent = new Intent();
+                if (mUserInfo != null) {
+                    intent.putExtra(StaticValueHelper.USER_NAME, mUserInfo.getUserName());
+                    intent.putExtra(StaticValueHelper.NOTENAME , mUserInfo.getNotename()) ;
+                    intent.setClass(FriendInfoActivity.this , FriendSettingActivity.class)  ;
+                    startActivity(intent);
+                }else {
+                    ITosast.showShort(FriendInfoActivity.this  , "尚未获得用户信息" )
+                            .show();
+                    return ;
+                }
 
             }
         });
     }
 
     private void initUserInfo() {
-        mLoadingDialog = DialogHelper.createLoadingDialog(this , "正在加载") ;
+        mLoadingDialog = DialogHelper.createLoadingDialog(this, "正在加载");
         mLoadingDialog.show();
         JMessageClient.getUserInfo(mTargetUser, mTargetAppKey, new GetUserInfoCallback() {
             @Override
             public void gotResult(int i, String s, UserInfo userInfo) {
-                mLoadingDialog.dismiss();
+
                 switch (i) {
                     case 0:
-                        mUserInfo = userInfo ;
-                        if (userInfo != null){
+                        mUserInfo = userInfo;
+                        if (userInfo != null) {
+
+                            /**
+                             * 设置显示用户名
+                             */
+                            String titleName = TextUtils.isEmpty(userInfo.getNickname()) ? userInfo.getUserName() : userInfo.getNickname();
+                            indexTitleLayout.setMiddleText(titleName + "的资料");
+
                             tvUserInfoUserSex.setText(StringUtil.isEmpty(userInfo.getGender().name()) == true ? "unkonwn" : userInfo.getGender().name());
                             tvUserInfoUserBirthday.setText(StringUtil.isEmpty(TimeUtil.ms2date("yyyy-MM-dd", userInfo.getBirthday()).toString()) == true ?
                                     "unknown" : TimeUtil.ms2date("yyyy-MM-dd", userInfo.getBirthday()).toString());
@@ -284,11 +277,11 @@ public class FriendInfoActivity extends BaseActivity {
                             } else {
                                 tvSignatureTextView.setText("还没有个性签名呢，快些一个吧");
                             }
-                            if (userInfo.getAvatar()!=null&&!StringUtil.isEmpty(userInfo.getAvatarFile().toString())) {
+                            if (userInfo.getAvatar() != null && !StringUtil.isEmpty(userInfo.getAvatarFile().toString())) {
                                 //  circleImageView.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatar()));
-                                Glide.with(FriendInfoActivity.this)
-                                        .load(userInfo.getAvatarFile())
-                                        .into(ivUserinfoHeaderImage);
+
+                                Bitmap bitmap = BitmapFactory.decodeFile(userInfo.getAvatarFile().toString()) ;
+                                ivUserinfoHeaderImage.setImageBitmap(bitmap);
                             } else {
                                 ivUserinfoHeaderImage.setImageResource(R.mipmap.log);
                             }
@@ -297,9 +290,10 @@ public class FriendInfoActivity extends BaseActivity {
                         break;
 
                     default:
-                        HandleResponseCode.onHandle(FriendInfoActivity.this , i);
+                        HandleResponseCode.onHandle(FriendInfoActivity.this, i);
                         break;
                 }
+                mLoadingDialog.dismiss();
             }
         });
     }

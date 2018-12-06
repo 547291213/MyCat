@@ -7,7 +7,8 @@ import android.view.ViewGroup;
 
 public class QucikAdapterWrapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static int AD_POSITION = 0 ;
+    //先不设置广告界面
+    private static int AD_POSITION = 10000 ;
     enum ITEM_TYPE {
         AD,
         NORMAL

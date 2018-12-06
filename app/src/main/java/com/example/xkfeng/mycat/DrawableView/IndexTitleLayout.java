@@ -227,7 +227,23 @@ public class IndexTitleLayout extends RelativeLayout {
             middleTextView.setText(string);
         }
     }
+    public void setRightBtnDrawable(int resources) {
 
+        if (rightBtn != null) {
+
+            if (resources == NULL_DRAWABLE) {
+                leftBtn.setBackground(null);
+            } else {
+                rightBtn.setBackground(getResources().getDrawable(resources));
+            }
+        }
+    }
+
+    public void setRightBtnVisiavle(int visiavle){
+        if (rightBtn != null){
+            rightBtn.setVisibility(visiavle);
+        }
+    }
     public void setLeftBtnDrawable(int resources) {
 
         if (leftBtn != null) {
