@@ -160,4 +160,5 @@ dependencies {
     //photo View
     implementation 'com.github.chrisbanes:PhotoView:2.0.0'
 
+
 }
