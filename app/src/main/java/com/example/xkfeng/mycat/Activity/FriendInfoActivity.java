@@ -81,6 +81,7 @@ public class FriendInfoActivity extends BaseActivity {
     private UserInfo mUserInfo;
     private String mTargetUser;
     private String mTargetAppKey;
+    private boolean isFriend = false ;
     private long mGroupId;
     private Dialog mLoadingDialog;
     private boolean flag = true;
@@ -95,7 +96,11 @@ public class FriendInfoActivity extends BaseActivity {
         mTargetUser = getIntent().getStringExtra(StaticValueHelper.TARGET_ID);
         mTargetAppKey = getIntent().getStringExtra(StaticValueHelper.TARGET_APP_KEY);
         mGroupId = getIntent().getLongExtra(StaticValueHelper.GROUP_ID, -1);
+        isFriend = getIntent().getBooleanExtra(StaticValueHelper.IS_FRIEDN , false) ;
 
+        if (!isFriend){
+            btSendMsgBtn.setText("添加好友");
+        }
         initView();
         setIndexTitleLayout();
         initUserInfo();
@@ -113,6 +118,24 @@ public class FriendInfoActivity extends BaseActivity {
         Typeface typeface = Typeface.createFromAsset(getAssets(), fonts);
         tvPersonallyLaber.setTypeface(typeface);
         tvLookPersonallyLaberView.setTypeface(typeface);
+
+        btSendMsgBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isFriend){
+
+                    //走发送消息的流程
+                }else {
+                    //添加好友的流程
+                    Intent intent1 = new Intent() ;
+                    intent1.putExtra(StaticValueHelper.TARGET_ID, mUserInfo.getUserName());
+                    intent1.putExtra(StaticValueHelper.TARGET_APP_KEY, mUserInfo.getAppKey());
+                    intent1.putExtra(StaticValueHelper.IS_FRIEDN , mUserInfo.isFriend()) ;
+                    intent1.setClass(FriendInfoActivity.this, SendFriendRequestActivity.class);
+                    startActivity(intent1);
+                }
+            }
+        });
 
 
         ViewTreeObserver viewTreeObserver = ivUserinfoImage.getViewTreeObserver();

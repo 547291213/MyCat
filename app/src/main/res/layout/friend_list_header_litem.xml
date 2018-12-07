@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/et_searchEdit"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_margin="5dp"
+        android:background="@color/lighter_gray"
+        android:gravity="center"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:text="搜索"
+        android:textSize="16sp"
+
+        />
+
+    <RelativeLayout
+        android:id="@+id/rl_validationLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:gravity="center"
+            android:layout_marginRight="5dp"
+            android:drawableLeft="@drawable/ic_validation_gray_16"
+            android:drawableRight="@drawable/bigger"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="验证消息"
+            android:textSize="18sp" />
+
+        <include
+            android:id="@+id/redpoint_view_message"
+            layout="@layout/item_drag_view"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="1dp"
+            android:layout_marginRight="15dp"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginBottom="3dp"
+        android:background="@color/lighter_gray" />
+
+    <LinearLayout
+        android:id="@+id/ll_groupLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="5dp"
+            android:drawableLeft="@drawable/ic_group_black_16"
+            android:gravity="center"
+            android:drawableRight="@drawable/bigger"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="群组"
+            android:textSize="18sp"
+
+            />
+
+    </LinearLayout>
+
+    <!--<View-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="1dp"-->
+        <!--android:background="@color/lighter_gray"-->
+        <!--android:layout_marginTop="3dp"-->
+        <!--android:layout_marginBottom="3dp"-->
+
+        <!--/>-->
+
+</LinearLayout>

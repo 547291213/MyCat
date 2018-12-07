@@ -44,6 +44,7 @@
             android:src="@mipmap/log" />
 
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -51,12 +52,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            android:text="备注名"
+            android:text="验证信息"
             android:drawableRight="@drawable/bigger"
             android:layout_marginLeft="10dp"
             />
         <EditText
-            android:id="@+id/et_setNoteNameEdit"
+            android:id="@+id/et_validationEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Hello world"
@@ -69,11 +70,11 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/bt_setNoteNameCompleteBtn"
+        android:id="@+id/bt_sendRequestFriednBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:text="完成"
+        android:text="发送申请"
         android:textColor="@color/white"
         />
 </LinearLayout>

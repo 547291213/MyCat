@@ -106,6 +106,8 @@
         <!--Activity : chat-message page-->
         <activity android:name=".Activity.ChatMsgActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:launchMode="singleTask"
+
             >
 
         </activity>
@@ -152,37 +154,67 @@
         </activity>
 
         <!--Activity : user create group chat-->
+        <!--可能废弃-->
         <activity android:name=".Activity.CreateGroupChatActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
 
             />
 
         <!--Activity : user add buddy group-->
+        <!--可能废弃-->
         <activity android:name=".Activity.AddBuddyGroupActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+
+            />
+
+        <!--Activity : add friend-->
+        <activity android:name=".Activity.AddFriendActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+
+            />
+        <!--Activity : send friend request -->
+        <activity android:name=".Activity.SendFriendRequestActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:launchMode="singleTask"
 
             />
 
         <!--Activity : friend Info-->
         <activity android:name=".Activity.FriendInfoActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:launchMode="singleTask"
 
             />
 
         <!--Activity ; friend setting -->
         <activity android:name=".Activity.FriendSettingActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:launchMode="singleTask"
 
             />
 
         <!--Activity : seting firned note name -->
         <activity android:name=".Activity.SetNoteNameActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:launchMode="singleTask"
 
             />
 
         <!--Activity : this user is not your friend-->
         <activity android:name=".Activity.GroupNotFriendActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+
+            />
+
+        <!--Activity : validation friend-->
+        <activity android:name=".Activity.FriendValidationActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:launchMode="singleTask"
+
+            />
+
+        <!--Activity : group list-->
+        <activity android:name=".Activity.GroupListActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
 
             />

@@ -28,7 +28,7 @@ import cn.jpush.im.api.BasicCallback;
 public class SetNoteNameActivity extends BaseActivity {
 
     private static final String TAG = "SetNoteNameActivity";
-    @BindView(R.id.tv_setNoteTitleBack)
+    @BindView(R.id.tv_setBackText)
     TextView tvSetNoteTitleBack;
     @BindView(R.id.ll_titleLayout)
     LinearLayout llTitleLayout;
@@ -67,10 +67,10 @@ public class SetNoteNameActivity extends BaseActivity {
 
     }
 
-    @OnClick({R.id.tv_setNoteTitleBack, R.id.bt_setNoteNameCompleteBtn})
+    @OnClick({R.id.tv_setBackText , R.id.bt_setNoteNameCompleteBtn})
     public void onItemClick(View view) {
         switch (view.getId()) {
-            case R.id.tv_setNoteTitleBack:
+            case R.id.tv_setBackText:
                 this.finish();
                 break;
 

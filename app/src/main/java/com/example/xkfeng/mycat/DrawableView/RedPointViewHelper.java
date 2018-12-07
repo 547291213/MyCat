@@ -138,6 +138,18 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
     }
 
     /**
+     * 获取文本内容
+     */
+    public String getRedPointViewText(){
+        if (mShowView != null && mShowView instanceof  TextView){
+            return ((TextView) mShowView).getText().toString() ;
+        }
+
+        return null ;
+    }
+
+
+    /**
      * 设置文本内容
      */
     public void setRedPointViewText(String string) {
@@ -162,7 +174,7 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
                 mShowView.getLayoutParams().width = DensityUtil.dip2px(mContext, 20);
                 mShowView.getLayoutParams().height = DensityUtil.dip2px(mContext , 20) ;//
             }
-            if (Integer.parseInt(string) >= 99) {
+            if (Integer.parseInt(string) > 99) {
                 ((TextView) mShowView).setText("99+");
             } else {
                 ((TextView) mShowView).setText(string);
@@ -234,6 +246,11 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
             mWm.removeView(mDragView);
             //先设置在点击事件弹起后，不显示原View
             mShowView.setVisibility(View.GONE);
+            //TODO
+            //有待测试，
+            setRedPointViewText("0") ;
+
+
         }
 
     }

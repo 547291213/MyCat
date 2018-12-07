@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.example.xkfeng.mycat.DrawableView.IndexTitleLayout
@@ -16,14 +17,26 @@
         app:rightTextColor="@color/white"
         />
 
-    <ExpandableListView
-        android:id="@+id/elv_friendList"
-        android:layout_below="@id/indexTitleLayout"
+    <ListView
+        android:id="@+id/lv_friendInfoList"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@id/indexTitleLayout"
+        >
 
-    </ExpandableListView>
+    </ListView>
+
+    <TextView
+        android:id="@+id/friendInfoEmptyView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="还没有好友额，赶快去添加一个把~~~~"
+        android:textSize="22sp"
+        android:background="@color/lighter_gray"
+        android:visibility="gone"
+        />
 
 
 
-</RelativeLayout>
+</LinearLayout>

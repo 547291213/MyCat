@@ -136,6 +136,7 @@ public class IndexActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
 //        if (Build.VERSION.SDK_INT >= 21) {
 //            View decorView = getWindow().getDecorView();
 //            //设置全屏和状态栏透明
@@ -908,9 +909,8 @@ public class IndexActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+
         super.onDestroy();
-
-
 
     }
 }

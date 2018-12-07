@@ -605,14 +605,9 @@ public class ChatListAdapter extends BaseAdapter {
                     intent.putExtra(StaticValueHelper.TARGET_ID, userInfo.getUserName());
                     intent.putExtra(StaticValueHelper.TARGET_APP_KEY, userInfo.getAppKey());
                     intent.putExtra(StaticValueHelper.GROUP_ID, groupId);
-                    if (userInfo.isFriend()) {
-                        intent.setClass(mContext, FriendInfoActivity.class);
-                    } else {
-//                        @TODO
-//                        重要逻辑有待修改
-//                        intent.setClass(mContext, GroupNotFriendActivity.class);
-                        intent.setClass(mContext, FriendInfoActivity.class);
-                    }
+                    intent.putExtra(StaticValueHelper.IS_FRIEDN , userInfo.isFriend()) ;
+                    intent.setClass(mContext, FriendInfoActivity.class);
+
                     ((Activity) mContext).startActivityForResult(intent, StaticValueHelper.REQUET_CODE_FRIEND_INFO);
                 }
             }

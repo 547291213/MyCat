@@ -7,6 +7,12 @@ public class FriendInfo {
     private String firstLetter ;
 
 
+    public FriendInfo(){}
+
+    public FriendInfo(UserInfo userInfo , String firstLetter){
+        this.userInfo = userInfo ;
+        this.firstLetter = firstLetter ;
+    }
     public String getFirstLetter() {
         return firstLetter;
     }

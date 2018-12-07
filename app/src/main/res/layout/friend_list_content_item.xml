@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_friendInfoLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+
+    >
+
+    <TextView
+        android:id="@+id/tv_letterText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:text="L"
+        android:paddingLeft="10dp"
+        android:background="@color/lighter_gray"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:layout_marginBottom="3dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:background="@drawable/friend_list_drawable"
+        >
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/iv_friendInfoImg"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:src="@mipmap/log"
+            />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_marginLeft="3dp"
+            >
+            <TextView
+                android:id="@+id/tv_friendInfoText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Hello World"
+                android:textSize="20sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textColor="@color/black"
+                />
+
+            <TextView
+                android:id="@+id/tv_friendSinatureText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Hello World"
+                android:textSize="16sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                />
+
+
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
