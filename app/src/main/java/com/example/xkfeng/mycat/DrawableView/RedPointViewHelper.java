@@ -251,6 +251,7 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
             setRedPointViewText("0") ;
 
 
+
         }
 
     }
