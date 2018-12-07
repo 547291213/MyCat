@@ -250,8 +250,6 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
             //有待测试，
             setRedPointViewText("0") ;
 
-
-
         }
 
     }
