@@ -127,7 +127,6 @@ public class LoginSQLDao {
 
             e.printStackTrace();
         }
-        Log.d(TAG, "insertData: ");
     }
 
     /**

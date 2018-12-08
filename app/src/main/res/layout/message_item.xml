@@ -25,7 +25,7 @@
         android:layout_marginLeft="5dp"
         android:maxLines="1"
         android:ellipsize="end"
-        android:text="重庆Android开发者社区"
+        android:text="xp134525@gmail.com"
         android:textColor="@color/black"
         />
 
@@ -40,7 +40,7 @@
         android:textSize="14dp"
         android:maxLines="1"
         android:ellipsize="end"
-        android:text="系统管理员：Hello World ! "
+        android:text="admin ：Hello Mycat ! "
         android:padding="0dp"
         />
     <TextView

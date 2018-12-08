@@ -220,7 +220,6 @@ public class IndexBottomLayout extends LinearLayout {
                 //记录触屏点的位置
                 lastX = x;
                 lastY = y;
-//                Log.d(TAG, "onTouchEvent: Down");
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -230,8 +229,6 @@ public class IndexBottomLayout extends LinearLayout {
 
                 moveEvent(mSmallIconView, 1.5 * deltaX, 1.5 * deltaY, mSmallRadius);
                 moveEvent(mBigIconView, deltaX, deltaY, mBigRadius);
-  //              Log.d(TAG, "onTouchEvent: Move   deltaX :" + deltaX + " deltaY : " + deltaY);
-
                 break;
 
             case MotionEvent.ACTION_UP:
@@ -240,15 +237,11 @@ public class IndexBottomLayout extends LinearLayout {
                 mSmallIconView.setY(0);
                 mBigIconView.setY(0);
                 mBigIconView.setX(0);
-    //            Log.d(TAG, "onTouchEvent: Up");
-
-
                 break;
         }
 
         //消费事件
-        Log.d(TAG, "onTouchEvent: " + super.onTouchEvent(event));
-        return true;
+        return super.onTouchEvent(event);
     }
 
     /**

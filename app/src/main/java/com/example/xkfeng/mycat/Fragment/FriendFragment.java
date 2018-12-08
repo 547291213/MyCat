@@ -19,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.xkfeng.mycat.Activity.AddFriendActivity;
 import com.example.xkfeng.mycat.Activity.FriendValidationActivity;
@@ -31,7 +32,10 @@ import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
 import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
 import com.example.xkfeng.mycat.DrawableView.SideBar;
 import com.example.xkfeng.mycat.Model.FriendInfo;
+import com.example.xkfeng.mycat.Model.FriendInvitationModel;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.SqlHelper.FriendInvitationDao;
+import com.example.xkfeng.mycat.SqlHelper.FriendInvitationSql;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.HandleResponseCode;
 import com.example.xkfeng.mycat.Util.ITosast;
@@ -86,6 +90,11 @@ public class FriendFragment extends Fragment {
     private UIHandler uiHandler;
     private static final int SIDE_BAR_TEXT_HIDE = 0X111;
 
+    private FriendInvitationDao friendInvitationDao;
+    private FriendInvitationModel friendInvitationModel;
+
+    private UserInfo mUserInfo ;
+
 
     @Nullable
     @Override
@@ -96,8 +105,8 @@ public class FriendFragment extends Fragment {
         mContext = getContext();
         uiHandler = new UIHandler(this);
 
-        redPointValidation = view.findViewById(R.id.redpoint_view_message);
-
+        friendInvitationDao = new FriendInvitationDao(mContext);
+        mUserInfo = JMessageClient.getMyInfo() ;
 
         return view;
     }
@@ -161,6 +170,7 @@ public class FriendFragment extends Fragment {
     private void setFriendInfoList() {
         friendInfos = new ArrayList<>();
         setHeaderView();
+        setRedpointView();
 
         friendListAdapter = new FriendListAdapter(mContext, friendInfos);
         lvFriendInfoList.addHeaderView(headerView);
@@ -242,6 +252,17 @@ public class FriendFragment extends Fragment {
         });
     }
 
+    private void setRedpointView() {
+        redPointValidation = headerView.findViewById(R.id.redpoint_view_message);
+        if (redPointValidation == null) {
+            Log.d(TAG, "setRedpointView: redPointer is null");
+            return;
+        }
+
+        stickyViewHelper = new RedPointViewHelper(mContext, redPointValidation, R.layout.item_drag_view);
+        stickyViewHelper.setRedPointViewText("0");
+    }
+
     private List<FriendInfo> dataConversion(List<UserInfo> userInfoList) {
         List<FriendInfo> friendInfoList = new ArrayList<>();
         //String strs = PinyinUtils.getPingYin("新年好！Hello");
@@ -275,19 +296,21 @@ public class FriendFragment extends Fragment {
             case invite_received://收到好友邀请
                 //...
                 Log.d(TAG, "onEvent: invite_received");
+
+
                 if (stickyViewHelper == null) {
-                    stickyViewHelper = new RedPointViewHelper(mContext, redPointValidation, R.layout.item_drag_view);
-                    stickyViewHelper.setRedPointViewText("1");
-                    redPointValidation.setVisibility(View.VISIBLE);
-
-                } else {
-                    redPointData = stickyViewHelper.getRedPointViewText();
-                    if (TextUtils.isEmpty(redPointData) || "99+".equals(redPointData)) {
-                        return;
-                    }
-                    stickyViewHelper.setRedPointViewText("" + (Integer.parseInt(redPointData) + 1));
-
+                    Log.d(TAG, "onEventMainThread: stickyView is null");
+                    return;
                 }
+                redPointData = stickyViewHelper.getRedPointViewText();
+                if (TextUtils.isEmpty(redPointData) || "99+".equals(redPointData)) {
+                    stickyViewHelper.setViewShow();
+                    return;
+                }
+                stickyViewHelper.setRedPointViewText("" + (Integer.parseInt(redPointData) + 1));
+                stickyViewHelper.setViewShow();
+
+                Toast.makeText(mContext, "收到新的好友申请", Toast.LENGTH_SHORT).show();
                 break;
             case invite_accepted://对方接收了你的好友邀请
                 //...
@@ -301,6 +324,16 @@ public class FriendFragment extends Fragment {
             default:
                 break;
         }
+
+        friendInvitationModel = new FriendInvitationModel() ;
+
+        friendInvitationModel.setState(FriendInvitationSql.SATTE_WAIT_PROCESSED);
+        friendInvitationModel.setmUserName(mUserInfo.getUserName());
+        friendInvitationModel.setmFromUser(fromUsername);
+        friendInvitationModel.setReason(reason);
+        friendInvitationModel.setFromUserTime(System.currentTimeMillis());
+        friendInvitationDao.insertData(friendInvitationModel);
+
     }
 
 

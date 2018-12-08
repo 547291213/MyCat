@@ -69,7 +69,7 @@ public class AboutActivity extends BaseActivity {
      */
     private void setTvAboutAuthorTextView() {
 
-        String fonts = "fonts/font_1.ttf";
+        String fonts = "fonts/boyang.ttf";
         Typeface typeface = Typeface.createFromAsset(getAssets(), fonts);
         tvAboutAuthorTextView.setText("   MyCat 由博主独立自主开发，其中借鉴了不少CSDN大佬的博文，Github开源代码，" +
                 "自己也使用了不少的开源框架：OkHttp" +

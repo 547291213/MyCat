@@ -1,6 +1,7 @@
 package com.example.xkfeng.mycat.Activity;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,6 +13,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.xkfeng.mycat.Model.User;
@@ -19,8 +21,10 @@ import com.example.xkfeng.mycat.NetWork.HttpHelper;
 import com.example.xkfeng.mycat.NetWork.OkHttpProcesser;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.ActivityController;
+import com.example.xkfeng.mycat.Util.DialogHelper;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.UserAutoLoginHelper;
+
 import cn.jpush.android.api.BasicPushNotificationBuilder;
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
@@ -40,6 +44,8 @@ public class BaseActivity extends AppCompatActivity {
     private UserAutoLoginHelper userAutoLoginHelper;
 
     private static boolean isFirst = true;
+
+    private Dialog forceOfflineDialog;
 
 
     @Override
@@ -81,32 +87,40 @@ public class BaseActivity extends AppCompatActivity {
     }
 
 
-
     public void onEventMainThread(LoginStateChangeEvent event) {
         final LoginStateChangeEvent.Reason reason = event.getReason();
         switch (reason) {
             case user_password_change:
                 //用户密码在服务器端被修改
 
-                ITosast.showShort(this , "用户密码在服务器端被修改").show();
+                ITosast.showShort(this, "用户密码在服务器端被修改").show();
                 break;
             case user_logout:
                 //用户换设备登录
 
-                ITosast.showShort(this , "用户在其他设备登陆").show();
+                ITosast.showShort(this, "用户在其他设备登陆").show();
                 break;
             case user_deleted:
                 //用户被删除
 
-                ITosast.showShort(this , "用户被删除").show();
+                ITosast.showShort(this, "用户被删除").show();
                 break;
         }
 
-        Log.d("onEvent", "onEvent: modifys");
-        JMessageClient.logout();
-        ActivityController.finishAll();
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                JMessageClient.logout();
+                ActivityController.finishAll();
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent);
+                forceOfflineDialog.dismiss();
+
+            }
+        };
+        forceOfflineDialog = DialogHelper.createForceOfflineDailog(this, listener);
+        forceOfflineDialog.show();
+
 
     }
 

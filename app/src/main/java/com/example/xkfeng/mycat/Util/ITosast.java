@@ -1,6 +1,7 @@
 package com.example.xkfeng.mycat.Util;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -69,8 +70,11 @@ public class ITosast {
      * @param time    toast显示时间
      */
     public static ITosast show(Context context, String string, int time) {
+        String fonts = "fonts/zhangcao.ttf";
+        Typeface typeface = Typeface.createFromAsset(context.getAssets(), fonts);
         view = LayoutInflater.from(context).inflate(R.layout.toast_layout, null, false);
         ((TextView) view.findViewById(R.id.tv_toastText)).setText(string);
+        ((TextView) view.findViewById(R.id.tv_toastText)).setTypeface(typeface);
         toast = new Toast(context);
         toast.setDuration(time);
         toast.setView(view);

@@ -6,13 +6,15 @@
     android:orientation="horizontal"
     android:gravity="center"
     android:background="@drawable/toast_background"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
     >
 
     <ImageView
         android:id="@+id/iv_toastImage"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginLeft="10dp"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_marginLeft="15dp"
         android:scaleType="centerCrop"
         android:src="@mipmap/log"
         android:paddingTop="5dp"
@@ -25,11 +27,11 @@
         android:id="@+id/tv_toastText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
+        android:textSize="14sp"
         android:textColor="@color/pale_white"
         android:gravity="center"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="15dp"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
         />

@@ -84,7 +84,7 @@ public class PopupMenuLayout extends PopupWindow {
             relativeLayout.setBackgroundResource(R.drawable.ic_dialog);
         } else if (Flag == CONTENT_POPUP) {
 
-            relativeLayout.setBackgroundResource(R.drawable.ic_dialog2);
+            relativeLayout.setBackgroundResource(R.drawable.ic_dialog3);
 
 
         }
@@ -130,7 +130,7 @@ public class PopupMenuLayout extends PopupWindow {
                     });
                 } else if (getItemViewType(position) == CONTENT_POPUP) {
                     vh.setText(R.id.tv_popupContentTextView, data);
-                    ((TextView) vh.getView(R.id.tv_popupContentTextView)).setTextColor(Color.WHITE);
+                    ((TextView) vh.getView(R.id.tv_popupContentTextView)).setTextColor(mContext.getResources().getColor(R.color.black));
 
                     vh.getView(R.id.tv_popupContentTextView).setOnClickListener(new View.OnClickListener() {
                         @Override

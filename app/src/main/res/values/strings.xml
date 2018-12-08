@@ -44,4 +44,9 @@
     <string name="last_msg_movie">[视频]</string>
     <string name="last_msg_location">[位置]</string>
     <string name="last_msg_custom">[未知信息]</string>
+
+
+    <!--inviitation data-->
+    <string name="invitation_accept">接受</string>
+    <string name="invitation_refused">拒绝</string>
 </resources>

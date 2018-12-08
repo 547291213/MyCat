@@ -59,8 +59,10 @@ public abstract class QuickAdapter<T> extends RecyclerView.Adapter<QuickAdapter.
 
     public void setList(List<T> list){
         this.list = list ;
+
+        notifyDataSetChanged();
         //重置
-        getItemCount() ;
+//        getItemCount() ;
     }
 
 
