@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,32 +15,29 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.xkfeng.mycat.Activity.AddFriendActivity;
 import com.example.xkfeng.mycat.Activity.FriendValidationActivity;
 import com.example.xkfeng.mycat.Activity.GroupListActivity;
 import com.example.xkfeng.mycat.Activity.IndexActivity;
 import com.example.xkfeng.mycat.Activity.SearchActivity;
-import com.example.xkfeng.mycat.DrawableView.FriendList;
 import com.example.xkfeng.mycat.DrawableView.FriendListAdapter;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
 import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
-import com.example.xkfeng.mycat.Model.Friend;
+import com.example.xkfeng.mycat.DrawableView.SideBar;
 import com.example.xkfeng.mycat.Model.FriendInfo;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
-import com.example.xkfeng.mycat.Util.DialogHelper;
 import com.example.xkfeng.mycat.Util.HandleResponseCode;
+import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.PinyinUtil;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +49,6 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
 import cn.jpush.im.android.api.event.ContactNotifyEvent;
 import cn.jpush.im.android.api.model.UserInfo;
-import okhttp3.internal.Util;
 
 public class FriendFragment extends Fragment {
 
@@ -60,6 +58,10 @@ public class FriendFragment extends Fragment {
     Unbinder unbinder;
     @BindView(R.id.lv_friendInfoList)
     ListView lvFriendInfoList;
+    @BindView(R.id.sb_letterBar)
+    SideBar sbLetterBar;
+    @BindView(R.id.tv_rightBarClickText)
+    TextView tvRightBarClickText;
 
     private View view;
     private Context mContext;
@@ -81,6 +83,9 @@ public class FriendFragment extends Fragment {
     private RedPointViewHelper stickyViewHelper;
     private View redPointValidation;
 
+    private UIHandler uiHandler;
+    private static final int SIDE_BAR_TEXT_HIDE = 0X111;
+
 
     @Nullable
     @Override
@@ -89,7 +94,7 @@ public class FriendFragment extends Fragment {
         view = inflater.inflate(R.layout.friend_fragment_layout, container, false);
         unbinder = ButterKnife.bind(this, view);
         mContext = getContext();
-
+        uiHandler = new UIHandler(this);
 
         redPointValidation = view.findViewById(R.id.redpoint_view_message);
 
@@ -105,6 +110,8 @@ public class FriendFragment extends Fragment {
         setIndexTitleLayout();
 
         setFriendInfoList();
+
+        initSideBar();
 
 
     }
@@ -176,6 +183,35 @@ public class FriendFragment extends Fragment {
 
     }
 
+    private void initSideBar() {
+
+        headerView.measure(0, 0);
+        sbLetterBar.setPadding(sbLetterBar.getPaddingLeft(), sbLetterBar.getPaddingTop() + headerView.getMeasuredHeight(),
+                sbLetterBar.getPaddingRight(), sbLetterBar.getPaddingBottom());
+
+        tvRightBarClickText.setPadding(tvRightBarClickText.getPaddingLeft(), tvRightBarClickText.getPaddingTop() + headerView.getMeasuredHeight() + indexTitleLayout.getHeight(),
+                tvRightBarClickText.getPaddingRight(), tvRightBarClickText.getPaddingBottom());
+
+
+        sbLetterBar.setOnTouchLetterChanged(new SideBar.OnTouchLetterChanged() {
+            @Override
+            public void onTouchLetterChanged(String s) {
+                //该字母首次出现的位置
+                int position = friendListAdapter.getPositionForSection(s.charAt(0));
+//                Log.d(TAG, "onTouchLetterChanged: position : " + position );
+                if (position != -1) {
+                    lvFriendInfoList.smoothScrollToPosition(position + 1);
+                }
+
+
+                tvRightBarClickText.setText(s);
+                tvRightBarClickText.setVisibility(View.VISIBLE);
+                uiHandler.sendEmptyMessageDelayed(SIDE_BAR_TEXT_HIDE, 1000);
+            }
+        });
+    }
+
+
     private void setHeaderView() {
 
         headerView = LayoutInflater.from(mContext).inflate(R.layout.friend_list_header_litem, null, false);
@@ -214,21 +250,21 @@ public class FriendFragment extends Fragment {
             FriendInfo friendInfo = null;
 
             if (TextUtils.isEmpty(userInfo.getNotename())) {
-                if (TextUtils.isEmpty(userInfo.getNickname())){
+                if (TextUtils.isEmpty(userInfo.getNickname())) {
                     name = PinyinUtil.converterToFirstSpell(userInfo.getUserName());
-                }else {
+                } else {
                     name = PinyinUtil.converterToFirstSpell(userInfo.getNickname());
                 }
             } else {
                 name = PinyinUtil.getPingYin(userInfo.getNotename());
             }
-            friendInfo = new FriendInfo(userInfo, name.substring(0,1));
+            friendInfo = new FriendInfo(userInfo, name.substring(0, 1));
             friendInfoList.add(friendInfo);
         }
         return friendInfoList;
     }
 
-    public void onEvent(ContactNotifyEvent event) {
+    public void onEventMainThread(ContactNotifyEvent event) {
         String reason = event.getReason();
         String fromUsername = event.getFromUsername();
         String appkey = event.getfromUserAppKey();
@@ -246,8 +282,8 @@ public class FriendFragment extends Fragment {
 
                 } else {
                     redPointData = stickyViewHelper.getRedPointViewText();
-                    if (TextUtils.isEmpty(redPointData) || "99+".equals(redPointData)){
-                        return ;
+                    if (TextUtils.isEmpty(redPointData) || "99+".equals(redPointData)) {
+                        return;
                     }
                     stickyViewHelper.setRedPointViewText("" + (Integer.parseInt(redPointData) + 1));
 
@@ -264,6 +300,31 @@ public class FriendFragment extends Fragment {
                 break;
             default:
                 break;
+        }
+    }
+
+
+    class UIHandler extends Handler {
+
+        private WeakReference<FriendFragment> fragment;
+
+        public UIHandler(FriendFragment friendFragment) {
+            fragment = new WeakReference<>(friendFragment);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            FriendFragment mFragment = fragment.get();
+            switch (msg.what) {
+                case SIDE_BAR_TEXT_HIDE:
+                    mFragment.tvRightBarClickText.setVisibility(View.GONE);
+                    break;
+
+                default:
+                    ITosast.showShort(getContext(), "未知消息类型").show();
+                    break;
+            }
         }
     }
 

@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.xkfeng.mycat.Model.User;
@@ -18,10 +19,15 @@ import com.example.xkfeng.mycat.NetWork.HttpHelper;
 import com.example.xkfeng.mycat.NetWork.OkHttpProcesser;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.ActivityController;
+import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.UserAutoLoginHelper;
 import cn.jpush.android.api.BasicPushNotificationBuilder;
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.event.LoginStateChangeEvent;
+import cn.jpush.im.android.api.model.UserInfo;
+
+import static cn.jpush.im.android.api.event.LoginStateChangeEvent.Reason.user_logout;
 
 /**
  * Created by initializing on 2018/10/5.
@@ -58,18 +64,49 @@ public class BaseActivity extends AppCompatActivity {
 
         }
 
-
+        JMessageClient.registerEventReceiver(this);
         ActivityController.addActivity(this);
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         if (receiver != null) {
             unregisterReceiver(receiver);
             receiver = null;
         }
         ActivityController.removeActivity(this);
+        JMessageClient.unRegisterEventReceiver(this);
+        super.onDestroy();
+
+    }
+
+
+
+    public void onEventMainThread(LoginStateChangeEvent event) {
+        final LoginStateChangeEvent.Reason reason = event.getReason();
+        switch (reason) {
+            case user_password_change:
+                //用户密码在服务器端被修改
+
+                ITosast.showShort(this , "用户密码在服务器端被修改").show();
+                break;
+            case user_logout:
+                //用户换设备登录
+
+                ITosast.showShort(this , "用户在其他设备登陆").show();
+                break;
+            case user_deleted:
+                //用户被删除
+
+                ITosast.showShort(this , "用户被删除").show();
+                break;
+        }
+
+        Log.d("onEvent", "onEvent: modifys");
+        JMessageClient.logout();
+        ActivityController.finishAll();
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
 
     }
 

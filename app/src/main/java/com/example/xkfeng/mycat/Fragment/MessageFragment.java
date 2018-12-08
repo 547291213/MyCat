@@ -245,6 +245,9 @@ public class MessageFragment extends Fragment {
 
         conversationList = JMessageClient.getConversationList();
 
+        if (conversationList == null){
+            conversationList = new ArrayList<>()  ;
+        }
         redPointViewHelperList = new ArrayList<>(conversationList.size());
 
         if (jPushMessageInfoList == null) {

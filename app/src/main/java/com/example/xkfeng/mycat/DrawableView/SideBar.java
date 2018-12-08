@@ -25,7 +25,6 @@ public class SideBar extends View {
     private int choose = -1;
     private List<String> lists;
     private Paint mPaint;
-    private TextView mTextView;
     private OnTouchLetterChanged onTouchLetterChanged;
     private int mWidth;
     private int mHeight;
@@ -39,7 +38,6 @@ public class SideBar extends View {
     public SideBar(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
-        setBackgroundColor(Color.parseColor("#F0F0F0"));
         lists = Arrays.asList(INDEX_STRING);
         paint = new Paint();
     }
@@ -48,8 +46,8 @@ public class SideBar extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        mWidth = getWidth();
-        mHeight = getHeight();
+        mWidth = getWidth()-getPaddingLeft()-getPaddingRight();
+        mHeight = getHeight()-getPaddingTop()-getPaddingBottom();
         singleLetterHeight = mHeight / lists.size();
         for (int i = 0; i < lists.size(); i++) {
             paint.setColor(Color.parseColor("#606060"));
@@ -62,8 +60,8 @@ public class SideBar extends View {
                 paint.setFakeBoldText(true);
             }
             //绘制具体的坐标
-            float x = mWidth / 2 - paint.measureText(lists.get(i)) / 2;
-            float y = i * singleLetterHeight + singleLetterHeight / 2;
+            float x = mWidth / 2 - paint.measureText(lists.get(i)) / 2 ;
+            float y = i * singleLetterHeight + singleLetterHeight / 2 + getPaddingTop();
             canvas.drawText(lists.get(i), x, y, paint);
             paint.reset();
 
@@ -75,42 +73,27 @@ public class SideBar extends View {
     public boolean dispatchTouchEvent(MotionEvent event) {
         int y = (int) event.getY();
         int oldChoose = choose;
-        int data = y / singleLetterHeight;
+        int data = (y-getPaddingTop()) / singleLetterHeight;
         switch (event.getAction()) {
             case MotionEvent.ACTION_UP:
-                setBackgroundColor(Color.parseColor("#F0F0F0"));
                 //choose = -1;
                 invalidate();
-                if (mTextView != null) {
-                    mTextView.setVisibility(GONE);
-                }
                 break;
 
             default:
-                setBackgroundColor(mContext.getResources().getColor(R.color.lighter_gray));
-                if (oldChoose != data){
-                    if (data >= 0 && data < lists.size()){
-                        choose = data ;
-                        if (onTouchLetterChanged != null){
+                if (oldChoose != data) {
+                    if (data >= 0 && data < lists.size()) {
+                        choose = data;
+                        if (onTouchLetterChanged != null) {
                             onTouchLetterChanged.onTouchLetterChanged(lists.get(data));
                         }
-                        if (mTextView != null){
-                            mTextView.setVisibility(VISIBLE);
-                            mTextView.setText(lists.get(data));
-                        }
-
                         invalidate();
                     }
 
                 }
-                    break;
+                break;
         }
         return true;
-    }
-
-
-    public void setmTextView(TextView textView){
-        mTextView = textView ;
     }
 
     public void setOnTouchLetterChanged(OnTouchLetterChanged onTouchLetterChanged) {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -24,19 +24,27 @@
         android:layout_below="@id/indexTitleLayout"
         >
 
+
     </ListView>
+    <com.example.xkfeng.mycat.DrawableView.SideBar
+        android:id="@+id/sb_letterBar"
+        android:layout_width="30dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/lv_friendInfoList"
+        />
 
     <TextView
-        android:id="@+id/friendInfoEmptyView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="还没有好友额，赶快去添加一个把~~~~"
-        android:textSize="22sp"
-        android:background="@color/lighter_gray"
+        android:id="@+id/tv_rightBarClickText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textSize="40sp"
         android:visibility="gone"
+        android:padding="10dp"
+        android:textColor="@color/light_blue"
         />
 
 
 
-</LinearLayout>
+</RelativeLayout>
