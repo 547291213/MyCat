@@ -44,6 +44,7 @@ import com.example.xkfeng.mycat.Fragment.BottomTabFragmentPageAdapter;
 import com.example.xkfeng.mycat.Fragment.DynamicFragment;
 import com.example.xkfeng.mycat.Fragment.FriendFragment;
 import com.example.xkfeng.mycat.Fragment.MessageFragment;
+import com.example.xkfeng.mycat.Model.BaiduLocation;
 import com.example.xkfeng.mycat.Model.LocationBean;
 import com.example.xkfeng.mycat.Model.MsgEvent;
 import com.example.xkfeng.mycat.Model.WeatherBean;
@@ -100,8 +101,8 @@ public class IndexActivity extends BaseActivity {
     private FriendFragment friendFragment;
     private DynamicFragment dynamicFragment;
     private FragmentManager fragmentManager;
-    private List<Fragment> fragmentList ;
-    private BottomTabFragmentPageAdapter pageAdapter ;
+    private List<Fragment> fragmentList;
+    private BottomTabFragmentPageAdapter pageAdapter;
 
     private View redPointMessage;
     private View redPointFriend;
@@ -127,7 +128,7 @@ public class IndexActivity extends BaseActivity {
     private static final int REQUEST_LOCATION_PERMISSION = 1;
 
     //百度地图客户端api
-    private LocationClient locationClient ;
+    private LocationClient locationClient;
 
 
     public static boolean isFirst = true;
@@ -163,7 +164,7 @@ public class IndexActivity extends BaseActivity {
         initView();
 
         //初始化页面和碎片
-        initPagerAndFragment() ;
+        initPagerAndFragment();
 
         //百度地图初始化
         initBaiduLocation();
@@ -175,18 +176,18 @@ public class IndexActivity extends BaseActivity {
      */
     private void initPagerAndFragment() {
 
-        fragmentList = new ArrayList<>() ;
+        fragmentList = new ArrayList<>();
         messageFragment = new MessageFragment();
-        friendFragment = new FriendFragment() ;
-        dynamicFragment = new DynamicFragment() ;
+        friendFragment = new FriendFragment();
+        dynamicFragment = new DynamicFragment();
 
-        fragmentList.add(messageFragment) ;
-        fragmentList.add(friendFragment) ;
-        fragmentList.add(dynamicFragment) ;
+        fragmentList.add(messageFragment);
+        fragmentList.add(friendFragment);
+        fragmentList.add(dynamicFragment);
 
-        fragmentManager = getSupportFragmentManager() ;
+        fragmentManager = getSupportFragmentManager();
 
-        pageAdapter = new BottomTabFragmentPageAdapter(fragmentManager , fragmentList) ;
+        pageAdapter = new BottomTabFragmentPageAdapter(fragmentManager, fragmentList);
         //设置适配器
         vpIndexFragmentPager.setAdapter(pageAdapter);
         //禁止左右滑动
@@ -211,7 +212,7 @@ public class IndexActivity extends BaseActivity {
         getRxBusEventForNetWork();
 
         //获取RxBus发送的事件  经纬度信息
-        getRxBusEventForLocation() ;
+        getRxBusEventForLocation();
 
         //开始测量
         measureLocation();
@@ -223,9 +224,9 @@ public class IndexActivity extends BaseActivity {
      */
     private void initBaiduLocation() {
 
-        locationClient = new LocationClient(getApplicationContext()) ;
+        locationClient = new LocationClient(getApplicationContext());
         locationClient.registerLocationListener(new MyLocationListener());
-        LocationClientOption option = new LocationClientOption() ;
+        LocationClientOption option = new LocationClientOption();
         option.setScanSpan(1000 * 60 * 60);
         option.setIsNeedAddress(true);
         option.setLocationMode(LocationClientOption.LocationMode.Device_Sensors);
@@ -238,18 +239,19 @@ public class IndexActivity extends BaseActivity {
     /**
      * 百度地图测量
      */
-    private void measureLocation(){
+    private void measureLocation() {
 
         locationClient.start();
     }
 
 
-    class MyLocationListener extends BDAbstractLocationListener{
+    class MyLocationListener extends BDAbstractLocationListener {
         @Override
         public void onReceiveLocation(BDLocation bdLocation) {
 
-            String str = bdLocation.getLongitude()+","+bdLocation.getLatitude() ;
-            RxBus.getInstance().post(str);
+            String str = bdLocation.getLongitude() + "," + bdLocation.getLatitude();
+            BaiduLocation baiduLocation = new BaiduLocation(str);
+            RxBus.getInstance().post(baiduLocation);
         }
     }
 
@@ -258,26 +260,25 @@ public class IndexActivity extends BaseActivity {
      * 获取并且处理RxBus
      * 发送的消息事件  经纬度
      */
-    private void getRxBusEventForLocation(){
+    private void getRxBusEventForLocation() {
 
         RxBus.getInstance()
-                .toObservable(String.class)
+                .toObservable(BaiduLocation.class)
                 .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<String>() {
+                .subscribe(new Observer<BaiduLocation>() {
                     @Override
                     public void onSubscribe(Disposable d) {
 
                     }
 
                     @Override
-                    public void onNext(String string) {
+                    public void onNext(BaiduLocation location) {
 
                         /**
                          * 获取到经纬度信息，
                          */
-                        Log.d(TAG, "onNext: " + string);
-                        getCityAndWeather(string);
+                        getCityAndWeather(location.getLocation());
 
                     }
 
@@ -290,7 +291,7 @@ public class IndexActivity extends BaseActivity {
                     public void onComplete() {
 
                     }
-                }) ;
+                });
 
     }
 
@@ -362,7 +363,8 @@ public class IndexActivity extends BaseActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}
                     , REQUEST_LOCATION_PERMISSION);
 
-        } else {}
+        } else {
+        }
 
     }
 

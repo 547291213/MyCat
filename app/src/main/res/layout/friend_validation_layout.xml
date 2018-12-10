@@ -46,33 +46,59 @@
             android:src="@mipmap/log" />
 
     </LinearLayout>
-    <FrameLayout
+
+    <LinearLayout
+        android:id="@+id/ll_linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-
-        <com.example.xkfeng.mycat.RecyclerDefine.EmptyRecyclerView
-            android:id="@+id/erv_waitValidationList"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        </com.example.xkfeng.mycat.RecyclerDefine.EmptyRecyclerView>
+        android:layout_height="40dp"
+        android:layout_below="@id/indexTitleLayout"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginBottom="30dp"
+        android:background="@android:color/white"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp">
 
 
         <TextView
-            android:id="@+id/tv_messageEmptyView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:text="还没有任何人申请加你为好友，但是你自己可以主动出击的嘛！~~~~~~~~"
-            android:textSize="20sp"
-            android:textStyle="italic"
-            android:textColor="@color/light_red"
+            android:id="@+id/tv_receivedInvitation"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="right|center_vertical"
+            android:text="收到的申请"
+            android:textColor="@color/black"
+            android:textSize="16dp"
+            android:layout_marginRight="5dp"
             />
 
-    </FrameLayout>
+        <TextView
+            android:id="@+id/tv_sendInvitation"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="left|center_vertical"
+            android:text="发出的申请"
+            android:textColor="@color/black"
+            android:textSize="16dp"
+            android:layout_marginLeft="5dp"
+            />
+
+
+    </LinearLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_invitationPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/ll_linearLayout"
+        >
+
+    </android.support.v4.view.ViewPager>
 
 
 </LinearLayout>

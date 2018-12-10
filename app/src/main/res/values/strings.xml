@@ -49,4 +49,9 @@
     <!--inviitation data-->
     <string name="invitation_accept">接受</string>
     <string name="invitation_refused">拒绝</string>
+    <string name="invitation_has_accept">已接受</string>
+    <string name="invitation_has_refused">已拒绝</string>
+    <string name="invitation_wait_process">待验证</string>
+    <string name="invitation_delte">删除</string>
+
 </resources>

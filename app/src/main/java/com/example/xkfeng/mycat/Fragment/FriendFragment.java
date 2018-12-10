@@ -3,12 +3,14 @@ package com.example.xkfeng.mycat.Fragment;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -34,6 +36,7 @@ import com.example.xkfeng.mycat.DrawableView.SideBar;
 import com.example.xkfeng.mycat.Model.FriendInfo;
 import com.example.xkfeng.mycat.Model.FriendInvitationModel;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.RxBus.RxBus;
 import com.example.xkfeng.mycat.SqlHelper.FriendInvitationDao;
 import com.example.xkfeng.mycat.SqlHelper.FriendInvitationSql;
 import com.example.xkfeng.mycat.Util.DensityUtil;
@@ -53,6 +56,9 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
 import cn.jpush.im.android.api.event.ContactNotifyEvent;
 import cn.jpush.im.android.api.model.UserInfo;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 public class FriendFragment extends Fragment {
 
@@ -93,7 +99,11 @@ public class FriendFragment extends Fragment {
     private FriendInvitationDao friendInvitationDao;
     private FriendInvitationModel friendInvitationModel;
 
-    private UserInfo mUserInfo ;
+    private UserInfo mUserInfo;
+
+    private SharedPreferences sharedPreferences;
+
+    public static final String HAS_NEW_FRIEND_EVENT = "newFriend" ;
 
 
     @Nullable
@@ -106,7 +116,7 @@ public class FriendFragment extends Fragment {
         uiHandler = new UIHandler(this);
 
         friendInvitationDao = new FriendInvitationDao(mContext);
-        mUserInfo = JMessageClient.getMyInfo() ;
+        mUserInfo = JMessageClient.getMyInfo();
 
         return view;
     }
@@ -120,8 +130,11 @@ public class FriendFragment extends Fragment {
 
         setFriendInfoList();
 
+        notifyFriendListByJpush();
+
         initSideBar();
 
+        initRedpointForInvitationData();
 
     }
 
@@ -167,6 +180,8 @@ public class FriendFragment extends Fragment {
     }
 
 
+
+
     private void setFriendInfoList() {
         friendInfos = new ArrayList<>();
         setHeaderView();
@@ -175,6 +190,11 @@ public class FriendFragment extends Fragment {
         friendListAdapter = new FriendListAdapter(mContext, friendInfos);
         lvFriendInfoList.addHeaderView(headerView);
         lvFriendInfoList.setAdapter(friendListAdapter);
+
+
+    }
+
+    private void notifyFriendListByJpush() {
         ContactManager.getFriendList(new GetUserInfoListCallback() {
             @Override
             public void gotResult(int i, String s, List<UserInfo> list) {
@@ -190,11 +210,22 @@ public class FriendFragment extends Fragment {
                 }
             }
         });
-
     }
 
     private void initSideBar() {
 
+        /**
+         * 这里我们需要获取ListView的headerVIew的高度
+         * 常用方法：
+         *  1 ，headerView.getViewTreeObserver().addOnGlobalLayoutListener{}  在headerView 完成布局的时候去获取headerView的高度，
+         *  结果：失败 ，height=0 ；
+         *
+         *  2 ，onWinfowsFoucsChanged(boolean hasFouces){} 在窗口焦点变化的时候，获取headerView的高度
+         *  结果：失败，height=0 ；
+         *
+         *  3 headerView.measure(0 , 0 ) ;
+         *  结果，成功。getHeight =0 , getMeasuredHeight = 实际高度
+         */
         headerView.measure(0, 0);
         sbLetterBar.setPadding(sbLetterBar.getPaddingLeft(), sbLetterBar.getPaddingTop() + headerView.getMeasuredHeight(),
                 sbLetterBar.getPaddingRight(), sbLetterBar.getPaddingBottom());
@@ -221,6 +252,34 @@ public class FriendFragment extends Fragment {
         });
     }
 
+    private void initRedpointForInvitationData() {
+
+        sharedPreferences = getContext().getSharedPreferences("invitation", Context.MODE_PRIVATE);
+
+        boolean isRead = sharedPreferences.getBoolean("isRead", false);
+        int count = friendInvitationDao.getDataCountInState( JMessageClient.getMyInfo().getUserName() , FriendInvitationSql.SATTE_WAIT_PROCESSED);
+        if (count > 0 && !isRead) {
+            stickyViewHelper.setRedPointViewText(String.valueOf(count));
+            stickyViewHelper.setViewShow();
+        }
+
+        stickyViewHelper.setRedPointViewReleaseOutRangeListener(new RedPointViewHelper.RedPointViewReleaseOutRangeListener() {
+            @Override
+            public void onReleaseOutRange() {
+                sharedPreferences.edit().putBoolean("isRead", true).commit();
+            }
+
+            @Override
+            public void onRedViewClickDown() {
+
+            }
+
+            @Override
+            public void onRedViewCLickUp() {
+
+            }
+        });
+    }
 
     private void setHeaderView() {
 
@@ -237,6 +296,8 @@ public class FriendFragment extends Fragment {
         rl_validationLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                stickyViewHelper.setRedPointViewText(String.valueOf(0));
+//                stickyViewHelper.setViewNotShow();
                 Intent intent = new Intent(mContext, FriendValidationActivity.class);
                 startActivity(intent);
             }
@@ -295,7 +356,6 @@ public class FriendFragment extends Fragment {
         switch (event.getType()) {
             case invite_received://收到好友邀请
                 //...
-                Log.d(TAG, "onEvent: invite_received");
 
 
                 if (stickyViewHelper == null) {
@@ -310,7 +370,6 @@ public class FriendFragment extends Fragment {
                 stickyViewHelper.setRedPointViewText("" + (Integer.parseInt(redPointData) + 1));
                 stickyViewHelper.setViewShow();
 
-                Toast.makeText(mContext, "收到新的好友申请", Toast.LENGTH_SHORT).show();
                 break;
             case invite_accepted://对方接收了你的好友邀请
                 //...
@@ -325,7 +384,7 @@ public class FriendFragment extends Fragment {
                 break;
         }
 
-        friendInvitationModel = new FriendInvitationModel() ;
+        friendInvitationModel = new FriendInvitationModel();
 
         friendInvitationModel.setState(FriendInvitationSql.SATTE_WAIT_PROCESSED);
         friendInvitationModel.setmUserName(mUserInfo.getUserName());
@@ -333,6 +392,7 @@ public class FriendFragment extends Fragment {
         friendInvitationModel.setReason(reason);
         friendInvitationModel.setFromUserTime(System.currentTimeMillis());
         friendInvitationDao.insertData(friendInvitationModel);
+        sharedPreferences.edit().putBoolean("isRead", false).commit();
 
     }
 
@@ -360,7 +420,13 @@ public class FriendFragment extends Fragment {
             }
         }
     }
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        notifyFriendListByJpush();
+        initRedpointForInvitationData() ;
+        Log.d(TAG, "onResume: ");
+    }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

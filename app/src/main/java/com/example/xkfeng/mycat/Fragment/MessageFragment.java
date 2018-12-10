@@ -433,7 +433,7 @@ public class MessageFragment extends Fragment {
                          */
                         popupMenuLayout_CONTENT.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getWidth()),
                                 DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getHeight()));
-                        ;
+
                         popupMenuLayout_CONTENT.showAsDropDown(view,
                                 DensityUtil.getScreenWidth(getContext()) / 2 - popupMenuLayout_CONTENT.getContentView().getMeasuredWidth() / 2
                                 , -view.getHeight() - popupMenuLayout_CONTENT.getContentView().getMeasuredHeight());

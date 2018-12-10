@@ -65,5 +65,20 @@
         layout="@layout/item_drag_view"
         />
 
+    <TextView
+        android:id="@+id/tv_useInValidation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="等待验证"
+        android:textColor="@color/light_red"
+        android:textSize="30sp"
+        android:background="@drawable/ic_ellipse_border_gray_64"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:alpha="0.7"
+        android:visibility="gone"
+
+        />
+
 
 </RelativeLayout>

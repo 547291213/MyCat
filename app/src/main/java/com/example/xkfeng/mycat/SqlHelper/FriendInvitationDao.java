@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 
+import com.example.xkfeng.mycat.Model.Friend;
 import com.example.xkfeng.mycat.Model.FriendInvitationModel;
 import com.example.xkfeng.mycat.Util.RSAEncrypt;
 
@@ -30,17 +31,17 @@ public class FriendInvitationDao {
 
     private void init() {
         //实例化数据库
-        friendInvitationSql = new FriendInvitationSql(mContext, "friendInvitation.db", null, 5);
+        friendInvitationSql = new FriendInvitationSql(mContext, "friendInvitation.db", null, 7);
         //第一次进入的时候初始化数据库操作对象
         db = friendInvitationSql.getReadableDatabase();
     }
 
-    public List<FriendInvitationModel> queryAll(int state) {
+    public List<FriendInvitationModel> queryAll(String mUserName , int state) {
         List<FriendInvitationModel> list = new ArrayList<>();
         Cursor cursor = null;
 
-        cursor = friendInvitationSql.getReadableDatabase().query(FriendInvitationSql.TABLE_NAME, null, null,
-                null, null, null, null);
+        cursor = friendInvitationSql.getReadableDatabase().query(FriendInvitationSql.TABLE_NAME, null, FriendInvitationSql.M_USER_NAME + " = ? ",
+                new String[]{mUserName}, null, null, null);
 
         while (cursor.moveToNext()) {
             FriendInvitationModel model = new FriendInvitationModel();
@@ -68,13 +69,16 @@ public class FriendInvitationDao {
                     }
                     break;
             }
-
             list.add(model);
 
         }
         cursor.close();
 
         return list;
+    }
+
+    public int getDataCountInState(String mUserName,int state){
+        return queryAll(mUserName , state).size() ;
     }
 
 
@@ -95,25 +99,43 @@ public class FriendInvitationDao {
         }
     }
 
-    public int modifyState(String fromUserTime ,String fromUser , int state){
+    public int modifyState(int id  , int state){
 
         int flag = -10086 ;
         Cursor cursor = friendInvitationSql.getReadableDatabase().rawQuery(
-                "select * from " + FriendInvitationSql.TABLE_NAME + " where " + FriendInvitationSql.FROM_USER_TIME + " = ? and "
-                + FriendInvitationSql.FROM_USER_NAME + " = ? ", new String[]{fromUserTime , fromUser}) ;
+                "select * from " + FriendInvitationSql.TABLE_NAME + " where " + FriendInvitationSql.ID + " = ? " , new String[]{String.valueOf(id)}) ;
+
         if (cursor.moveToNext()){
             ContentValues contentValues = new ContentValues();
+            contentValues.put(FriendInvitationSql.ID , cursor.getInt(cursor.getColumnIndex(FriendInvitationSql.ID)));
             contentValues.put(FriendInvitationSql.M_USER_NAME, cursor.getString(cursor.getColumnIndex(FriendInvitationSql.M_USER_NAME)));
             contentValues.put(FriendInvitationSql.FROM_USER_NAME,  cursor.getString(cursor.getColumnIndex(FriendInvitationSql.FROM_USER_NAME)));
             contentValues.put(FriendInvitationSql.STATE, state);
             contentValues.put(FriendInvitationSql.REASON , cursor.getString(cursor.getColumnIndex(FriendInvitationSql.REASON)));
             contentValues.put(FriendInvitationSql.FROM_USER_TIME ,cursor.getLong(cursor.getColumnIndex(FriendInvitationSql.FROM_USER_TIME)));
             flag =  friendInvitationSql.getWritableDatabase().update(FriendInvitationSql.TABLE_NAME , contentValues ,
-                    FriendInvitationSql.FROM_USER_TIME + " = ? " ,new String[]{fromUserTime}) ;
+                    FriendInvitationSql.ID + " = ? " ,new String[]{String.valueOf(id)}) ;
 
         }
 
         return flag ;
+    }
+
+//    After the user clicks "accept",
+//    all the data to be audited from the same user will be deleted
+    public int afterAcceptDeleteMsgByFromNameAndState(String mUserName , String mFromUserName , int state){
+        int count = friendInvitationSql.getWritableDatabase().delete(FriendInvitationSql.TABLE_NAME, FriendInvitationSql.FROM_USER_NAME + " = ? and " +
+                FriendInvitationSql.STATE + " = ?  and " + FriendInvitationSql.M_USER_NAME  + " = ? " , new String[]{mFromUserName , String.valueOf(state) , mUserName}) ;
+
+        return count ;
+    }
+
+
+    public int deleteDataById(int id){
+        int count = friendInvitationSql.getWritableDatabase().delete(FriendInvitationSql.TABLE_NAME , FriendInvitationSql.ID + " =? " ,
+                new String[]{String.valueOf(id)}) ;
+
+        return count ;
     }
 
     public void deleteAll() {
@@ -124,6 +146,7 @@ public class FriendInvitationDao {
 
     private FriendInvitationModel AddModel(Cursor cursor) {
         FriendInvitationModel model = new FriendInvitationModel();
+        model.setId(cursor.getInt(cursor.getColumnIndex(FriendInvitationSql.ID)));
         model.setmUserName(cursor.getString(cursor.getColumnIndex(FriendInvitationSql.M_USER_NAME)));
         model.setmFromUser(cursor.getString(cursor.getColumnIndex(FriendInvitationSql.FROM_USER_NAME)));
         model.setState(cursor.getInt(cursor.getColumnIndex(FriendInvitationSql.STATE)));

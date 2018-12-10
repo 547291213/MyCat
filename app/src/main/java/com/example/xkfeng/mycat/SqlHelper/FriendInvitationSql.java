@@ -12,6 +12,7 @@ import static android.support.constraint.Constraints.TAG;
 public class FriendInvitationSql extends SQLiteOpenHelper {
 
     public static final  String TABLE_NAME = "friend_invitation" ;
+    public static final String ID = "_id" ;
     public static final String M_USER_NAME = "mUserName" ;
     public static final String FROM_USER_NAME = "mFromUser" ;
     public static final String STATE = "state" ;
@@ -42,7 +43,8 @@ public class FriendInvitationSql extends SQLiteOpenHelper {
      */
     public static final int SATTE_WAIT_PROCESSED = 3 ;
 
-    public final static String CREATE_DB = "create table " + TABLE_NAME  + "(" + M_USER_NAME +
+    public final static String CREATE_DB = "create table " + TABLE_NAME  + "(" +
+            " _id INTEGER PRIMARY KEY AUTOINCREMENT , " + M_USER_NAME +
             " text  , " + FROM_USER_NAME +
             " text , " + STATE +
             " text, " +  REASON +

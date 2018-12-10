@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.example.xkfeng.mycat.RecyclerDefine.EmptyRecyclerView
+            android:id="@+id/erv_validationList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </com.example.xkfeng.mycat.RecyclerDefine.EmptyRecyclerView>
+
+
+        <TextView
+            android:id="@+id/tv_messageEmptyView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:text="你还没有添加任何人为好友，快点主动出击的嘛！~~~~~~~~ ，或者你可以加一下超级管理员“123456” ， 他肯定不会拒绝的 "
+            android:textColor="@color/light_red"
+            android:textSize="20sp"
+            android:textStyle="italic" />
+
+    </FrameLayout>
+</LinearLayout>

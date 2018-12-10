@@ -218,6 +218,7 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
         }
     }
 
+
     @Override
     public void inRangeMove(PointF dragCanterPoint) {
 

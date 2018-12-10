@@ -2,6 +2,8 @@ package com.example.xkfeng.mycat.Model;
 
 public class FriendInvitationModel {
 
+
+    private int id ;
     /**
      * 当前用户
      */
@@ -23,18 +25,15 @@ public class FriendInvitationModel {
     private String reason ;
 
     /**
-     * 用于唯一标识码
-     * fromUser + sednTime ;
+     * sednTime ;
      */
     private long fromUserTime ;
 
 
     public FriendInvitationModel(){}
 
-    public FriendInvitationModel(String mUserName ,String mFromUser ,int state){
-        this.mUserName = mUserName ;
-        this.mFromUser = mFromUser ;
-        this.state = state ;
+    public int getId() {
+        return id;
     }
 
     public int getState() {
@@ -53,6 +52,9 @@ public class FriendInvitationModel {
         return reason;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public long getFromUserTime() {
         return fromUserTime;
