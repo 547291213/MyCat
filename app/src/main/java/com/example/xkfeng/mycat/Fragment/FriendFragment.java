@@ -30,6 +30,7 @@ import com.example.xkfeng.mycat.Activity.IndexActivity;
 import com.example.xkfeng.mycat.Activity.SearchActivity;
 import com.example.xkfeng.mycat.DrawableView.FriendListAdapter;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
+import com.example.xkfeng.mycat.DrawableView.PinyinComparator;
 import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
 import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
 import com.example.xkfeng.mycat.DrawableView.SideBar;
@@ -46,6 +47,7 @@ import com.example.xkfeng.mycat.Util.PinyinUtil;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -186,8 +188,9 @@ public class FriendFragment extends Fragment {
         friendInfos = new ArrayList<>();
         setHeaderView();
         setRedpointView();
-
+        Collections.sort(friendInfos,new PinyinComparator());
         friendListAdapter = new FriendListAdapter(mContext, friendInfos);
+
         lvFriendInfoList.addHeaderView(headerView);
         lvFriendInfoList.setAdapter(friendListAdapter);
 
@@ -201,6 +204,7 @@ public class FriendFragment extends Fragment {
                 switch (i) {
                     case 0:
                         friendInfos = dataConversion(list);
+                        Collections.sort(friendInfos,new PinyinComparator());
                         friendListAdapter.notifyData(friendInfos);
                         break;
 
@@ -238,8 +242,8 @@ public class FriendFragment extends Fragment {
             @Override
             public void onTouchLetterChanged(String s) {
                 //该字母首次出现的位置
-                int position = friendListAdapter.getPositionForSection(s.charAt(0));
-//                Log.d(TAG, "onTouchLetterChanged: position : " + position );
+                int position = friendListAdapter.getPositionForSection(s.toLowerCase().charAt(0));
+//                Log.d(TAG, "onTouchLetterChanged: position : " + position + " s :" + s);
                 if (position != -1) {
                     lvFriendInfoList.smoothScrollToPosition(position + 1);
                 }
@@ -356,8 +360,6 @@ public class FriendFragment extends Fragment {
         switch (event.getType()) {
             case invite_received://收到好友邀请
                 //...
-
-
                 if (stickyViewHelper == null) {
                     Log.d(TAG, "onEventMainThread: stickyView is null");
                     return;
@@ -370,6 +372,15 @@ public class FriendFragment extends Fragment {
                 stickyViewHelper.setRedPointViewText("" + (Integer.parseInt(redPointData) + 1));
                 stickyViewHelper.setViewShow();
 
+                friendInvitationModel = new FriendInvitationModel();
+
+                friendInvitationModel.setState(FriendInvitationSql.SATTE_WAIT_PROCESSED);
+                friendInvitationModel.setmUserName(mUserInfo.getUserName());
+                friendInvitationModel.setmFromUser(fromUsername);
+                friendInvitationModel.setReason(reason);
+                friendInvitationModel.setFromUserTime(System.currentTimeMillis());
+                friendInvitationDao.insertData(friendInvitationModel);
+                sharedPreferences.edit().putBoolean("isRead", false).commit();
                 break;
             case invite_accepted://对方接收了你的好友邀请
                 //...
@@ -384,15 +395,6 @@ public class FriendFragment extends Fragment {
                 break;
         }
 
-        friendInvitationModel = new FriendInvitationModel();
-
-        friendInvitationModel.setState(FriendInvitationSql.SATTE_WAIT_PROCESSED);
-        friendInvitationModel.setmUserName(mUserInfo.getUserName());
-        friendInvitationModel.setmFromUser(fromUsername);
-        friendInvitationModel.setReason(reason);
-        friendInvitationModel.setFromUserTime(System.currentTimeMillis());
-        friendInvitationDao.insertData(friendInvitationModel);
-        sharedPreferences.edit().putBoolean("isRead", false).commit();
 
     }
 
