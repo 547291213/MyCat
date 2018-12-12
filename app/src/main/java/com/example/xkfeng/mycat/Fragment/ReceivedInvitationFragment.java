@@ -156,46 +156,12 @@ public class ReceivedInvitationFragment extends Fragment {
 
             @Override
             public void convert(final VH vh, final FriendInvitationModel data, final int position) {
+
+
                 /**
-                 * 通用布局，统一处理
+                 * 通用布局
                  */
-                ((TextView) vh.getView(R.id.tv_meessageTime)).setText("Time : " + TimeUtil.ms2date(" HH:mm ", data.getFromUserTime()));
-                ((TextView) vh.getView(R.id.tv_messageContent)).setText(data.getReason());
-                ((View) vh.getView(R.id.redpoint_view_message)).setVisibility(View.GONE);
-                JMessageClient.getUserInfo(data.getmFromUser(), new GetUserInfoCallback() {
-                    @Override
-                    public void gotResult(int i, String s, UserInfo userInfo) {
-                        switch (i) {
-                            case 0:
-                                mFromUserInfo = userInfo;
-                                //设置标题
-                                if (TextUtils.isEmpty(mFromUserInfo.getNickname())) {
-                                    ((TextView) vh.getView(R.id.tv_meessageTitle)).setText(mFromUserInfo.getUserName());
-
-                                } else {
-                                    ((TextView) vh.getView(R.id.tv_meessageTitle)).setText(mFromUserInfo.getNickname());
-                                }
-                                if (mFromUserInfo.getAvatarFile() != null && !TextUtils.isEmpty(mFromUserInfo.getAvatarFile().toString())) {
-                                    ((ImageView) vh.getView(R.id.pciv_messageHeaderImage)).setImageBitmap(BitmapFactory.decodeFile(mFromUserInfo.getAvatarFile().toString()));
-                                } else {
-                                    ((ImageView) vh.getView(R.id.pciv_messageHeaderImage)).setImageResource(R.mipmap.log);
-                                }
-                                break;
-                            default:
-                                /**
-                                 * 获取数据失败，
-                                 * 则就用申请用户的ID作为标题
-                                 * 使用默认的头像
-                                 */
-                                ((TextView) vh.getView(R.id.tv_meessageTitle)).setText(data.getmFromUser());
-
-                                ((ImageView) vh.getView(R.id.pciv_messageHeaderImage)).setImageResource(R.mipmap.log);
-                                break;
-                        }
-
-                        loadingDialog.dismiss();
-                    }
-                });
+                generalLayout(vh ,data , position);
 
                 /**
                  * 消息验证界面，专有布局
@@ -228,6 +194,55 @@ public class ReceivedInvitationFragment extends Fragment {
         ervValidationList.setAdapter(qucikAdapterWrapter);
     }
 
+
+    /**
+     * 通用布局
+     * @param vh
+     * @param data
+     * @param position
+     */
+    private void generalLayout(final QuickAdapter.VH vh ,final FriendInvitationModel data ,int position){
+        /**
+         * 通用布局，统一处理
+         */
+        ((TextView) vh.getView(R.id.tv_meessageTime)).setText("Time : " + TimeUtil.ms2date(" HH:mm ", data.getFromUserTime()));
+        ((TextView) vh.getView(R.id.tv_messageContent)).setText(data.getReason());
+        ((View) vh.getView(R.id.redpoint_view_message)).setVisibility(View.GONE);
+        JMessageClient.getUserInfo(data.getmFromUser(), new GetUserInfoCallback() {
+            @Override
+            public void gotResult(int i, String s, UserInfo userInfo) {
+                switch (i) {
+                    case 0:
+                        mFromUserInfo = userInfo;
+                        //设置标题
+                        if (TextUtils.isEmpty(mFromUserInfo.getNickname())) {
+                            ((TextView) vh.getView(R.id.tv_meessageTitle)).setText(mFromUserInfo.getUserName());
+
+                        } else {
+                            ((TextView) vh.getView(R.id.tv_meessageTitle)).setText(mFromUserInfo.getNickname());
+                        }
+                        if (mFromUserInfo.getAvatarFile() != null && !TextUtils.isEmpty(mFromUserInfo.getAvatarFile().toString())) {
+                            ((ImageView) vh.getView(R.id.pciv_messageHeaderImage)).setImageBitmap(BitmapFactory.decodeFile(mFromUserInfo.getAvatarFile().toString()));
+                        } else {
+                            ((ImageView) vh.getView(R.id.pciv_messageHeaderImage)).setImageResource(R.mipmap.log);
+                        }
+                        break;
+                    default:
+                        /**
+                         * 获取数据失败，
+                         * 则就用申请用户的ID作为标题
+                         * 使用默认的头像
+                         */
+                        ((TextView) vh.getView(R.id.tv_meessageTitle)).setText(data.getmFromUser());
+
+                        ((ImageView) vh.getView(R.id.pciv_messageHeaderImage)).setImageResource(R.mipmap.log);
+                        break;
+                }
+
+                loadingDialog.dismiss();
+            }
+        });
+    }
 
     /**
      * 根据消息的状态来设置布局
@@ -444,6 +459,7 @@ public class ReceivedInvitationFragment extends Fragment {
      *    @param data
      */
     private void afterAcceptDeleteMsgByFromNameAndState(FriendInvitationModel data){
+
         for (int j = 0 ; j < friendInvitationModelList.size() ; j++){
             if (data.getmFromUser().equals(friendInvitationModelList.get(j).getmFromUser()) &&
                     friendInvitationModelList.get(j).getState() == FriendInvitationSql.SATTE_WAIT_PROCESSED) {
@@ -457,6 +473,8 @@ public class ReceivedInvitationFragment extends Fragment {
                 j--;
             }
         }
+
+
     }
 
     /**

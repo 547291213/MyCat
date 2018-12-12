@@ -11,10 +11,11 @@
         android:id="@+id/tv_letterText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
+        android:textSize="26sp"
         android:text="L"
-        android:paddingLeft="10dp"
+        android:layout_marginLeft="15dp"
         android:background="@color/lighter_gray"
+        android:alpha="0.5"
         />
     <LinearLayout
         android:layout_width="match_parent"

@@ -42,7 +42,7 @@
         android:textSize="40sp"
         android:visibility="gone"
         android:padding="10dp"
-        android:textColor="@color/light_blue"
+        android:textColor="@color/gray  "
         />
 
 

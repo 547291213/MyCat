@@ -36,12 +36,45 @@ public class FriendInvitationDao {
         db = friendInvitationSql.getReadableDatabase();
     }
 
+    /**
+     * 查找当前所有申请添加当前用户为好友的数据
+     * @param mUserName
+     * @param state
+     * @return
+     */
     public List<FriendInvitationModel> queryAll(String mUserName , int state) {
         List<FriendInvitationModel> list = new ArrayList<>();
         Cursor cursor = null;
 
         cursor = friendInvitationSql.getReadableDatabase().query(FriendInvitationSql.TABLE_NAME, null, FriendInvitationSql.M_USER_NAME + " = ? ",
                 new String[]{mUserName}, null, null, null);
+        getDataList(cursor , list , state) ;
+        cursor.close();
+
+        return list;
+    }
+
+    /**
+     * 查找所有当前用户主动申请的消息记录
+     * @param mFromUserName
+     * @param state
+     * @return
+     */
+    public List<FriendInvitationModel> queryAll2(String mFromUserName , int state){
+        List<FriendInvitationModel> list = new ArrayList<>() ;
+        Cursor cursor = null ;
+//        cursor = friendInvitationSql.getReadableDatabase().query(FriendInvitationSql.TABLE_NAME, null, FriendInvitationSql.FROM_USER_NAME + " = ? ",
+//                new String[]{mFromUserName}, null, null, null);
+        cursor = friendInvitationSql.getReadableDatabase().query(FriendInvitationSql.TABLE_NAME,  null , FriendInvitationSql.FROM_USER_NAME + " = ? " ,
+        new String[]{mFromUserName} , null , null ,null) ;
+
+        getDataList(cursor , list , state);
+        cursor.close();
+        return list ;
+
+    }
+
+    private void getDataList(Cursor cursor , List<FriendInvitationModel> list , int state){
 
         while (cursor.moveToNext()) {
             FriendInvitationModel model = new FriendInvitationModel();
@@ -72,9 +105,7 @@ public class FriendInvitationDao {
             list.add(model);
 
         }
-        cursor.close();
 
-        return list;
     }
 
     public int getDataCountInState(String mUserName,int state){
