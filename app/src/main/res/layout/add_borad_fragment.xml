@@ -2,46 +2,101 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/darker_gray"
+    android:gravity="center"
     android:orientation="vertical"
     >
 
+   <LinearLayout
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:orientation="horizontal"
+       >
+       <com.example.xkfeng.mycat.DrawableView.DrawableTopTextView
+           android:id="@+id/tv_chatMsgAlbum"
+           android:layout_width="0dp"
+           android:layout_weight="1"
+           android:layout_height="wrap_content"
+           android:drawableTop="@drawable/ic_album_white_64"
+           android:text="@string/chat_msg_type_album"
+           android:textSize="24sp"
+           android:textColor="@color/white"
+           android:gravity="center"
+
+           />
+
+       <com.example.xkfeng.mycat.DrawableView.DrawableTopTextView
+           android:id="@+id/tv_chatMsgPhoto"
+           android:layout_width="0dp"
+           android:layout_weight="1"
+           android:layout_height="wrap_content"
+           android:drawableTop="@drawable/ic_photo_white_64"
+           android:text="@string/chat_msg_type_photo"
+           android:textSize="24sp"
+           android:textColor="@color/white"
+           android:gravity="center"
+
+           />
+
+       <com.example.xkfeng.mycat.DrawableView.DrawableTopTextView
+           android:id="@+id/tv_chatMsgBusiness"
+           android:layout_width="0dp"
+           android:layout_weight="1"
+           android:layout_height="wrap_content"
+           android:drawableTop="@drawable/ic_business_white_64"
+           android:text="@string/chat_msg_type_business"
+           android:textSize="24sp"
+           android:textColor="@color/white"
+           android:gravity="center"
+
+           />
+
+   </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        >
+        <com.example.xkfeng.mycat.DrawableView.DrawableTopTextView
+            android:id="@+id/tv_chatMsgPosition"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/ic_position_white_64"
+            android:text="@string/chat_msg_type_position"
+            android:textSize="24sp"
+            android:textColor="@color/white"
+            android:gravity="center"
 
-        <ImageView
-            android:id="@+id/iv_albumChatImg"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_album_64"
-            android:scaleType="center"
             />
-        <ImageView
-            android:id="@+id/iv_cameraChatImg"
+
+        <com.example.xkfeng.mycat.DrawableView.DrawableTopTextView
+            android:id="@+id/tv_chatMsgGif"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_camera_64"
-            android:scaleType="center"
+            android:drawableTop="@drawable/ic_gif_white_64"
+            android:text="@string/chat_msg_type_gif"
+            android:textSize="24sp"
+            android:textColor="@color/white"
+            android:gravity="center"
+
             />
-        <ImageView
-            android:id="@+id/iv_positionChatImg"
+
+        <com.example.xkfeng.mycat.DrawableView.DrawableTopTextView
+            android:id="@+id/tv_chatMsgFile"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_position_64"
-            android:scaleType="center"
-            />
-        <ImageView
-            android:id="@+id/iv_fileChatImg"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_file_64"
-            android:scaleType="center"
+            android:drawableTop="@drawable/ic_file_white_64"
+            android:text="@string/chat_msg_type_file"
+            android:textSize="24sp"
+            android:textColor="@color/white"
+            android:gravity="center"
+
             />
 
     </LinearLayout>
-
 </LinearLayout>

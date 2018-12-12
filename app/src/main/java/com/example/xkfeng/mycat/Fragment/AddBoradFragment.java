@@ -9,24 +9,92 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.xkfeng.mycat.DrawableView.DrawableTopTextView;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.Util.ITosast;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
 
 public class AddBoradFragment extends Fragment {
 
-    private View view ;
-    private Context mContext ;
+    @BindView(R.id.tv_chatMsgAlbum)
+    DrawableTopTextView tvChatMsgAlbum;
+    @BindView(R.id.tv_chatMsgPhoto)
+    DrawableTopTextView tvChatMsgPhoto;
+    @BindView(R.id.tv_chatMsgBusiness)
+    DrawableTopTextView tvChatMsgBusiness;
+    @BindView(R.id.tv_chatMsgPosition)
+    DrawableTopTextView tvChatMsgPosition;
+    @BindView(R.id.tv_chatMsgGif)
+    DrawableTopTextView tvChatMsgGif;
+    @BindView(R.id.tv_chatMsgFile)
+    DrawableTopTextView tvChatMsgFile;
+    Unbinder unbinder;
+    private View view;
+    private Context mContext;
     private static final String TAG = "AddBoradFragment";
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        view = inflater.inflate(R.layout.add_borad_fragment , container , false) ;
-        mContext = getContext() ;
-        return view ;
+        view = inflater.inflate(R.layout.add_borad_fragment, container, false);
+        mContext = getContext();
+        unbinder = ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+    }
+
+    @OnClick({R.id.tv_chatMsgAlbum ,R.id.tv_chatMsgPhoto ,R.id.tv_chatMsgPosition ,
+            R.id.tv_chatMsgBusiness ,R.id.tv_chatMsgGif ,R.id.tv_chatMsgFile})
+    public void onItemClick(View view){
+        switch (view.getId()){
+            case R.id.tv_chatMsgAlbum :
+
+                ITosast.showShort(getContext() , "album").show();
+                break;
+
+            case R.id.tv_chatMsgPhoto :
+
+                ITosast.showShort(getContext() , "photo").show();
+                break ;
+
+            case R.id.tv_chatMsgPosition :
+
+
+                ITosast.showShort(getContext() , "position").show();
+                break ;
+
+            case R.id.tv_chatMsgBusiness :
+
+
+                ITosast.showShort(getContext() , "business").show();
+                break ;
+
+            case R.id.tv_chatMsgGif :
+
+
+                ITosast.showShort(getContext() , "gif").show();
+                break ;
+
+            case R.id.tv_chatMsgFile :
+
+
+                ITosast.showShort(getContext() , "file").show();
+                break ;
+        }
     }
 }

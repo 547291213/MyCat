@@ -1,6 +1,8 @@
 package com.example.xkfeng.mycat.Activity;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
@@ -24,6 +26,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.xkfeng.mycat.DrawableView.ChatListAdapter;
@@ -31,6 +34,7 @@ import com.example.xkfeng.mycat.DrawableView.ChatListAdapter.ContentLongClickLis
 import com.example.xkfeng.mycat.DrawableView.ChatListView;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.KeyBoradRelativeLayout;
+import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
 import com.example.xkfeng.mycat.Fragment.AddBoradFragment;
 import com.example.xkfeng.mycat.Fragment.NullBoradFragment;
 import com.example.xkfeng.mycat.Fragment.VoiceBoradFragment;
@@ -55,12 +59,15 @@ import cn.jpush.im.android.api.ContactManager;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
 import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
+import cn.jpush.im.android.api.enums.MessageDirect;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
+import cn.jpush.im.api.BasicCallback;
 import io.github.rockerhieu.emojicon.EmojiconEditText;
 import io.github.rockerhieu.emojicon.EmojiconGridFragment;
 import io.github.rockerhieu.emojicon.EmojiconsFragment;
@@ -137,8 +144,23 @@ public class ChatMsgActivity extends BaseActivity implements
     private UIHandler uiHandler;
 
     private String mTargetId;
-    private String mTargetAappkey ;
+    private String mTargetAappkey;
 
+    /**
+     * 针对消息的类型定制多种长按的弹出式菜单
+     */
+    private PopupMenuLayout textContentReceive;
+    private List<String> textContentReceiveList;
+    private PopupMenuLayout textContentSend;
+    private List<String> textContentSendList;
+    private PopupMenuLayout otherContentReceive;
+    private List<String> otherContentReceiveList;
+    private PopupMenuLayout otherContentSend;
+    private List<String> otherContentSendList;
+
+    private ClipboardManager clipboardManager;
+    private ClipData clipData;
+    private String pasteData = "";
 
 
     //    【A】stateUnspecified：软键盘的状态并没有指定，系统将选择一个合适的状态或依赖于主题的设置
@@ -158,18 +180,19 @@ public class ChatMsgActivity extends BaseActivity implements
 
         JMessageClient.registerEventReceiver(this);
 
-        mTargetId = getIntent().getStringExtra(StaticValueHelper.TARGET_ID) ;
-        mTargetAappkey = getIntent().getStringExtra(StaticValueHelper.TARGET_APP_KEY) ;
+        mTargetId = getIntent().getStringExtra(StaticValueHelper.TARGET_ID);
+        mTargetAappkey = getIntent().getStringExtra(StaticValueHelper.TARGET_APP_KEY);
 
-        Log.d(TAG, "onCreate: mTargetId : " + mTargetId + "  mTargetAppkey :" +  mTargetAappkey);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN |
                 WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         uiHandler = new UIHandler(this);
+        clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+
         initTitleView();
         initInputView();
         initMessageView();
-        Log.d(TAG, "onCreate: ");
+        initMenuPopupLayout();
     }
 
     //初始化顶部标题
@@ -195,7 +218,6 @@ public class ChatMsgActivity extends BaseActivity implements
                 /**
                  * 退出当前Activity
                  */
-
                 finish();
             }
 
@@ -284,14 +306,287 @@ public class ChatMsgActivity extends BaseActivity implements
 
     }
 
+
+    private void initMenuPopupLayout() {
+        textContentReceiveList = new ArrayList<>();
+        textContentReceiveList.add(getResources().getString(R.string.chat_msg_process_copy));
+        textContentReceiveList.add(getResources().getString(R.string.chat_msg_process_forwarding));
+        textContentReceiveList.add(getResources().getString(R.string.chat_msg_process_delete));
+        textContentReceive = new PopupMenuLayout(ChatMsgActivity.this, textContentReceiveList, PopupMenuLayout.CONTENT_POPUP);
+
+
+        textContentSendList = new ArrayList<>();
+        textContentSendList.add(getResources().getString(R.string.chat_msg_process_copy));
+        textContentSendList.add(getResources().getString(R.string.chat_msg_process_forwarding));
+        textContentSendList.add(getResources().getString(R.string.chat_msg_process_delete));
+        textContentSendList.add(getResources().getString(R.string.chat_msg_process_withdraw));
+        textContentSend = new PopupMenuLayout(ChatMsgActivity.this, textContentSendList, PopupMenuLayout.CONTENT_POPUP);
+
+        otherContentReceiveList = new ArrayList<>();
+        otherContentReceiveList.add(getResources().getString(R.string.chat_msg_process_forwarding));
+        otherContentReceiveList.add(getResources().getString(R.string.chat_msg_process_delete));
+        otherContentReceive = new PopupMenuLayout(ChatMsgActivity.this, otherContentReceiveList, PopupMenuLayout.CONTENT_POPUP);
+
+
+        otherContentSendList = new ArrayList<>();
+        otherContentSendList.add(getResources().getString(R.string.chat_msg_process_forwarding));
+        otherContentSendList.add(getResources().getString(R.string.chat_msg_process_delete));
+        otherContentSendList.add(getResources().getString(R.string.chat_msg_process_withdraw));
+        otherContentSend = new PopupMenuLayout(ChatMsgActivity.this, otherContentSendList, PopupMenuLayout.CONTENT_POPUP);
+
+
+    }
+
+
+    /**
+     * 消息长按接口类
+     */
     private ContentLongClickListener longClickListener = new ChatListAdapter.ContentLongClickListener() {
 
         @Override
         public void onContentLoingClick(int pos, View view) {
 
-            Toast.makeText(ChatMsgActivity.this, "content long click", Toast.LENGTH_SHORT).show();
+            Message msg = chatListAdapter.getMessage(pos);
+            if (msg == null) {
+                Toast.makeText(ChatMsgActivity.this, "MSG NULL", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            /**
+             * 如果是文本消息
+             * 需要做接收方和发送方的判断
+             * 其他消息一致，需要接收方和发送方的判断
+             */
+            if (msg.getContentType() == ContentType.text && ((TextContent) msg.getContent()).getStringExtra("businessCard") == null) {
+                //文本消息接收方
+                // 复制，转发，删除，
+                if (msg.getDirect() == MessageDirect.receive) {
+                    textMsgLongClickProcessForReceive(msg, view);
+                }
+                //文本消息发送方
+                // 复制，转发，删除，撤回
+                else {
+                    textMsgLongClickProcessForSend(msg, view);
+                }
+            }
+            //其他消息
+            else {
+                //其他消息接收方
+                if (msg.getDirect() == MessageDirect.receive) {
+
+                    otherMsgProcessForReceive(msg, view);
+
+                }
+                //其他消息发送方
+                else {
+                    otherMsgProcessForSend(msg, view);
+                }
+
+            }
         }
     };
+
+    /**
+     * 作为文本消息的接收方，在文本消息长按的时候有
+     * 复制，转发，删除 的弹出式窗口的布局和相关逻辑需要实现
+     *
+     * @param msg
+     * @param view
+     */
+    private void textMsgLongClickProcessForReceive(final Message msg, View view) {
+        textContentReceive.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(textContentReceive.getWidth()),
+                DensityUtil.makeDropDownMeasureSpec(textContentReceive.getHeight()));
+
+        textContentReceive.showAsDropDown(view,
+                view.getWidth() / 2 + view.getLeft() - textContentReceive.getContentView().getMeasuredWidth() / 2
+                , -view.getHeight() - textContentReceive.getContentView().getMeasuredHeight());
+
+        textContentReceive.setItemClickListener(new PopupMenuLayout.ItemClickListener() {
+            @Override
+            public void itemClick(View view, int position) {
+                switch (position) {
+                    case 0:
+                        textCopy(msg);
+                        break;
+
+                    case 1:
+
+                        Toast.makeText(ChatMsgActivity.this, "文本转发", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case 2:
+                        msgDelete(msg) ;
+                        break;
+
+                }
+                textContentReceive.dismiss();
+            }
+        });
+    }
+
+    /**
+     * 作为文本消息的发送方，在文本消息长按的时候有
+     * 复制，转发，删除，撤回 的弹出式窗口的布局和相关逻辑需要实现
+     *
+     * @param msg
+     * @param view
+     */
+    private void textMsgLongClickProcessForSend(final Message msg, View view) {
+        textContentSend.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(textContentSend.getWidth()),
+                DensityUtil.makeDropDownMeasureSpec(textContentSend.getHeight()));
+
+        textContentSend.showAsDropDown(view,
+                //                            view.getWidth()/2 + view.getLeft() - textContentSend.getContentView().getMeasuredWidth()/2
+                //view的左边界不为0   ，而默认的弹出式窗口自动和View左边界对齐
+                view.getWidth() / 2 - textContentSend.getContentView().getMeasuredWidth() / 2
+                , -view.getHeight() - textContentSend.getContentView().getMeasuredHeight());
+        textContentSend.setItemClickListener(new PopupMenuLayout.ItemClickListener() {
+            @Override
+            public void itemClick(View view, int position) {
+                switch (position) {
+                    case 0:
+                        textCopy(msg);
+                        break;
+
+                    case 1:
+                        Toast.makeText(ChatMsgActivity.this, "文本转发", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case 2:
+                        msgDelete(msg) ;
+                        break;
+
+                    case 3:
+                        msgWithDraw(msg);
+                        break;
+
+                }
+                textContentSend.dismiss();
+
+            }
+        });
+    }
+
+    /**
+     * 作为其他消息的接收方，当其他消息长按的时候
+     * 转发，删除的弹出式窗口的布局和逻辑需要实现
+     *
+     * @param msg
+     * @param view
+     */
+    private void otherMsgProcessForReceive(final Message msg, View view) {
+        otherContentReceive.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(otherContentReceive.getWidth()),
+                DensityUtil.makeDropDownMeasureSpec(otherContentReceive.getHeight()));
+
+        otherContentReceive.showAsDropDown(view,
+                view.getWidth() / 2 + view.getLeft() - otherContentReceive.getContentView().getMeasuredWidth() / 2
+                , -view.getHeight() - otherContentReceive.getContentView().getMeasuredHeight());
+
+        otherContentReceive.setItemClickListener(new PopupMenuLayout.ItemClickListener() {
+            @Override
+            public void itemClick(View view, int position) {
+                switch (position) {
+                    case 0:
+                        Toast.makeText(ChatMsgActivity.this, "其他转发", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case 1:
+                        msgDelete(msg) ;
+                        break;
+
+                }
+                otherContentReceive.dismiss();
+            }
+        });
+    }
+
+    /**
+     * 作为其他消息的发送方，当其他消息长按时
+     * 转发，删除，撤回的弹出式窗口的布局和逻辑需要实现
+     *
+     * @param msg
+     * @param view
+     */
+    private void otherMsgProcessForSend(final Message msg, View view) {
+        otherContentSend.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(otherContentSend.getWidth()),
+                DensityUtil.makeDropDownMeasureSpec(otherContentSend.getHeight()));
+
+        otherContentSend.showAsDropDown(view,
+                view.getWidth() / 2 + view.getLeft() - otherContentSend.getContentView().getMeasuredWidth() / 2
+                , -view.getHeight() - otherContentSend.getContentView().getMeasuredHeight());
+
+        otherContentSend.setItemClickListener(new PopupMenuLayout.ItemClickListener() {
+            @Override
+            public void itemClick(View view, int position) {
+                switch (position) {
+                    case 0:
+
+                        Toast.makeText(ChatMsgActivity.this, "其他转发", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case 1:
+                        msgDelete(msg) ;
+                        break;
+
+                    case 2:
+                        msgWithDraw(msg);
+                        break;
+
+                }
+                otherContentSend.dismiss();
+            }
+        });
+    }
+
+    /**
+     * 文本数据的拷贝
+     *
+     * @param msg
+     */
+    private void textCopy(Message msg) {
+        clipData = ClipData.newPlainText("simple text", ((TextContent) msg.getContent()).getText());
+        clipboardManager.setPrimaryClip(clipData);
+        ITosast.showShort(this, "复制成功").show();
+
+
+    }
+
+    /**
+     * 消息撤回
+     * 任意数据通用
+     *
+     * @param msg
+     */
+    private void msgWithDraw(final Message msg) {
+        conversation.retractMessage(msg, new BasicCallback() {
+            @Override
+            public void gotResult(int i, String s) {
+                switch (i) {
+                    case 0:
+                        chatListAdapter.backOutMessage(msg);
+                        ITosast.showShort(ChatMsgActivity.this , "消息撤回成功").show();
+
+                        break;
+                    case 855001:
+                        ITosast.showShort(ChatMsgActivity.this , "发送时间过长，不能撤回").show();
+                        break;
+                    default:
+                        Toast.makeText(ChatMsgActivity.this, "发生了未知错误", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        });
+    }
+
+    /**
+     * 消息删除
+     * 任意数据通用
+     * @param msg
+     */
+    private void msgDelete(Message msg){
+        conversation.deleteMessage(msg.getId()) ;
+        chatListAdapter.deleteMessage(msg);
+        ITosast.showShort(ChatMsgActivity.this , "消息删除成功").show();
+    }
 
 
     /**
@@ -406,33 +701,33 @@ public class ChatMsgActivity extends BaseActivity implements
 
 
     /**
-     *
      * 接收消息事件
      * 该方法由极光自动调用
      * 处于子线程中
+     *
      * @param event
      */
-    public void onEvent(MessageEvent event){
-        final Message message = event.getMessage() ;
+    public void onEvent(MessageEvent event) {
+        final Message message = event.getMessage();
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (message.getTargetType() == ConversationType.single){
+                if (message.getTargetType() == ConversationType.single) {
 
                     UserInfo userInfo = (UserInfo) message.getTargetInfo();
-                    String targetId = userInfo.getUserName() ;
-                    String targetAppkey = userInfo.getAppKey() ;
+                    String targetId = userInfo.getUserName();
+                    String targetAppkey = userInfo.getAppKey();
                     Log.d(TAG, "run: msg-single targetId :" + targetId + "  targetAppkey :" + targetAppkey);
 
-                    if (targetAppkey.equals(mTargetAappkey) && targetId.equals(mTargetId)){
-                        Message lastMsg =chatListAdapter.getLastMsg() ;
-                        if (lastMsg != null && lastMsg.getId() != message.getId()){
+                    if (targetAppkey.equals(mTargetAappkey) && targetId.equals(mTargetId)) {
+                        Message lastMsg = chatListAdapter.getLastMsg();
+                        if (lastMsg != null && lastMsg.getId() != message.getId()) {
                             chatListAdapter.addMsgToList(message);
-                        }else {
+                        } else {
                             chatListAdapter.notifyDataSetChanged();
                         }
                     }
-                }else {
+                } else {
                     Toast.makeText(ChatMsgActivity.this, "onEvent 群聊消息尚未处理", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -459,7 +754,7 @@ public class ChatMsgActivity extends BaseActivity implements
                     /**
                      * 走消息发送的逻辑
                      */
-                    sendTextContentMsg(view) ;
+                    sendTextContentMsg(view);
 
                 } else {
                     /**
@@ -510,14 +805,14 @@ public class ChatMsgActivity extends BaseActivity implements
         showSoftInput(view);
     }
 
-    private void sendTextContentMsg(View view){
-        String msgConetnt  = editEmojicon.getText().toString() ;
-        Message msg ;
-        TextContent textContent =new TextContent(msgConetnt) ;
-        msg = conversation.createSendMessage(textContent) ;
+    private void sendTextContentMsg(View view) {
+        String msgConetnt = editEmojicon.getText().toString();
+        Message msg;
+        TextContent textContent = new TextContent(msgConetnt);
+        msg = conversation.createSendMessage(textContent);
         MessageSendingOptions options = new MessageSendingOptions();
         options.setNeedReadReceipt(true);
-        JMessageClient.sendMessage(msg , options);
+        JMessageClient.sendMessage(msg, options);
 //        important : mark receive ....
         chatListAdapter.addMsgFromReceiveToList(msg);
 
@@ -838,7 +1133,6 @@ public class ChatMsgActivity extends BaseActivity implements
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            Log.d(TAG, "onKeyDown: back");
             if (hasFragmentOpen() == true) {
 
                 if (emojiKeyBroadIsOpen) {
@@ -874,9 +1168,9 @@ public class ChatMsgActivity extends BaseActivity implements
                      */
                     chatListAdapter.dropDownRefresh();
                     rlRootLayoutView.getmChatListView().onDropDownComplete();
-                    if (chatMsgActivity.chatListAdapter.ismHasLastPage()){
+                    if (chatMsgActivity.chatListAdapter.ismHasLastPage()) {
                         chatMsgActivity.rlRootLayoutView.getmChatListView().setSelection(chatMsgActivity.chatListAdapter.getmOffSet());
-                    }else {
+                    } else {
                         chatMsgActivity.rlRootLayoutView.getmChatListView().setSelection(0);
                     }
 
@@ -890,7 +1184,6 @@ public class ChatMsgActivity extends BaseActivity implements
             }
         }
     }
-
 
 
     @Override

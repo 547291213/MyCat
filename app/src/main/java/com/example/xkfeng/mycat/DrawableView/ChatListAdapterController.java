@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.ITosast;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -58,6 +59,8 @@ public class ChatListAdapterController {
         mContext = context;
         mActivity = (Activity) context;
         mConversation = conversation;
+
+        this.contentLongClickListener = contentLongClickListener ;
 
         if (conversation.getType() == ConversationType.single) {
             mUserInfo = (UserInfo) conversation.getTargetInfo();
@@ -148,14 +151,22 @@ public class ChatListAdapterController {
                 public void onComplete(int i, String s, File file) {
                     if (i == 0) {
                         ImageView imageView = setPictureScale(jiguang, msg, file.getPath(), viewHolder.picture);
-                        Glide.with(mContext).load(imageView);
+                        Picasso.get().load(file).into(imageView);
 
                     }
                 }
             });
         } else {
             ImageView imageView = setPictureScale(jiguang, msg, path, viewHolder.picture);
-            Glide.with(mContext).load(imageView);
+            /**
+             * 重要问题记录：
+             * 用Glide加载图片会出现：
+             * 图片可以加载，但是当图片的位置被改变当前界面就会异常退出。（引起图片位置改变的原因，1：数据拉动，2系统软件盘的弹出。。）
+             * 用Picasso无BUG 。。。
+             *
+             */
+//            Glide.with(mContext).load(new File(path)).into(imageView);
+            Picasso.get().load(new File(path)).into(imageView);
 
         }
 //        接收图片

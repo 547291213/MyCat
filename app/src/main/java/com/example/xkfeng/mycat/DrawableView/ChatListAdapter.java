@@ -527,6 +527,9 @@ public class ChatListAdapter extends BaseAdapter {
 
 
     private void dealWithTime(ViewHolder viewHolder, Message msg, int position) {
+        if (viewHolder.msgTime == null){
+            return ;
+        }
         long nowDate = msg.getCreateTime();
         if (mOffSet == PAGE_MESSAGE_COUNT) {
 
@@ -557,8 +560,15 @@ public class ChatListAdapter extends BaseAdapter {
 
     private void viewHoldShowTime(ViewHolder viewHolder, long nowDate) {
         TimeUtil timeUtil = new TimeUtil(mContext, nowDate);
-        viewHolder.msgTime.setVisibility(View.VISIBLE);
-        viewHolder.msgTime.setText(timeUtil.getDetailTime());
+        /**
+         * 消息撤回之后，该msgTime为null
+         * 不处理界面异常退出
+         */
+        if (viewHolder.msgTime != null) {
+            viewHolder.msgTime.setVisibility(View.VISIBLE);
+            viewHolder.msgTime.setText(timeUtil.getDetailTime());
+        }
+
     }
 
     private void viewHoldHideTime(ViewHolder viewHolder) {
@@ -593,6 +603,13 @@ public class ChatListAdapter extends BaseAdapter {
 
     private void headImgClick(ViewHolder viewHolder, final Message msg, int position) {
 
+        /**
+         * 当消息撤回之后，headIcon == null ，
+         * 不处理程序会异常退出
+         */
+        if (viewHolder.headIcon == null) {
+            return;
+        }
         viewHolder.headIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -605,7 +622,7 @@ public class ChatListAdapter extends BaseAdapter {
                     intent.putExtra(StaticValueHelper.TARGET_ID, userInfo.getUserName());
                     intent.putExtra(StaticValueHelper.TARGET_APP_KEY, userInfo.getAppKey());
                     intent.putExtra(StaticValueHelper.GROUP_ID, groupId);
-                    intent.putExtra(StaticValueHelper.IS_FRIEDN , userInfo.isFriend()) ;
+                    intent.putExtra(StaticValueHelper.IS_FRIEDN, userInfo.isFriend());
                     intent.setClass(mContext, FriendInfoActivity.class);
 
                     ((Activity) mContext).startActivityForResult(intent, StaticValueHelper.REQUET_CODE_FRIEND_INFO);
@@ -632,7 +649,7 @@ public class ChatListAdapter extends BaseAdapter {
                      * 当前作为发送方，发送消息后，
                      * ll_businessCard为null，加载布局报nullPointerException
                      */
-                    if (holder.ll_businessCard != null){
+                    if (holder.ll_businessCard != null) {
                         holder.ll_businessCard.setVisibility(View.GONE);
                     }
                     holder.txtContent.setVisibility(View.VISIBLE);
@@ -671,7 +688,8 @@ public class ChatListAdapter extends BaseAdapter {
 
     private void msgReceiptionSituation(ViewHolder viewHolder, Message msg) {
 
-        if (msg.getDirect() == MessageDirect.send && !msg.getContentType().equals(ContentType.custom) && !msg.getContentType().equals(ContentType.custom)) {
+        if (msg.getDirect() == MessageDirect.send && !msg.getContentType().equals(ContentType.custom) &&
+                !msg.getContentType().equals(ContentType.custom )&& viewHolder.text_receipt != null) {
 
             if (msg.getUnreceiptCnt() == 0) {
                 if (msg.getTargetType() == ConversationType.group) {

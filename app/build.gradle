@@ -106,6 +106,9 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.8.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
 
+    //picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
     //html
     implementation 'org.sufficientlysecure:html-textview:3.6'
 
@@ -159,6 +162,7 @@ dependencies {
 
     //photo View
     implementation 'com.github.chrisbanes:PhotoView:2.0.0'
+
 
 
 }
