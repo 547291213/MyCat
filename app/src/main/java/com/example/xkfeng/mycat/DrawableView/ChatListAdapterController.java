@@ -2,8 +2,10 @@ package com.example.xkfeng.mycat.DrawableView;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -34,6 +36,9 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
+import top.zibin.luban.CompressionPredicate;
+import top.zibin.luban.Luban;
+import top.zibin.luban.OnCompressListener;
 
 public class ChatListAdapterController {
 
@@ -148,16 +153,16 @@ public class ChatListAdapterController {
 
             imageContent.downloadThumbnailImage(msg, new DownloadCompletionCallback() {
                 @Override
-                public void onComplete(int i, String s, File file) {
+                public void onComplete(int i, String s, final File file) {
                     if (i == 0) {
-                        ImageView imageView = setPictureScale(jiguang, msg, file.getPath(), viewHolder.picture);
+                        final ImageView imageView = setPictureScale(jiguang, msg, file.getPath(), viewHolder.picture);
                         Picasso.get().load(file).into(imageView);
-
+                        Log.d("Chat", "onComplete: 从服务器加载图片");
                     }
                 }
             });
         } else {
-            ImageView imageView = setPictureScale(jiguang, msg, path, viewHolder.picture);
+            final ImageView imageView = setPictureScale(jiguang, msg, path, viewHolder.picture);
             /**
              * 重要问题记录：
              * 用Glide加载图片会出现：
@@ -165,10 +170,9 @@ public class ChatListAdapterController {
              * 用Picasso无BUG 。。。
              *
              */
-//            Glide.with(mContext).load(new File(path)).into(imageView);
             Picasso.get().load(new File(path)).into(imageView);
-
         }
+
 //        接收图片
         if (msg.getDirect() == MessageDirect.receive) {
             //群聊中显示昵称
@@ -209,13 +213,7 @@ public class ChatListAdapterController {
             }
             // 发送图片方，直接加载缩略图
         } else {
-//            try {
-//                setPictureScale(path, viewHolder.picture);
-//                Picasso.with(mContext).load(new File(path)).into(viewHolder.picture);
-//            } catch (NullPointerException e) {
-//                Picasso.with(mContext).load(IdHelper.getDrawable(mContext, "jmui_picture_not_found"))
-//                        .into(viewHolder.picture);
-//            }
+
             //检查状态
             switch (msg.getStatus()) {
                 case created:
@@ -392,8 +390,8 @@ public class ChatListAdapterController {
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(path, opts);
-
-
+        //原图质量的10分之一
+        opts.inSampleSize = 10;
         //计算图片缩放比例
         double imageWidth = opts.outWidth;
         double imageHeight = opts.outHeight;

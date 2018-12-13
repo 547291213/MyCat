@@ -34,7 +34,7 @@ public class ChatListView extends ListView implements OnScrollListener {
 
     private boolean isDropDownStyle = true;
     private Context context;
-    private static final int PAGE_MESSAGE_COUNT = 15;
+    private static final int PAGE_MESSAGE_COUNT = 12;
 
     /**
      * header layout view

@@ -50,6 +50,7 @@ public class FriendInvitationDao {
                 new String[]{mUserName}, null, null, null);
         getDataList(cursor , list , state) ;
         cursor.close();
+        cursor = null ;
 
         return list;
     }
@@ -70,6 +71,7 @@ public class FriendInvitationDao {
 
         getDataList(cursor , list , state);
         cursor.close();
+        cursor = null ;
         return list ;
 
     }
@@ -148,6 +150,8 @@ public class FriendInvitationDao {
                     FriendInvitationSql.ID + " = ? " ,new String[]{String.valueOf(id)}) ;
 
         }
+        cursor.close();
+        cursor = null ;
 
         return flag ;
     }

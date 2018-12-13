@@ -6,8 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.media.MediaExtractor;
+import android.os.Handler;
+import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -21,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -44,6 +48,7 @@ import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import com.example.xkfeng.mycat.Activity.ChatMsgActivity;
 import com.example.xkfeng.mycat.Activity.FriendInfoActivity;
 import com.example.xkfeng.mycat.Activity.GroupNotFriendActivity;
 import com.example.xkfeng.mycat.Activity.IsFirstActivity;
@@ -100,7 +105,7 @@ public class ChatListAdapter extends BaseAdapter {
     private int mWidth;
     private Conversation mConversation;
     private List<Message> mMsgList = new ArrayList<>();
-    public static final int PAGE_MESSAGE_COUNT = 15;
+    public static final int PAGE_MESSAGE_COUNT = 12;
     private int mOffSet = PAGE_MESSAGE_COUNT;
     private int positionOfFirstMsg = 0;
     private Queue<Message> mImgMsgQueue = new LinkedList<>();
@@ -108,6 +113,12 @@ public class ChatListAdapter extends BaseAdapter {
     private boolean mHasLastPage = false;
     private ContentLongClickListener mLongClickListener;
     private ChatListAdapterController mController;
+
+
+
+    private Bitmap myHeaderBitmap = null;
+    private Bitmap yourHeaderBitmap = null;
+
 
     public ChatListAdapter(Activity activity, Conversation conversation, ContentLongClickListener contentLongClickListener) {
         this.mActivity = activity;
@@ -499,16 +510,15 @@ public class ChatListAdapter extends BaseAdapter {
         }
 
         if (viewHolder != null) {
+
             dealWithTime(viewHolder, msg, position);
-            showHeadImage(viewHolder, msg);
-            headImgClick(viewHolder, msg, position);
-            processVariousMsg(viewHolder, msg, position);
             /**
-             * 有趣的BUG ，
-             * 注释掉该方法后：
-             *
+             * 测试暂无问题
              */
+            showHeadImage(viewHolder, msg);
+            processVariousMsg(viewHolder, msg, position);
             msgReceiptionSituation(viewHolder, msg);
+
 
         }
         return convertView;
@@ -527,13 +537,13 @@ public class ChatListAdapter extends BaseAdapter {
 
 
     private void dealWithTime(ViewHolder viewHolder, Message msg, int position) {
-        if (viewHolder.msgTime == null){
-            return ;
+        if (viewHolder.msgTime == null) {
+            return;
         }
         long nowDate = msg.getCreateTime();
         if (mOffSet == PAGE_MESSAGE_COUNT) {
 
-            if (position == 0 || position % 18 == 0) {
+            if (position == 0 || position % PAGE_MESSAGE_COUNT == 0) {
                 viewHoldShowTime(viewHolder, nowDate);
             } else {
                 long lastDate = mMsgList.get(position - 1).getCreateTime();
@@ -544,7 +554,7 @@ public class ChatListAdapter extends BaseAdapter {
                 }
             }
         } else {
-            if (position == 0 || (position - mOffSet) % 18 == 0) {
+            if (position == 0 || (position - mOffSet) % PAGE_MESSAGE_COUNT == 0) {
                 viewHoldShowTime(viewHolder, nowDate);
             } else {
                 long lastDate = mMsgList.get(position - 1).getCreateTime();
@@ -572,7 +582,9 @@ public class ChatListAdapter extends BaseAdapter {
     }
 
     private void viewHoldHideTime(ViewHolder viewHolder) {
-        viewHolder.msgTime.setVisibility(View.GONE);
+        if (viewHolder.msgTime != null) {
+            viewHolder.msgTime.setVisibility(View.GONE);
+        }
     }
 
     private void showHeadImage(final ViewHolder viewHolder, Message msg) {
@@ -580,23 +592,55 @@ public class ChatListAdapter extends BaseAdapter {
             return;
         }
         final UserInfo userInfo = msg.getFromUser();
-        if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
+        /**
+         * 如果我是消息的发送方
+         */
+        if (msg.getDirect() == MessageDirect.send) {
+            if (myHeaderBitmap == null) {
+                if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
 
-            userInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
-                @Override
-                public void gotResult(int i, String s, Bitmap bitmap) {
-                    switch (i) {
-                        case 0:
-                            viewHolder.headIcon.setImageBitmap(bitmap);
-                            break;
-                        default:
-                            HandleResponseCode.onHandle(mContext, i);
-                            break;
-                    }
+                    userInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
+                        @Override
+                        public void gotResult(int i, String s, Bitmap bitmap) {
+                            switch (i) {
+                                case 0:
+                                    myHeaderBitmap = bitmap;
+                                    break;
+                                default:
+                                    myHeaderBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.log);
+                                    break;
+                            }
+                        }
+                    });
+                } else {
+                    myHeaderBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.log);
                 }
-            });
-        } else {
-            viewHolder.headIcon.setImageResource(R.mipmap.log);
+            }
+
+            viewHolder.headIcon.setImageBitmap(myHeaderBitmap);
+
+        }else {
+            if (yourHeaderBitmap == null) {
+                if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
+
+                    userInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
+                        @Override
+                        public void gotResult(int i, String s, Bitmap bitmap) {
+                            switch (i) {
+                                case 0:
+                                    yourHeaderBitmap = bitmap;
+                                    break;
+                                default:
+                                    yourHeaderBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.log);
+                                    break;
+                            }
+                        }
+                    });
+                } else {
+                    yourHeaderBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.log);
+                }
+            }
+            viewHolder.headIcon.setImageBitmap(yourHeaderBitmap);
         }
 
     }
@@ -658,6 +702,7 @@ public class ChatListAdapter extends BaseAdapter {
                 break;
             case image:
                 mController.handleImgMessage(holder, msg, position);
+
                 break;
             case file:
                 FileContent fileContent = (FileContent) msg.getContent();
@@ -689,7 +734,7 @@ public class ChatListAdapter extends BaseAdapter {
     private void msgReceiptionSituation(ViewHolder viewHolder, Message msg) {
 
         if (msg.getDirect() == MessageDirect.send && !msg.getContentType().equals(ContentType.custom) &&
-                !msg.getContentType().equals(ContentType.custom )&& viewHolder.text_receipt != null) {
+                !msg.getContentType().equals(ContentType.custom) && viewHolder.text_receipt != null) {
 
             if (msg.getUnreceiptCnt() == 0) {
                 if (msg.getTargetType() == ConversationType.group) {
@@ -846,6 +891,20 @@ public class ChatListAdapter extends BaseAdapter {
 
         if (holder.contentLl != null) {
 
+        }
+    }
+
+
+    public void setMyHeaderBitmap(Bitmap bitmap){
+
+        if (bitmap != null){
+            myHeaderBitmap = bitmap ;
+        }
+    }
+
+    public void setYourHeaderBitmap(Bitmap bitmap){
+        if(bitmap != null){
+            yourHeaderBitmap = bitmap ;
         }
     }
 

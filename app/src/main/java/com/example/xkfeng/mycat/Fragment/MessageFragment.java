@@ -258,6 +258,16 @@ public class MessageFragment extends Fragment {
 
         for (Conversation conversation : conversationList) {
             jPushMessageInfo = new JPushMessageInfo();
+            /**
+             * 当删除的消息是最后一条消息的时候，
+             * conversation.getLastestMessage()的数据为null
+             * 那么当前的对话消息就不再显示
+             *
+             */
+            if(conversation.getLatestMessage() == null){
+
+                break ;
+            }
             if (conversation.getLatestMessage().getContent().getContentType() == ContentType.prompt) {
                 jPushMessageInfo.setContent(((PromptContent) conversation.getLatestMessage().getContent()).getPromptText());
             } else {
@@ -267,10 +277,10 @@ public class MessageFragment extends Fragment {
                     jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_image));
                 } else if (conversation.getLatestMessage().getContentType() == ContentType.file) {
                     jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_file));
-                } else if (conversation.getLatestMessage().getContentType() == ContentType.location) {
-                    jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_location));
                 } else if (conversation.getLatestMessage().getContentType() == ContentType.voice) {
                     jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_voice));
+                } else if (conversation.getLatestMessage().getContentType() == ContentType.location) {
+                    jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_location));
                 } else {
                     jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_custom));
                 }
@@ -466,6 +476,7 @@ public class MessageFragment extends Fragment {
                         Intent intent = new Intent();
                         intent.setClass(getContext(), ChatMsgActivity.class);
                         intent.putExtra(StaticValueHelper.USER_NAME, data.getUserName());
+                        intent.putExtra(StaticValueHelper.TARGET_HEADER_IMG , data.getImg()) ;
                         intent.putExtra(StaticValueHelper.TARGET_ID ,data.getUserName()) ; //data.getConversation().getTargetId()
                         intent.putExtra(StaticValueHelper.TARGET_APP_KEY , data.getConversation().getTargetAppKey()) ; //data.getConversation().getTargetAppKey()
                         startActivityForResult(intent, REQUEST_CHATMESSAGE);

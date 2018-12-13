@@ -787,4 +787,18 @@ public class LoginActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (lists != null){
+
+            lists = null ;
+        }
+        if (mapList != null){
+            mapList = null ;
+        }
+
+        System.gc();
+    }
 }

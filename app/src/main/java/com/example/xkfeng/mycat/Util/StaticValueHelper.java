@@ -16,6 +16,8 @@ public class StaticValueHelper {
 
     public static final String IS_FRIEDN = "isFriend" ;
 
+    public static final String TARGET_HEADER_IMG = "targetHeaderImg" ;
+
 
     public static final  int REQUET_CODE_FRIEND_INFO = 1 ;
 

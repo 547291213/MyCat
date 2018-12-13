@@ -4,10 +4,14 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IInterface;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.text.Editable;
@@ -145,6 +149,7 @@ public class ChatMsgActivity extends BaseActivity implements
 
     private String mTargetId;
     private String mTargetAappkey;
+    private String targetHeaderImg ;
 
     /**
      * 针对消息的类型定制多种长按的弹出式菜单
@@ -160,7 +165,9 @@ public class ChatMsgActivity extends BaseActivity implements
 
     private ClipboardManager clipboardManager;
     private ClipData clipData;
-    private String pasteData = "";
+
+    private Bitmap myHeaderBitmap ;
+    private Bitmap yourHeaderBitmap ;
 
 
     //    【A】stateUnspecified：软键盘的状态并没有指定，系统将选择一个合适的状态或依赖于主题的设置
@@ -180,8 +187,10 @@ public class ChatMsgActivity extends BaseActivity implements
 
         JMessageClient.registerEventReceiver(this);
 
+
         mTargetId = getIntent().getStringExtra(StaticValueHelper.TARGET_ID);
         mTargetAappkey = getIntent().getStringExtra(StaticValueHelper.TARGET_APP_KEY);
+        targetHeaderImg = getIntent().getStringExtra(StaticValueHelper.TARGET_HEADER_IMG) ;
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN |
                 WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
@@ -191,6 +200,8 @@ public class ChatMsgActivity extends BaseActivity implements
 
         initTitleView();
         initInputView();
+        setMyHeaderBitmap() ;
+        setYourHeaderBitmap();
         initMessageView();
         initMenuPopupLayout();
     }
@@ -252,6 +263,24 @@ public class ChatMsgActivity extends BaseActivity implements
 
     }
 
+
+    private void setMyHeaderBitmap(){
+        UserInfo userInfo = JMessageClient.getMyInfo() ;
+        if (userInfo != null && userInfo.getAvatarFile()!=null){
+            myHeaderBitmap = BitmapFactory.decodeFile(userInfo.getAvatarFile().toString()) ;
+        }else {
+            myHeaderBitmap = BitmapFactory.decodeResource(getResources() , R.mipmap.log) ;
+        }
+    }
+
+    private void setYourHeaderBitmap(){
+        if (!TextUtils.isEmpty(targetHeaderImg)){
+            yourHeaderBitmap = BitmapFactory.decodeFile(targetHeaderImg) ;
+        }else {
+            yourHeaderBitmap = BitmapFactory.decodeResource(getResources() , R.mipmap.log) ;
+        }
+    }
+
     /**
      * 初始化消息列表
      */
@@ -259,17 +288,21 @@ public class ChatMsgActivity extends BaseActivity implements
         conversation = JMessageClient.getSingleConversation(getIntent().getStringExtra("userName"));
         if (conversation == null) {
             conversation = Conversation.createSingleConversation(getIntent().getStringExtra("userName"));
-            Log.d(TAG, "initMessageView: conversion is null ");
         }
         if (conversation != null) {
             chatListAdapter = new ChatListAdapter(ChatMsgActivity.this, conversation, longClickListener);
+            chatListAdapter.setYourHeaderBitmap(yourHeaderBitmap);
+            chatListAdapter.setMyHeaderBitmap(myHeaderBitmap);
+
+
             rlRootLayoutView.init();
             rlRootLayoutView.setChatListAadapter(chatListAdapter);
+            rlRootLayoutView.getmChatListView().setSecondPositionVisible();
             rlRootLayoutView.getmChatListView().setOnDropDownListener(new ChatListView.OnDropDownListener() {
                 @Override
                 public void onDropDown() {
 
-                    uiHandler.sendEmptyMessageAtTime(REFRESH_LAST_PAGE, 1000);
+                    uiHandler.sendEmptyMessageDelayed(REFRESH_LAST_PAGE, 1200);
                 }
             });
             rlRootLayoutView.getmChatListView().setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -409,8 +442,7 @@ public class ChatMsgActivity extends BaseActivity implements
                         break;
 
                     case 1:
-
-                        Toast.makeText(ChatMsgActivity.this, "文本转发", Toast.LENGTH_SHORT).show();
+                        msgForwarding(msg) ;
                         break;
 
                     case 2:
@@ -448,7 +480,7 @@ public class ChatMsgActivity extends BaseActivity implements
                         break;
 
                     case 1:
-                        Toast.makeText(ChatMsgActivity.this, "文本转发", Toast.LENGTH_SHORT).show();
+                        msgForwarding(msg) ;
                         break;
 
                     case 2:
@@ -486,7 +518,7 @@ public class ChatMsgActivity extends BaseActivity implements
             public void itemClick(View view, int position) {
                 switch (position) {
                     case 0:
-                        Toast.makeText(ChatMsgActivity.this, "其他转发", Toast.LENGTH_SHORT).show();
+                        msgForwarding(msg) ;
                         break;
 
                     case 1:
@@ -520,7 +552,7 @@ public class ChatMsgActivity extends BaseActivity implements
                 switch (position) {
                     case 0:
 
-                        Toast.makeText(ChatMsgActivity.this, "其他转发", Toast.LENGTH_SHORT).show();
+                        msgForwarding(msg) ;
                         break;
 
                     case 1:
@@ -548,6 +580,16 @@ public class ChatMsgActivity extends BaseActivity implements
         ITosast.showShort(this, "复制成功").show();
 
 
+    }
+
+    /**
+     * 消息转发
+     * 任意数据通用
+     * @param msg
+     */
+    private void msgForwarding(Message msg){
+        Intent intent = new Intent(ChatMsgActivity.this , ForwardingActivity.class) ;
+        startActivity(intent);
     }
 
     /**
@@ -587,6 +629,8 @@ public class ChatMsgActivity extends BaseActivity implements
         chatListAdapter.deleteMessage(msg);
         ITosast.showShort(ChatMsgActivity.this , "消息删除成功").show();
     }
+
+
 
 
     /**
@@ -1190,7 +1234,14 @@ public class ChatMsgActivity extends BaseActivity implements
     protected void onDestroy() {
         super.onDestroy();
         JMessageClient.unRegisterEventReceiver(this);
-    }
+        if (messageList != null){
+            messageList = null ;
+        }
+        if (conversation != null){
+            conversation = null ;
+        }
+        System.gc();
+}
 
     /**
      * 废弃

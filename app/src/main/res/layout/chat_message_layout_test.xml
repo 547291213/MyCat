@@ -39,6 +39,7 @@
         android:scrollingCache="true"
         android:smoothScrollbar="true"
         android:transcriptMode="normal"
+        android:descendantFocusability="blocksDescendants"
         >
 
     </com.example.xkfeng.mycat.DrawableView.ChatListView>

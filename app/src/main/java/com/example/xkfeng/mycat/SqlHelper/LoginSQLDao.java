@@ -69,6 +69,7 @@ public class LoginSQLDao {
         }
         //释放资源
         cursor.close();
+        cursor = null ;
         return list;
 
     }
@@ -126,7 +127,11 @@ public class LoginSQLDao {
             Log.d(TAG, "insertDataERROR: ");
 
             e.printStackTrace();
+        }finally {
+            cursor.close();
+            cursor = null ;
         }
+
     }
 
     /**
@@ -154,6 +159,7 @@ public class LoginSQLDao {
              }
         }
         cursor.close();
+        cursor = null ;
     }
 
 
@@ -172,6 +178,7 @@ public class LoginSQLDao {
 
         }
         cursor.close();
+        cursor = null ;
 
     }
 
@@ -189,6 +196,7 @@ public class LoginSQLDao {
         boolean flag = cursor.moveToNext();
         //Close cursor
         cursor.close();
+        cursor = null ;
         return flag;
     }
 
@@ -223,6 +231,7 @@ public class LoginSQLDao {
 
 
         cursor.close();
+        cursor = null ;
 
         return flag;
     }

@@ -914,5 +914,7 @@ public class IndexActivity extends BaseActivity {
 
         super.onDestroy();
 
+        System.gc();
+
     }
 }
