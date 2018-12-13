@@ -1,22 +1,42 @@
 package com.example.xkfeng.mycat.Activity;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.xkfeng.mycat.Model.ForwardingFriendInfo;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.RecyclerDefine.EmptyRecyclerView;
+import com.example.xkfeng.mycat.RecyclerDefine.QucikAdapterWrapter;
+import com.example.xkfeng.mycat.RecyclerDefine.QuickAdapter;
 import com.example.xkfeng.mycat.Util.DensityUtil;
+import com.example.xkfeng.mycat.Util.DialogHelper;
+import com.example.xkfeng.mycat.Util.ITosast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.enums.ConversationType;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.UserInfo;
 
 public class ForwardingActivity extends BaseActivity {
 
@@ -28,12 +48,20 @@ public class ForwardingActivity extends BaseActivity {
     LinearLayout llTitleLayout;
     @BindView(R.id.et_searchEdit)
     TextView etSearchEdit;
-    @BindView(R.id.lv_recentMsgList)
-    ListView lvRecentMsgList;
+
     @BindView(R.id.ll_groupLayout)
     LinearLayout llGroupLayout;
+    @BindView(R.id.erv_recentMsgList)
+    EmptyRecyclerView ervRecentMsgList;
+    @BindView(R.id.tv_messageEmptyView)
+    TextView tvMessageEmptyView ;
 
     private DisplayMetrics metrics;
+
+    private QuickAdapter<ForwardingFriendInfo> quickAdapter ;
+    private QucikAdapterWrapter<ForwardingFriendInfo> qucikAdapterWrapter ;
+    private List<ForwardingFriendInfo> forwardingFriendInfoList ;
+    private List<Conversation> conversationList ;
 
 
     @Override
@@ -54,6 +82,10 @@ public class ForwardingActivity extends BaseActivity {
     private void initView() {
         initIndexTitleLayout();
         initSearchEdit();
+        initData() ;
+        initQuickAdapter();
+        initWrapterAndRecycler();
+
     }
 
 
@@ -73,15 +105,86 @@ public class ForwardingActivity extends BaseActivity {
 
     private void initSearchEdit() {
         Drawable left = getResources().getDrawable(R.drawable.searcher);
-        left.setBounds(metrics.widthPixels / 2 - DensityUtil.dip2px(this, 10 + 14 * 2), 0,
-                50 + metrics.widthPixels / 2 - DensityUtil.dip2px(this, 10 + 14 * 2), 30);
+        left.setBounds(metrics.widthPixels / 2 - DensityUtil.dip2px(this, 10 + 14 * 2) - 5, 0,
+                50 + metrics.widthPixels / 2 - DensityUtil.dip2px(this, 10 + 14 * 2) - 5, 30);
 //        Log.d(TAG, "setEtSearchEdit: " + metrics.widthPixels);
         etSearchEdit.setCompoundDrawablePadding(-left.getIntrinsicWidth() / 2 + 5);
         etSearchEdit.setCompoundDrawables(left, null, null, null);
         etSearchEdit.setAlpha((float) 0.6);
     }
 
-    @OnClick({R.id.tv_setBackText, R.id.et_searchEdit ,R.id.ll_groupLayout})
+
+    private void initData(){
+
+        forwardingFriendInfoList = new ArrayList<>() ;
+        conversationList = new ArrayList<>() ;
+        conversationList = JMessageClient.getConversationList() ;
+        for (Conversation conversation : conversationList){
+           UserInfo userInfo = (UserInfo) conversation.getTargetInfo();
+           ForwardingFriendInfo friendInfo = new ForwardingFriendInfo() ;
+           if (conversation.getType() == ConversationType.group){
+               friendInfo.setUserName(conversation.getTitle());
+           }else {
+               if (!TextUtils.isEmpty(userInfo.getNotename())){
+                   friendInfo.setUserName(userInfo.getNotename());
+               }else if (!TextUtils.isEmpty(userInfo.getNickname())){
+                   friendInfo.setUserName(userInfo.getNickname());
+               }else {
+                   friendInfo.setUserName(userInfo.getUserName());
+               }
+
+           }
+               if (userInfo.getAvatarFile()!= null && userInfo != null){
+               friendInfo.setHeaderBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().getAbsolutePath()));
+           }else {
+               friendInfo.setHeaderBitmap(BitmapFactory.decodeResource(getResources() , R.mipmap.log));
+           }
+           forwardingFriendInfoList.add(friendInfo) ;
+        }
+
+    }
+
+    private void initQuickAdapter(){
+        quickAdapter = new QuickAdapter<ForwardingFriendInfo>(forwardingFriendInfoList) {
+            @Override
+            public int getLayoutId(int viewType) {
+                return R.layout.item_contract;
+            }
+
+            @Override
+            public void convert(VH vh, final ForwardingFriendInfo data, final int position) {
+                View.OnClickListener listener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        Dialog dialog  = DialogHelper.createForwardingDialog(ForwardingActivity.this ,ForwardingActivity.this,
+                                data.getUserName() , (UserInfo) conversationList.get(position).getTargetInfo()
+                                , true ) ;
+                        dialog.show();
+                    }
+                } ;
+                ((ImageView)vh.getView(R.id.iv_headIcon)).setImageBitmap(data.getHeaderBitmap());
+                ((TextView)vh.getView(R.id.tv_name)).setText(data.getUserName());
+                vh.getView(R.id.ll_contractLayout).setOnClickListener(listener);
+
+            }
+
+        };
+    }
+
+    private void initWrapterAndRecycler(){
+        qucikAdapterWrapter = new QucikAdapterWrapter<>(quickAdapter) ;
+        View addView = LayoutInflater.from(this).inflate(R.layout.ad_item_layout, null);
+        qucikAdapterWrapter.setAdView(addView);
+
+        ervRecentMsgList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        ervRecentMsgList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        ervRecentMsgList.setItemAnimator(new DefaultItemAnimator());
+        ervRecentMsgList.setmEmptyView(tvMessageEmptyView);
+        ervRecentMsgList.setAdapter(qucikAdapterWrapter);
+    }
+
+    @OnClick({R.id.tv_setBackText, R.id.et_searchEdit, R.id.ll_groupLayout})
     public void onItemClick(View view) {
         switch (view.getId()) {
             case R.id.tv_setBackText:
@@ -94,13 +197,26 @@ public class ForwardingActivity extends BaseActivity {
                 Toast.makeText(this, "Search", Toast.LENGTH_SHORT).show();
                 break;
 
-            case R.id.ll_groupLayout :
+            case R.id.ll_groupLayout:
 
-                Intent intent = new Intent(ForwardingActivity.this , GroupListActivity.class) ;
+                Intent intent = new Intent(ForwardingActivity.this, GroupListActivity.class);
                 startActivity(intent);
-                break ;
+                break;
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (conversationList != null){
+            conversationList = null ;
+        }
+        if (forwardingFriendInfoList != null){
+            forwardingFriendInfoList = null ;
+        }
+
+        System.gc();
+    }
 
 }

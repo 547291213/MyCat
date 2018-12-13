@@ -76,7 +76,7 @@
             android:layout_height="40dp"
             android:src="@drawable/ic_group_green_48"
             android:scaleType="centerInside"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="14dp"
 
             />
 
@@ -97,16 +97,32 @@
         android:text="最近聊天"
         android:paddingLeft="10dp"
         android:textSize="16sp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="4dp"
         />
-
-    <ListView
-        android:id="@+id/lv_recentMsgList"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@id/et_searchEdit">
 
+        <com.example.xkfeng.mycat.RecyclerDefine.EmptyRecyclerView
+            android:id="@+id/erv_recentMsgList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </com.example.xkfeng.mycat.RecyclerDefine.EmptyRecyclerView>
 
-    </ListView>
+        <TextView
+            android:id="@+id/tv_messageEmptyView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:text="暂无会话消息"
+            android:textSize="20sp"
+            android:textStyle="italic" />
+
+    </FrameLayout>
+
 
 </LinearLayout>

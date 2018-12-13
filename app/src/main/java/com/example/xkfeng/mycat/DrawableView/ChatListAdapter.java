@@ -513,9 +513,11 @@ public class ChatListAdapter extends BaseAdapter {
 
             dealWithTime(viewHolder, msg, position);
             /**
-             * 测试暂无问题
+             * TODO :
+             *       测试暂无问题
              */
             showHeadImage(viewHolder, msg);
+            headImgClick(viewHolder , msg , position);
             processVariousMsg(viewHolder, msg, position);
             msgReceiptionSituation(viewHolder, msg);
 

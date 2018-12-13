@@ -588,6 +588,8 @@ public class ChatMsgActivity extends BaseActivity implements
      * @param msg
      */
     private void msgForwarding(Message msg){
+        BaseActivity.forwardMsg.clear();
+        BaseActivity.forwardMsg.add(msg) ;
         Intent intent = new Intent(ChatMsgActivity.this , ForwardingActivity.class) ;
         startActivity(intent);
     }

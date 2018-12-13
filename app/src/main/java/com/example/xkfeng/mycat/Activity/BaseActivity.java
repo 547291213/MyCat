@@ -25,10 +25,14 @@ import com.example.xkfeng.mycat.Util.DialogHelper;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.UserAutoLoginHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.jpush.android.api.BasicPushNotificationBuilder;
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.event.LoginStateChangeEvent;
+import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 
 import static cn.jpush.im.android.api.event.LoginStateChangeEvent.Reason.user_logout;
@@ -46,6 +50,8 @@ public class BaseActivity extends AppCompatActivity {
     private static boolean isFirst = true;
 
     private Dialog forceOfflineDialog;
+
+    public static List<Message> forwardMsg = new ArrayList<>() ;
 
 
     @Override
