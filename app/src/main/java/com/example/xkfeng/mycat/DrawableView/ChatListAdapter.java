@@ -48,6 +48,7 @@ import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.Activity.ChatMsgActivity;
 import com.example.xkfeng.mycat.Activity.FriendInfoActivity;
 import com.example.xkfeng.mycat.Activity.GroupNotFriendActivity;
@@ -117,8 +118,6 @@ public class ChatListAdapter extends BaseAdapter {
 
 
     private Bitmap myHeaderBitmap = null;
-    private Bitmap yourHeaderBitmap = null;
-
 
     public ChatListAdapter(Activity activity, Conversation conversation, ContentLongClickListener contentLongClickListener) {
         this.mActivity = activity;
@@ -593,58 +592,15 @@ public class ChatListAdapter extends BaseAdapter {
         if (viewHolder.headIcon == null) {
             return;
         }
+
         final UserInfo userInfo = msg.getFromUser();
-        /**
-         * 如果我是消息的发送方
-         */
-        if (msg.getDirect() == MessageDirect.send) {
-            if (myHeaderBitmap == null) {
-                if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
 
-                    userInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
-                        @Override
-                        public void gotResult(int i, String s, Bitmap bitmap) {
-                            switch (i) {
-                                case 0:
-                                    myHeaderBitmap = bitmap;
-                                    break;
-                                default:
-                                    myHeaderBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.log);
-                                    break;
-                            }
-                        }
-                    });
-                } else {
-                    myHeaderBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.log);
-                }
-            }
-
+        if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
+            viewHolder.headIcon.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().toString()));
+        } else {
+            myHeaderBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.log);
             viewHolder.headIcon.setImageBitmap(myHeaderBitmap);
-
-        }else {
-            if (yourHeaderBitmap == null) {
-                if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
-
-                    userInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
-                        @Override
-                        public void gotResult(int i, String s, Bitmap bitmap) {
-                            switch (i) {
-                                case 0:
-                                    yourHeaderBitmap = bitmap;
-                                    break;
-                                default:
-                                    yourHeaderBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.log);
-                                    break;
-                            }
-                        }
-                    });
-                } else {
-                    yourHeaderBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.log);
-                }
-            }
-            viewHolder.headIcon.setImageBitmap(yourHeaderBitmap);
         }
-
     }
 
     private void headImgClick(ViewHolder viewHolder, final Message msg, int position) {
@@ -893,20 +849,6 @@ public class ChatListAdapter extends BaseAdapter {
 
         if (holder.contentLl != null) {
 
-        }
-    }
-
-
-    public void setMyHeaderBitmap(Bitmap bitmap){
-
-        if (bitmap != null){
-            myHeaderBitmap = bitmap ;
-        }
-    }
-
-    public void setYourHeaderBitmap(Bitmap bitmap){
-        if(bitmap != null){
-            yourHeaderBitmap = bitmap ;
         }
     }
 

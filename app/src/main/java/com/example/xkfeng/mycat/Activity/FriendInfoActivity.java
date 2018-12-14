@@ -24,6 +24,7 @@ import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.UserInfoScrollView;
 import com.example.xkfeng.mycat.Fragment.MessageFragment;
+import com.example.xkfeng.mycat.Model.FriendInfo;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.DialogHelper;
@@ -125,6 +126,28 @@ public class FriendInfoActivity extends BaseActivity {
                 if (isFriend){
 
                     //走发送消息的流程
+
+                    String titleName = null ;
+                    if ((!TextUtils.isEmpty(mUserInfo.getNotename()))){
+                        titleName = mUserInfo.getNotename() ;
+                    }
+                    //其次选择备注名称
+                    else if (!TextUtils.isEmpty(mUserInfo.getNickname())){
+                        titleName = mUserInfo.getNickname() ;
+                    }
+                    /**
+                     * 最后选择用户名
+                     */
+                    else {
+                        titleName = mUserInfo.getUserName() ;
+                    }
+
+                    Intent intent = new Intent() ;
+                    intent.putExtra(StaticValueHelper.USER_NAME , mUserInfo.getUserName()) ;
+                    intent.putExtra(StaticValueHelper.TARGET_ID , mUserInfo.getUserName()) ;
+                    intent.putExtra(StaticValueHelper.CHAT_MSG_TITLE , titleName) ;
+                    intent.setClass(FriendInfoActivity.this, ChatMsgActivity.class) ;
+                    startActivity(intent);
                 }else {
                     //添加好友的流程
                     Intent intent1 = new Intent() ;
@@ -293,12 +316,12 @@ public class FriendInfoActivity extends BaseActivity {
                                     "unknown" : TimeUtil.ms2date("yyyy-MM-dd", userInfo.getBirthday()).toString());
                             tvUserInfoUserCity.setText(StringUtil.isEmpty(userInfo.getAddress().toString()) == true ? "unknown" : userInfo.getAddress().toString());
                             tvUserInfoUserLastUpdate.setText("上次活动：" + TimeUtil.unix2Date("yyyy-MM-dd HH:mm", userInfo.getmTime()));
-                            tvUserNikeName.setText(StringUtil.isEmpty(userInfo.getNickname().toString()) == true ? "~快取个昵称吧！" : userInfo.getNickname().toString());
+                            tvUserNikeName.setText(StringUtil.isEmpty(userInfo.getNickname().toString()) == true ? "~还没有昵称呢！" : userInfo.getNickname().toString());
                             tvUserInfoUserName.setText(userInfo.getUserName().toString());
                             if (!StringUtil.isEmpty(userInfo.getSignature().toString())) {
                                 tvSignatureTextView.setText(userInfo.getSignature().toString());
                             } else {
-                                tvSignatureTextView.setText("还没有个性签名呢，快些一个吧");
+                                tvSignatureTextView.setText("不是一般的懒，连个性签名都没有！");
                             }
                             if (userInfo.getAvatar() != null && !StringUtil.isEmpty(userInfo.getAvatarFile().toString())) {
                                 //  circleImageView.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatar()));

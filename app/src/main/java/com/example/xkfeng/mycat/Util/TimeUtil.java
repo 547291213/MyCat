@@ -137,9 +137,9 @@ public class TimeUtil {
         switch (diffTimeValue) {
             case 0 :
                 if (Integer.parseInt(oldHour) > AT_MOON){
-                    return mContext.getResources().getString(R.string.afternoon) + " " + oldHour + ":" + oldM ;
+                    return mContext.getResources().getString(R.string.afternoon) + " " + oldHour + ":" + oldMinutes ;
                 }else {
-                    return mContext.getResources().getString(R.string.morning) + " " + oldHour + ":" + oldM ;
+                    return mContext.getResources().getString(R.string.morning) + " " + oldHour + ":" + oldMinutes ;
 
                 }
             case 1:

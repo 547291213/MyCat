@@ -148,7 +148,6 @@ public class ChatMsgActivity extends BaseActivity implements
 
     private String mTargetId;
     private String mTargetAappkey;
-    private String targetHeaderImg;
     private String chatMsgTitle ;
 
     /**
@@ -165,9 +164,6 @@ public class ChatMsgActivity extends BaseActivity implements
 
     private ClipboardManager clipboardManager;
     private ClipData clipData;
-
-    private Bitmap myHeaderBitmap;
-    private Bitmap yourHeaderBitmap;
 
 
     //    【A】stateUnspecified：软键盘的状态并没有指定，系统将选择一个合适的状态或依赖于主题的设置
@@ -190,7 +186,6 @@ public class ChatMsgActivity extends BaseActivity implements
 
         mTargetId = getIntent().getStringExtra(StaticValueHelper.TARGET_ID);
         mTargetAappkey = getIntent().getStringExtra(StaticValueHelper.TARGET_APP_KEY);
-        targetHeaderImg = getIntent().getStringExtra(StaticValueHelper.TARGET_HEADER_IMG);
         chatMsgTitle = getIntent().getStringExtra(StaticValueHelper.CHAT_MSG_TITLE) ;
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN |
@@ -201,8 +196,6 @@ public class ChatMsgActivity extends BaseActivity implements
 
         initIndexTitleLayout();
         initInputView();
-        setMyHeaderBitmap();
-        setYourHeaderBitmap();
         initMessageView();
         initMenuPopupLayout();
     }
@@ -242,37 +235,16 @@ public class ChatMsgActivity extends BaseActivity implements
 
     }
 
-
-    private void setMyHeaderBitmap() {
-        UserInfo userInfo = JMessageClient.getMyInfo();
-        if (userInfo != null && userInfo.getAvatarFile() != null) {
-            myHeaderBitmap = BitmapFactory.decodeFile(userInfo.getAvatarFile().toString());
-        } else {
-            myHeaderBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.log);
-        }
-    }
-
-    private void setYourHeaderBitmap() {
-        if (!TextUtils.isEmpty(targetHeaderImg)) {
-            yourHeaderBitmap = BitmapFactory.decodeFile(targetHeaderImg);
-        } else {
-            yourHeaderBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.log);
-        }
-    }
-
     /**
      * 初始化消息列表
      */
     private void initMessageView() {
-        conversation = JMessageClient.getSingleConversation(getIntent().getStringExtra("userName"));
+        conversation = JMessageClient.getSingleConversation(getIntent().getStringExtra(StaticValueHelper.USER_NAME));
         if (conversation == null) {
-            conversation = Conversation.createSingleConversation(getIntent().getStringExtra("userName"));
+            conversation = Conversation.createSingleConversation(getIntent().getStringExtra(StaticValueHelper.USER_NAME));
         }
         if (conversation != null) {
             chatListAdapter = new ChatListAdapter(ChatMsgActivity.this, conversation, longClickListener);
-            chatListAdapter.setYourHeaderBitmap(yourHeaderBitmap);
-            chatListAdapter.setMyHeaderBitmap(myHeaderBitmap);
-
 
             rlRootLayoutView.init();
             rlRootLayoutView.setChatListAadapter(chatListAdapter);

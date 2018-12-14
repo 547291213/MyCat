@@ -7,19 +7,47 @@
     android:background="@color/lighter_gray"
     android:orientation="vertical">
 
-    <com.example.xkfeng.mycat.DrawableView.IndexTitleLayout
-        android:id="@+id/indexTitleLayout"
+    <LinearLayout
+        android:id="@+id/ll_titleLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="visible"
-        app:leftBackground="@drawable/back_white"
-        app:middleText="好友设置"
-        app:middleTextColor="@color/white"
-        app:layoutBackground="@drawable/title_gradient"
+        android:background="@color/light_red"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp">
 
-        ></com.example.xkfeng.mycat.DrawableView.IndexTitleLayout>
+        <TextView
+            android:id="@+id/tv_setBackText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="2"
+            android:drawableLeft="@drawable/ic_back_white_16"
+            android:gravity="left|center_vertical"
+            android:text="返回"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
 
+        <TextView
+            android:id="@+id/tv_intoAboutUs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:gravity="center_vertical"
+            android:text="MyCat"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
 
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/iv_intoAboutUs"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_gravity="right|center_vertical"
+            android:layout_marginRight="8dp"
+            android:src="@mipmap/log" />
+
+    </LinearLayout>
     <RelativeLayout
         android:id="@+id/rl_noteNameLayout"
         android:layout_width="match_parent"

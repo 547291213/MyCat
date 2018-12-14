@@ -43,6 +43,7 @@ android {
             //说明so的路径为该libs路径，关联所有地图SDK的so文件
         }
     }
+
 }
 
 dependencies {
@@ -162,6 +163,11 @@ dependencies {
 
     //photo View
     implementation 'com.github.chrisbanes:PhotoView:2.0.0'
+
+
+    //effect load image
+    // 存在冲突
+//    implementation 'com.github.wangjiegulu:ImageLoaderSample:1.0.1'
 
 
 

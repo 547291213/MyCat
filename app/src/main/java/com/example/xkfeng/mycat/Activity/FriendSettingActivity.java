@@ -31,12 +31,12 @@ import butterknife.OnClick;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.UserInfo;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class FriendSettingActivity extends BaseActivity {
 
     private static final String TAG = "FriendSettingActivity";
-    @BindView(R.id.indexTitleLayout)
-    IndexTitleLayout indexTitleLayout;
+
     @BindView(R.id.tv_nodeName)
     TextView tvNodeName;
     @BindView(R.id.rl_noteNameLayout)
@@ -49,6 +49,14 @@ public class FriendSettingActivity extends BaseActivity {
     LinearLayout rlAddBlackListLayout;
     @BindView(R.id.bt_deleteFriendBtn)
     Button btDeleteFriendBtn;
+    @BindView(R.id.tv_setBackText)
+    TextView tvSetBackText;
+    @BindView(R.id.tv_intoAboutUs)
+    TextView tvIntoAboutUs;
+    @BindView(R.id.iv_intoAboutUs)
+    CircleImageView ivIntoAboutUs;
+    @BindView(R.id.ll_titleLayout)
+    LinearLayout llTitleLayout;
 
     private String userName;
     private String noteName;
@@ -65,6 +73,8 @@ public class FriendSettingActivity extends BaseActivity {
         setContentView(R.layout.friend_setting_layout);
         ButterKnife.bind(this);
 
+        userName = getIntent().getStringExtra(StaticValueHelper.USER_NAME);
+
         initView();
     }
 
@@ -78,46 +88,18 @@ public class FriendSettingActivity extends BaseActivity {
 
     }
 
-
     /**
      * 设置顶部标题栏相关属性
      */
     private void setIndexTitleLayout() {
-
         //沉浸式状态栏
         DensityUtil.fullScreen(this);
-
 //        设置内边距
 //        其中left right bottom都用现有的
 //        top设置为现在的topPadding+状态栏的高度
 //        表现为将indexTitleLayout显示的数据放到状态栏下面
-        indexTitleLayout.setPadding(indexTitleLayout.getPaddingLeft(),
-                indexTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(this),
-                indexTitleLayout.getPaddingRight(),
-                indexTitleLayout.getPaddingBottom());
-
-
-//        设置点击事件监听
-        indexTitleLayout.setTitleItemClickListener(new IndexTitleLayout.TitleItemClickListener() {
-            @Override
-            public void leftViewClick(View view) throws Exception {
-                /**
-                 * 退出当前Activity
-                 */
-
-                finish();
-            }
-
-            @Override
-            public void middleViewClick(View view) {
-
-            }
-
-            @Override
-            public void rightViewClick(View view) {
-
-            }
-        });
+        llTitleLayout.setPadding(llTitleLayout.getPaddingLeft(), llTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(this),
+                llTitleLayout.getPaddingRight(), llTitleLayout.getPaddingBottom());
     }
 
     private void initData() {
@@ -125,7 +107,6 @@ public class FriendSettingActivity extends BaseActivity {
         loadingDialog = DialogHelper.createLoadingDialog(FriendSettingActivity.this, "正在加载");
         loadingDialog.show();
 
-        userName = getIntent().getStringExtra(StaticValueHelper.USER_NAME);
         if (TextUtils.isEmpty(userName)) {
             ITosast.showShort(FriendSettingActivity.this, "获取用户名失败").show();
             return;
@@ -220,8 +201,8 @@ public class FriendSettingActivity extends BaseActivity {
 
             case R.id.rl_noteNameLayout:
 
-                if (TextUtils.isEmpty(userName)){
-                    return ;
+                if (TextUtils.isEmpty(userName)) {
+                    return;
                 }
 
                 if (mFriendInfo != null && mFriendInfo.isFriend()) {
@@ -229,13 +210,26 @@ public class FriendSettingActivity extends BaseActivity {
                 } else {
                     Toast.makeText(this, "当前用户还不是您的好友 , 备注将不能成功设置", Toast.LENGTH_SHORT).show();
                 }
-                Intent intent = new Intent(FriendSettingActivity.this , SetNoteNameActivity.class);
-                String data = TextUtils.isEmpty(noteName) ? userName : noteName ;
-                intent.putExtra(StaticValueHelper.NOTENAME , data);
-                intent.putExtra(StaticValueHelper.USER_NAME , userName) ;
+                Intent intent = new Intent(FriendSettingActivity.this, SetNoteNameActivity.class);
+                String data = TextUtils.isEmpty(noteName) ? userName : noteName;
+                intent.putExtra(StaticValueHelper.NOTENAME, data);
+                intent.putExtra(StaticValueHelper.USER_NAME, userName);
                 startActivityForResult(intent, ACTIVITY_REQUEST_SET_NOTENAME);
 
                 break;
+
+            case R.id.tv_setBackText :
+
+                finish();
+                break ;
+
+            case R.id.tv_intoAboutUs :
+            case R.id.iv_intoAboutUs :
+
+                Intent intent1 = new Intent() ;
+                intent1.setClass(FriendSettingActivity.this , AboutActivity.class) ;
+                startActivity(intent1);
+                break ;
         }
     }
 
@@ -245,8 +239,9 @@ public class FriendSettingActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case ACTIVITY_REQUEST_SET_NOTENAME:
-                if (requestCode == RESULT_OK && data!= null && !TextUtils.isEmpty(data.getStringExtra(StaticValueHelper.NOTENAME))){
-                    tvNodeName.setText(data.getStringExtra(StaticValueHelper.NOTENAME)); ;
+                if (resultCode == RESULT_OK && data != null && !TextUtils.isEmpty(data.getStringExtra(StaticValueHelper.NOTENAME))) {
+                    tvNodeName.setText(data.getStringExtra(StaticValueHelper.NOTENAME));
+                    ;
                 }
                 break;
 

@@ -2,22 +2,62 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="142dp"
+    android:background="@color/deep_white"
+    android:layout_marginTop="3dp"
+    android:layout_marginBottom="3dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
 
     >
 
     <ImageView
         android:id="@+id/iv_adItemImage"
-        android:layout_width="match_parent"
-        android:layout_height="142dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="7dp"
         android:layout_marginBottom="7dp"
-        android:background="@drawable/btn_state_drawable"
-        android:src="@drawable/ad"
+        android:src="@drawable/ic_ad_yellow_128"
         android:scaleType="fitCenter"
 
         />
+
+    <TextView
+        android:id="@+id/tv_adSpeak"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="22sp"
+        android:layout_toRightOf="@id/iv_adItemImage"
+        android:layout_alignTop="@id/iv_adItemImage"
+        android:text="广告说"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/black"
+
+        />
+
+    <TextView
+        android:id="@+id/tv_adText1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/tv_adSpeak"
+        android:textSize="18sp"
+        android:layout_below="@id/tv_adSpeak"
+        android:layout_marginTop="5dp"
+        android:text="我眼中最好的广告"
+        />
+
+    <TextView
+        android:id="@+id/tv_adText2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/tv_adSpeak"
+        android:textSize="18sp"
+        android:layout_below="@id/tv_adText1"
+        android:layout_marginTop="5dp"
+        android:text="等待你的加盟"
+        />
+
     <TextView
         android:id="@+id/tv_adItemText"
         android:layout_width="wrap_content"
@@ -27,7 +67,7 @@
         android:textStyle="italic"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:textColor="@color/white"
+        android:textColor="@color/darker_gray"
         android:layout_marginRight="10dp"
         android:layout_marginBottom="11dp"
         />

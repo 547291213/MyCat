@@ -80,7 +80,7 @@ public class SetNoteNameActivity extends BaseActivity {
                     public void gotResult(int i, String s, UserInfo userInfo) {
                         switch (i) {
                             case 0:
-                                userInfo.updateNoteName(getIntent().getStringExtra(StaticValueHelper.NOTENAME), new BasicCallback() {
+                                userInfo.updateNoteName(etSetNoteNameEdit.getText().toString(), new BasicCallback() {
                                     @Override
                                     public void gotResult(int i, String s) {
                                         switch (i) {

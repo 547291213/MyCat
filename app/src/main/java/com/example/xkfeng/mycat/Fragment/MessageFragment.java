@@ -202,6 +202,9 @@ public class MessageFragment extends Fragment {
         srlMessageRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                if (handler == null) {
+                    handler = new Handler();
+                }
                 //刷新数据
                 handler.post(new Runnable() {
                     @Override
@@ -226,11 +229,11 @@ public class MessageFragment extends Fragment {
                 @Override
                 public void run() {
                     initData();
-                    handler.postDelayed(this, 2000);
+                    handler.postDelayed(this, 3000);
                 }
             };
         }
-        handler.postDelayed(runnable, 2000);
+        handler.postDelayed(runnable, 3000);
     }
 
 
@@ -245,8 +248,10 @@ public class MessageFragment extends Fragment {
 
         conversationList = JMessageClient.getConversationList();
 
-        if (conversationList == null){
-            conversationList = new ArrayList<>()  ;
+
+        if (conversationList == null) {
+            Log.d(TAG, "initData: conversation is null");
+            conversationList = new ArrayList<>();
         }
         redPointViewHelperList = new ArrayList<>(conversationList.size());
 
@@ -264,39 +269,45 @@ public class MessageFragment extends Fragment {
              * 那么当前的对话消息就不再显示
              *
              */
-            if(conversation.getLatestMessage() == null){
 
-                break ;
-            }
-            if (conversation.getLatestMessage().getContent().getContentType() == ContentType.prompt) {
-                jPushMessageInfo.setContent(((PromptContent) conversation.getLatestMessage().getContent()).getPromptText());
-            } else {
-                if (conversation.getLatestMessage().getContentType() == ContentType.text) {
-                    jPushMessageInfo.setContent(((TextContent) conversation.getLatestMessage().getContent()).getText());
-                } else if (conversation.getLatestMessage().getContentType() == ContentType.image) {
-                    jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_image));
-                } else if (conversation.getLatestMessage().getContentType() == ContentType.file) {
-                    jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_file));
-                } else if (conversation.getLatestMessage().getContentType() == ContentType.voice) {
-                    jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_voice));
-                } else if (conversation.getLatestMessage().getContentType() == ContentType.location) {
-                    jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_location));
+            if (conversation.getLatestMessage() != null) {
+                Log.d(TAG, "initData: message size " + conversation.getAllMessage().size() + " id" + conversation.getId() + " targetId :" + conversation.getTargetId());
+                if (conversation.getLatestMessage().getContent().getContentType() == ContentType.prompt) {
+                    jPushMessageInfo.setContent(((PromptContent) conversation.getLatestMessage().getContent()).getPromptText());
                 } else {
-                    jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_custom));
-                }
+                    if (conversation.getLatestMessage().getContentType() == ContentType.text) {
+                        jPushMessageInfo.setContent(((TextContent) conversation.getLatestMessage().getContent()).getText());
+                    } else if (conversation.getLatestMessage().getContentType() == ContentType.image) {
+                        jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_image));
+                    } else if (conversation.getLatestMessage().getContentType() == ContentType.file) {
+                        jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_file));
+                    } else if (conversation.getLatestMessage().getContentType() == ContentType.voice) {
+                        jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_voice));
+                    } else if (conversation.getLatestMessage().getContentType() == ContentType.location) {
+                        jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_location));
+                    } else {
+                        jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_custom));
+                    }
 
+                }
+                //规范化时间
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+                jPushMessageInfo.setTime("Time " + sdf.format(conversation.getLatestMessage().getCreateTime()));
+
+            } else {
+                jPushMessageInfo.setContent("【消息】");
+                jPushMessageInfo.setTime("时间未知");
             }
+
             jPushMessageInfo.setMsgID(conversation.getId()); //消息ID
             //消息用户名默认设置为备注的名称，如果没有备注，则设置为用户名
             String msgTitleName = TextUtils.isEmpty(((UserInfo) conversation.getTargetInfo()).getNotename()) ? (((UserInfo) conversation.getTargetInfo()).getUserName()) :
-                    ((UserInfo)conversation.getTargetInfo()).getNotename() ;
+                    ((UserInfo) conversation.getTargetInfo()).getNotename();
             jPushMessageInfo.setUserName(msgTitleName);//用户名
             jPushMessageInfo.setUnReadCount(conversation.getUnReadMsgCnt() + "");//当前会话未读消息数
             jPushMessageInfo.setTitle(conversation.getTitle()); //标题
 
-            //规范化时间
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-            jPushMessageInfo.setTime("Time " + sdf.format(conversation.getLatestMessage().getCreateTime()));
+
             //设置会话
             jPushMessageInfo.setConversation(conversation);
             //获取会话发送方的头像，没有则设置为默认头像
@@ -371,14 +382,14 @@ public class MessageFragment extends Fragment {
                             public void onRedViewClickDown() {
                                 if (handler != null) {
                                     handler.removeCallbacks(runnable);
+                                    handler = null;
                                 }
                             }
 
                             @Override
                             public void onRedViewCLickUp() {
-                                if (handler != null) {
-                                    handler.postDelayed(runnable, 1000);
-                                }
+                                handler = new Handler();
+                                handler.postDelayed(runnable, 1000);
                             }
                         });
                 if (TextUtils.isEmpty(data.getImg())) {
@@ -395,6 +406,29 @@ public class MessageFragment extends Fragment {
                 } else {
                     ((ListSlideView) vh.getView(R.id.listlide)).setMarkReadViewText(false);
                 }
+
+                /**
+                 * 滑动消息栏是否打开的接口回调
+                 * 使用原因：
+                 *   因为加载会话列表是个定时任务，会不停的定时调用，
+                 *   那么任何和该布局有修改的地方都应该先停止定时任务，在修改完成后恢复
+                 */
+                ((ListSlideView) vh.getView(R.id.listlide)).setSlideViewIsOpenListener(new ListSlideView.SlideViewIsOpenListener() {
+                    @Override
+                    public void isOpen(boolean isOpen) {
+                        if (isOpen) {
+                            if (handler != null) {
+                                handler.removeCallbacks(runnable);
+                                handler = null;
+                            }
+                        } else {
+
+                            handler = new Handler();
+                            handler.postDelayed(runnable, 1000);
+
+                        }
+                    }
+                });
                 /**
                  * 滑动消息栏点击事件实现
                  */
@@ -436,11 +470,16 @@ public class MessageFragment extends Fragment {
                     @Override
                     public void contentViewLongClick(View view) {
 
+                        if (handler != null) {
+                            handler.removeCallbacks(runnable);
+                            handler = null;
+                        }
                         /**
                          * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
                          * 由于contentView还未绘制，这时候的width、height都是0。
                          * 因此需要通过measure测量出contentView的大小，才能进行计算。
                          */
+
                         popupMenuLayout_CONTENT.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getWidth()),
                                 DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT.getHeight()));
 
@@ -463,6 +502,10 @@ public class MessageFragment extends Fragment {
                                 }
                                 //实现点击消失
                                 popupMenuLayout_CONTENT.dismiss();
+
+                                handler = new Handler();
+                                handler.postDelayed(runnable, 1000);
+
                             }
                         });
                     }
@@ -475,11 +518,10 @@ public class MessageFragment extends Fragment {
                          */
                         Intent intent = new Intent();
                         intent.setClass(getContext(), ChatMsgActivity.class);
-                        intent.putExtra(StaticValueHelper.CHAT_MSG_TITLE , data.getTitle()) ;
+                        intent.putExtra(StaticValueHelper.CHAT_MSG_TITLE, data.getTitle());
                         intent.putExtra(StaticValueHelper.USER_NAME, data.getUserName());
-                        intent.putExtra(StaticValueHelper.TARGET_HEADER_IMG , data.getImg()) ;
-                        intent.putExtra(StaticValueHelper.TARGET_ID ,data.getUserName()) ; //data.getConversation().getTargetId()
-                        intent.putExtra(StaticValueHelper.TARGET_APP_KEY , data.getConversation().getTargetAppKey()) ; //data.getConversation().getTargetAppKey()
+                        intent.putExtra(StaticValueHelper.TARGET_ID, data.getUserName()); //data.getConversation().getTargetId()
+                        intent.putExtra(StaticValueHelper.TARGET_APP_KEY, data.getConversation().getTargetAppKey()); //data.getConversation().getTargetAppKey()
                         startActivityForResult(intent, REQUEST_CHATMESSAGE);
 
                     }
@@ -507,8 +549,8 @@ public class MessageFragment extends Fragment {
  */
     private void setEtSearchEdit() {
         Drawable left = getResources().getDrawable(R.drawable.searcher);
-        left.setBounds(metrics.widthPixels / 2 - DensityUtil.dip2px(mContext, 10 + 14 * 2), 0,
-                50 + metrics.widthPixels / 2 - DensityUtil.dip2px(mContext, 10 + 14 * 2), 30);
+        left.setBounds(metrics.widthPixels / 2 - DensityUtil.dip2px(mContext, 10 + 14 * 2) - 5, 0,
+                50 + metrics.widthPixels / 2 - DensityUtil.dip2px(mContext, 10 + 14 * 2) - 5, 30);
 //        Log.d(TAG, "setEtSearchEdit: " + metrics.widthPixels);
         etSearchEdit.setCompoundDrawablePadding(-left.getIntrinsicWidth() / 2 + 5);
         etSearchEdit.setCompoundDrawables(left, null, null, null);
@@ -637,6 +679,20 @@ public class MessageFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+        if (conversationList != null){
+            conversationList = null ;
+        }
+        if (jPushMessageInfoList != null){
+            jPushMessageInfoList = null  ;
+        }
+        if (redPointViewHelperList != null){
+            redPointViewHelperList = null ;
+        }
+        if (handler != null){
+            handler = null ;
+        }
+        System.gc();
+
     }
 
 

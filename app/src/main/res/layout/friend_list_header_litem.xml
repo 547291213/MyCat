@@ -8,7 +8,7 @@
     <TextView
         android:id="@+id/et_searchEdit"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="28dp"
         android:layout_margin="5dp"
         android:background="@color/lighter_gray"
         android:gravity="center"
@@ -16,6 +16,12 @@
         android:paddingBottom="2dp"
         android:text="搜索"
         android:textSize="16sp"
+
+        />
+
+    <include
+        android:id="@+id/ad_layout"
+        layout="@layout/ad_item_layout"
 
         />
 
@@ -29,17 +35,11 @@
         android:orientation="horizontal">
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
-            android:gravity="center"
-            android:layout_marginRight="5dp"
-            android:drawableLeft="@drawable/ic_validation_gray_16"
             android:drawableRight="@drawable/bigger"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
             android:text="验证消息"
-            android:textSize="18sp" />
+            style="@style/friend_list_header_text_style"
+
+            />
 
         <include
             android:id="@+id/redpoint_view_message"
@@ -70,18 +70,10 @@
         android:orientation="horizontal">
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="5dp"
-            android:drawableLeft="@drawable/ic_group_black_16"
-            android:gravity="center"
-            android:drawableRight="@drawable/bigger"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:text="群组"
-            android:textSize="18sp"
 
+            android:drawableRight="@drawable/bigger"
+            android:text="群组"
+            style="@style/friend_list_header_text_style"
             />
 
     </LinearLayout>

@@ -84,6 +84,7 @@ public class ListSlideView extends HorizontalScrollView {
 
     //自定义接口，将事件传递出去
     private SlideViewClickListener slideViewClickListener;
+    private SlideViewIsOpenListener slideViewIsOpenListener ;
 
 
     private static final String TAG = "ListSlideView";
@@ -285,6 +286,13 @@ public class ListSlideView extends HorizontalScrollView {
             this.smoothScrollTo(0, 0);
             isOpen = false;
         }
+        if (slideViewIsOpenListener != null){
+            if (getScrollX() > 0){
+                slideViewIsOpenListener.isOpen(true);
+            }else {
+                slideViewIsOpenListener.isOpen(false);
+            }
+        }
     }
 
     /**
@@ -406,6 +414,12 @@ public class ListSlideView extends HorizontalScrollView {
 
     }
 
+    public void setSlideViewIsOpenListener(SlideViewIsOpenListener slideViewIsOpenListener){
+        this.slideViewIsOpenListener = slideViewIsOpenListener ;
+    }
+
+
+
     /**
      * 自定义接口
      */
@@ -422,6 +436,16 @@ public class ListSlideView extends HorizontalScrollView {
         public void contentViewLongClick(View view);
 
         public void contentViewClick(View view);
+    }
+
+    /**
+     * slide view 是否处于打开状态
+     * isOpen = true 打开
+     * isOpen = false 关闭
+     */
+    public interface SlideViewIsOpenListener{
+
+        public void isOpen(boolean isOpen) ;
     }
 
 }

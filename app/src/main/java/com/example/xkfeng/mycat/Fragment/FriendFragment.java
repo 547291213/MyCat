@@ -4,6 +4,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -12,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.SpannableString;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -24,6 +28,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.xkfeng.mycat.Activity.AddFriendActivity;
+import com.example.xkfeng.mycat.Activity.ChatMsgActivity;
+import com.example.xkfeng.mycat.Activity.FriendInfoActivity;
 import com.example.xkfeng.mycat.Activity.FriendValidationActivity;
 import com.example.xkfeng.mycat.Activity.GroupListActivity;
 import com.example.xkfeng.mycat.Activity.IndexActivity;
@@ -44,6 +50,7 @@ import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.HandleResponseCode;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.PinyinUtil;
+import com.example.xkfeng.mycat.Util.StaticValueHelper;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -57,6 +64,7 @@ import cn.jpush.im.android.api.ContactManager;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
 import cn.jpush.im.android.api.event.ContactNotifyEvent;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -79,7 +87,6 @@ public class FriendFragment extends Fragment {
     private Context mContext;
     private String[] goupStrings;
     private static final String TAG = "FriendFragment";
-    private PopupMenuLayout popupMenuLayout_CONTENT;
     private View headerView;
     private View emptyView;
     private FriendListAdapter friendListAdapter;
@@ -105,7 +112,12 @@ public class FriendFragment extends Fragment {
 
     private SharedPreferences sharedPreferences;
 
-    public static final String HAS_NEW_FRIEND_EVENT = "newFriend" ;
+    private DisplayMetrics metrics;
+
+    private PopupMenuLayout popupMenuLayoutFriendManager ;
+    private List<String> friendManagerList ;
+
+    public static final String HAS_NEW_FRIEND_EVENT = "newFriend";
 
 
     @Nullable
@@ -116,6 +128,9 @@ public class FriendFragment extends Fragment {
         unbinder = ButterKnife.bind(this, view);
         mContext = getContext();
         uiHandler = new UIHandler(this);
+
+        metrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
         friendInvitationDao = new FriendInvitationDao(mContext);
         mUserInfo = JMessageClient.getMyInfo();
@@ -129,6 +144,8 @@ public class FriendFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         setIndexTitleLayout();
+
+        initPopupLayout() ;
 
         setFriendInfoList();
 
@@ -181,15 +198,89 @@ public class FriendFragment extends Fragment {
         });
     }
 
+    private void initPopupLayout(){
 
+        friendManagerList = new ArrayList<>() ;
+        friendManagerList.add("好友管理") ;
+        friendManagerList.add("删除");
+        friendManagerList.add("取消") ;
+        popupMenuLayoutFriendManager = new PopupMenuLayout(mContext ,friendManagerList ,PopupMenuLayout.CONTENT_POPUP) ;
+
+    }
 
 
     private void setFriendInfoList() {
         friendInfos = new ArrayList<>();
         setHeaderView();
         setRedpointView();
-        Collections.sort(friendInfos,new PinyinComparator());
+        Collections.sort(friendInfos, new PinyinComparator());
         friendListAdapter = new FriendListAdapter(mContext, friendInfos);
+        friendListAdapter.setOnItemClickListener(new FriendListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position, UserInfo targetUserInfo) {
+
+                /**
+                 * 点击查看好友信息
+                 */
+                ITosast.showShort(mContext , "Item click , user is : " + targetUserInfo.getUserName()).show();
+                Intent intent = new Intent() ;
+                intent.putExtra(StaticValueHelper.TARGET_ID , targetUserInfo.getUserName()) ;
+                intent.putExtra(StaticValueHelper.TARGET_APP_KEY , targetUserInfo.getAppKey()) ;
+                intent.putExtra(StaticValueHelper.IS_FRIEDN , true) ;
+                intent.setClass(getContext() , FriendInfoActivity.class) ;
+                startActivity(intent);
+
+
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position, UserInfo targetUserInfo , int letterViewHeight) {
+                /**
+                 * 长按进行好友的相关管理
+                 * 删除，发送消息
+                 */
+
+                ITosast.showShort(mContext , "Item long click , user is : " + targetUserInfo.getUserName()).show();
+
+                /**
+                 * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
+                 * 由于contentView还未绘制，这时候的width、height都是0。
+                 * 因此需要通过measure测量出contentView的大小，才能进行计算。
+                 */
+
+                popupMenuLayoutFriendManager.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayoutFriendManager.getWidth()),
+                        DensityUtil.makeDropDownMeasureSpec(popupMenuLayoutFriendManager.getHeight()));
+
+                popupMenuLayoutFriendManager.showAsDropDown(view,
+                        DensityUtil.getScreenWidth(mContext) / 2 - popupMenuLayoutFriendManager.getContentView().getMeasuredWidth() / 2
+                        , -view.getHeight() - popupMenuLayoutFriendManager.getContentView().getMeasuredHeight() + letterViewHeight);
+
+                popupMenuLayoutFriendManager.setItemClickListener(new PopupMenuLayout.ItemClickListener() {
+                    @Override
+                    public void itemClick(View view, int pos) {
+                        switch (pos){
+                            case 0 :
+                                ITosast.showShort(mContext , "好友管理").show();
+                                break ;
+
+                            case 1 :
+                                ITosast.showShort(mContext , "删除").show();
+                                break ;
+
+                            case 2 :
+                                /**
+                                 * this is cancle . do nothing
+                                 */
+                                break ;
+
+                        }
+                        popupMenuLayoutFriendManager.dismiss();
+                    }
+                });
+
+
+            }
+        });
 
         lvFriendInfoList.addHeaderView(headerView);
         lvFriendInfoList.setAdapter(friendListAdapter);
@@ -204,7 +295,7 @@ public class FriendFragment extends Fragment {
                 switch (i) {
                     case 0:
                         friendInfos = dataConversion(list);
-                        Collections.sort(friendInfos,new PinyinComparator());
+                        Collections.sort(friendInfos, new PinyinComparator());
                         friendListAdapter.notifyData(friendInfos);
                         break;
 
@@ -261,7 +352,7 @@ public class FriendFragment extends Fragment {
         sharedPreferences = getContext().getSharedPreferences("invitation", Context.MODE_PRIVATE);
 
         boolean isRead = sharedPreferences.getBoolean("isRead", false);
-        int count = friendInvitationDao.getDataCountInState( JMessageClient.getMyInfo().getUserName() , FriendInvitationSql.SATTE_WAIT_PROCESSED);
+        int count = friendInvitationDao.getDataCountInState(JMessageClient.getMyInfo().getUserName(), FriendInvitationSql.SATTE_WAIT_PROCESSED);
         if (count > 0 && !isRead) {
             stickyViewHelper.setRedPointViewText(String.valueOf(count));
             stickyViewHelper.setViewShow();
@@ -289,6 +380,13 @@ public class FriendFragment extends Fragment {
 
         headerView = LayoutInflater.from(mContext).inflate(R.layout.friend_list_header_litem, null, false);
         et_searchEdit = headerView.findViewById(R.id.et_searchEdit);
+        Drawable left = getResources().getDrawable(R.drawable.searcher);
+        left.setBounds(metrics.widthPixels / 2 - DensityUtil.dip2px(mContext, 10 + 16 * 2) - 5, 0,
+                50 + metrics.widthPixels / 2 - DensityUtil.dip2px(mContext, 10 + 16 * 2) - 5, 30);
+//        Log.d(TAG, "setEtSearchEdit: " + metrics.widthPixels);
+        et_searchEdit.setCompoundDrawablePadding(-left.getIntrinsicWidth() / 2 + 5);
+        et_searchEdit.setCompoundDrawables(left, null, null, null);
+        et_searchEdit.setAlpha((float) 0.6);
         et_searchEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -331,20 +429,24 @@ public class FriendFragment extends Fragment {
     private List<FriendInfo> dataConversion(List<UserInfo> userInfoList) {
         List<FriendInfo> friendInfoList = new ArrayList<>();
         //String strs = PinyinUtils.getPingYin("新年好！Hello");
-        String name = "";
+        String name = null ;
+        String title = null ;
         for (UserInfo userInfo : userInfoList) {
             FriendInfo friendInfo = null;
 
             if (TextUtils.isEmpty(userInfo.getNotename())) {
                 if (TextUtils.isEmpty(userInfo.getNickname())) {
-                    name = PinyinUtil.converterToFirstSpell(userInfo.getUserName());
+                    name = PinyinUtil.getPingYin(userInfo.getUserName());
+                    title = userInfo.getUserName() ;
                 } else {
-                    name = PinyinUtil.converterToFirstSpell(userInfo.getNickname());
+                    name = PinyinUtil.getPingYin(userInfo.getNickname());
+                    title = userInfo.getNickname() ;
                 }
             } else {
                 name = PinyinUtil.getPingYin(userInfo.getNotename());
+                title = userInfo.getNotename() ;
             }
-            friendInfo = new FriendInfo(userInfo, name.substring(0, 1));
+            friendInfo = new FriendInfo(userInfo, name.substring(0, 1) , name , title);
             friendInfoList.add(friendInfo);
         }
         return friendInfoList;
@@ -421,13 +523,15 @@ public class FriendFragment extends Fragment {
             }
         }
     }
+
     @Override
     public void onResume() {
         super.onResume();
         notifyFriendListByJpush();
-        initRedpointForInvitationData() ;
+        initRedpointForInvitationData();
         Log.d(TAG, "onResume: ");
     }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

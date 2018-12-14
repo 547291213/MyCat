@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -58,25 +59,8 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (isFirst) {
-            /**
-             * 极光SDK初始化
-             */
-            isFirst = false;
-            JMessageClient.init(getApplicationContext(), true);
-            userAutoLoginHelper = UserAutoLoginHelper.getUserAutoLoginHelper(getApplicationContext());
-            userAutoLoginHelper.setRoaming(true);
 
-
-            /**
-             * 网络框架选择的初始化
-             */
-            HttpHelper.initHttpProcesser(new OkHttpProcesser());
-
-
-        }
-
-        JMessageClient.registerEventReceiver(this);
+//        JMessageClient.registerEventReceiver(this);
         ActivityController.addActivity(this);
     }
 
@@ -87,7 +71,7 @@ public class BaseActivity extends AppCompatActivity {
             receiver = null;
         }
         ActivityController.removeActivity(this);
-        JMessageClient.unRegisterEventReceiver(this);
+//        JMessageClient.unRegisterEventReceiver(this);
         super.onDestroy();
 
     }
@@ -157,16 +141,6 @@ public class BaseActivity extends AppCompatActivity {
         JPushInterface.onPause(this);
 
     }
-
-//    @Override
-//    protected void onStop() {
-//
-//        if (receiver != null) {
-//            unregisterReceiver(receiver);
-//            receiver = null;
-//        }
-//        super.onStop();
-//    }
 
     public class ForceOfflineReceiver extends BroadcastReceiver {
 

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import com.example.xkfeng.mycat.Util.PinyinUtil;
 
 import java.util.List;
 
+import cn.jpush.im.android.api.model.UserInfo;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.internal.operators.observable.ObservableOnErrorNext;
 
@@ -72,7 +74,7 @@ public class FriendListAdapter extends BaseAdapter implements SectionIndexer {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
+    public View getView(final int i, View view, ViewGroup viewGroup) {
         ViewHolder viewHolder = null;
         if (view == null) {
             viewHolder = new ViewHolder();
@@ -88,10 +90,11 @@ public class FriendListAdapter extends BaseAdapter implements SectionIndexer {
         }
 
         int section = getSectionForPosition(i);
+        int height = 0 ;
         if (getPositionForSection(section) == i) {
             viewHolder.tv_letterText.setVisibility(View.VISIBLE);
-
             viewHolder.tv_letterText.setText(friendInfos.get(i).getFirstLetter());
+            height = viewHolder.tv_letterText.getHeight() ;
         } else {
             viewHolder.tv_letterText.setVisibility(View.GONE);
         }
@@ -99,24 +102,16 @@ public class FriendListAdapter extends BaseAdapter implements SectionIndexer {
         if (friendInfos.get(i).getUserInfo().getAvatarFile() != null) {
             Bitmap bitmap = BitmapFactory.decodeFile(friendInfos.get(i).getUserInfo().getAvatarFile().toString());
             viewHolder.iv_friendInfoImg.setImageBitmap(bitmap);
-        }
-
-        String titleName;
-        if (TextUtils.isEmpty(friendInfos.get(i).getUserInfo().getNotename())) {
-            if (TextUtils.isEmpty(friendInfos.get(i).getUserInfo().getNickname())) {
-                titleName = friendInfos.get(i).getUserInfo().getUserName();
-            } else {
-                titleName = friendInfos.get(i).getUserInfo().getNickname();
-            }
         } else {
-            titleName = friendInfos.get(i).getUserInfo().getNotename();
+            viewHolder.iv_friendInfoImg.setImageResource(R.mipmap.log);
         }
-        viewHolder.tv_friendInfoText.setText(titleName);
 
-        if (TextUtils.isEmpty(friendInfos.get(i).getUserInfo().getSignature())) {
+        viewHolder.tv_friendInfoText.setText(friendInfos.get(i).getTitleName());
+
+        if (!TextUtils.isEmpty(friendInfos.get(i).getUserInfo().getSignature())) {
+            viewHolder.tv_friendSinatureText.setText(friendInfos.get(i).getUserInfo().getSignature());
+        } else {
             viewHolder.tv_friendSinatureText.setText("该好友尚未设置个性签名 ， ~~~~~~~~~~~~");
-        } else {
-            viewHolder.tv_friendInfoText.setText(friendInfos.get(i).getUserInfo().getSignature());
         }
 
 
@@ -124,16 +119,17 @@ public class FriendListAdapter extends BaseAdapter implements SectionIndexer {
             @Override
             public void onClick(View view) {
                 if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(view);
+                    onItemClickListener.onItemClick(view, i, friendInfos.get(i).getUserInfo());
                 }
             }
         });
 
+        final int letterViewHeight = height ;
         viewHolder.ll_friendInfoLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
                 if (onItemClickListener != null) {
-                    onItemClickListener.onItemLongClick(view);
+                    onItemClickListener.onItemLongClick(view, i, friendInfos.get(i).getUserInfo() , letterViewHeight);
                 }
                 return true;
             }
@@ -141,7 +137,7 @@ public class FriendListAdapter extends BaseAdapter implements SectionIndexer {
         return view;
     }
 
-    final static class ViewHolder {
+    public final static class ViewHolder {
         LinearLayout ll_friendInfoLayout;
         TextView tv_letterText;
         CircleImageView iv_friendInfoImg;
@@ -176,8 +172,8 @@ public class FriendListAdapter extends BaseAdapter implements SectionIndexer {
     }
 
     public interface OnItemClickListener {
-        public void onItemClick(View view);
+        public void onItemClick(View view, int position, UserInfo targetUserInfo);
 
-        public void onItemLongClick(View view);
+        public void onItemLongClick(View view, int position, UserInfo targetUserInfo ,int letterViewHeight);
     }
 }
