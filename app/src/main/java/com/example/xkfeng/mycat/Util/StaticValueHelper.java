@@ -18,6 +18,8 @@ public class StaticValueHelper {
 
     public static final String TARGET_HEADER_IMG = "targetHeaderImg" ;
 
+    public static final String CHAT_MSG_TITLE = "chatMsgTitle" ;
+
 
     public static final  int REQUET_CODE_FRIEND_INFO = 1 ;
 

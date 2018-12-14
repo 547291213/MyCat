@@ -53,6 +53,9 @@
     <string name="invitation_has_refused">已拒绝</string>
     <string name="invitation_wait_process">待验证</string>
     <string name="invitation_delte">删除</string>
+    <string name="invitation_be_rejected">被拒绝</string>
+    <string name="invitation_be_aggree">已同意</string>
+    <string name="invitation_be_process">待处理</string>
 
 
     <!--chat msg type-->

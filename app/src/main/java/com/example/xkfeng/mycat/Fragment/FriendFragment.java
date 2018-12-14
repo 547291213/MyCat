@@ -372,14 +372,13 @@ public class FriendFragment extends Fragment {
                 stickyViewHelper.setRedPointViewText("" + (Integer.parseInt(redPointData) + 1));
                 stickyViewHelper.setViewShow();
 
-                friendInvitationModel = new FriendInvitationModel();
-
-                friendInvitationModel.setState(FriendInvitationSql.SATTE_WAIT_PROCESSED);
-                friendInvitationModel.setmUserName(mUserInfo.getUserName());
-                friendInvitationModel.setmFromUser(fromUsername);
-                friendInvitationModel.setReason(reason);
-                friendInvitationModel.setFromUserTime(System.currentTimeMillis());
-                friendInvitationDao.insertData(friendInvitationModel);
+//                friendInvitationModel = new FriendInvitationModel();
+//                friendInvitationModel.setState(FriendInvitationSql.SATTE_WAIT_PROCESSED);
+//                friendInvitationModel.setmUserName(mUserInfo.getUserName());
+//                friendInvitationModel.setmFromUser(fromUsername);
+//                friendInvitationModel.setReason(reason);
+//                friendInvitationModel.setFromUserTime(System.currentTimeMillis());
+//                friendInvitationDao.insertData(friendInvitationModel);
                 sharedPreferences.edit().putBoolean("isRead", false).commit();
                 break;
             case invite_accepted://对方接收了你的好友邀请

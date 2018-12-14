@@ -9,7 +9,10 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.xkfeng.mycat.Model.FriendInvitationModel;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.SqlHelper.FriendInvitationDao;
+import com.example.xkfeng.mycat.SqlHelper.FriendInvitationSql;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.StaticValueHelper;
@@ -38,6 +41,9 @@ public class SendFriendRequestActivity extends BaseActivity {
     private boolean isFirend;
     private UserInfo mUserInfo;
 
+    private FriendInvitationModel friendInvitationModel ;
+    private FriendInvitationDao friendInvitationDao ;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,6 +52,7 @@ public class SendFriendRequestActivity extends BaseActivity {
         setContentView(R.layout.send_friend_request_layout);
         ButterKnife.bind(this);
 
+        friendInvitationDao = new FriendInvitationDao(SendFriendRequestActivity.this) ;
         setIndexTitleLayout();
         initData();
         initView();
@@ -101,6 +108,14 @@ public class SendFriendRequestActivity extends BaseActivity {
                     public void gotResult(int i, String s) {
                         switch (i) {
                             case 0:
+                                friendInvitationModel = new FriendInvitationModel();
+
+                                friendInvitationModel.setState(FriendInvitationSql.SATTE_WAIT_PROCESSED);
+                                friendInvitationModel.setmUserName(targetId);
+                                friendInvitationModel.setmFromUser(mUserInfo.getUserName());
+                                friendInvitationModel.setReason(etValidationEdit.getText().toString());
+                                friendInvitationModel.setFromUserTime(System.currentTimeMillis());
+                                friendInvitationDao.insertData(friendInvitationModel);
                                 ITosast.showShort(SendFriendRequestActivity.this , "发送请求成功").show();
                                 break;
 

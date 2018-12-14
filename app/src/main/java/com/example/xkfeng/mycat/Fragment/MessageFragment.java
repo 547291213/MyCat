@@ -475,6 +475,7 @@ public class MessageFragment extends Fragment {
                          */
                         Intent intent = new Intent();
                         intent.setClass(getContext(), ChatMsgActivity.class);
+                        intent.putExtra(StaticValueHelper.CHAT_MSG_TITLE , data.getTitle()) ;
                         intent.putExtra(StaticValueHelper.USER_NAME, data.getUserName());
                         intent.putExtra(StaticValueHelper.TARGET_HEADER_IMG , data.getImg()) ;
                         intent.putExtra(StaticValueHelper.TARGET_ID ,data.getUserName()) ; //data.getConversation().getTargetId()

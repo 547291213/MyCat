@@ -10,6 +10,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.event.ContactNotifyEvent;
 import cn.jpush.im.android.api.model.UserInfo;
 
 public class SendInvitationFragment extends Fragment {
@@ -161,7 +163,7 @@ public class SendInvitationFragment extends Fragment {
                         } else {
                             ((TextView) vh.getView(R.id.tv_meessageTitle)).setText(invitationUserInfo.getNickname());
                         }
-                        if (invitationUserInfo.getAvatarFile() != null && !TextUtils.isEmpty(invitationUserInfo.getAvatarFile().toString())) {
+                        if (invitationUserInfo.getAvatarFile() != null) {
                             ((ImageView) vh.getView(R.id.pciv_messageHeaderImage)).setImageBitmap(BitmapFactory.decodeFile(invitationUserInfo.getAvatarFile().toString()));
                         } else {
                             ((ImageView) vh.getView(R.id.pciv_messageHeaderImage)).setImageResource(R.mipmap.log);
@@ -203,18 +205,19 @@ public class SendInvitationFragment extends Fragment {
 
     private void acceptAndrefuseStateView(final QuickAdapter.VH vh, boolean isAccept) {
         if (isAccept) {
-            ((TextView) vh.getView(R.id.tv_useInValidation)).setText(getContext().getResources().getString(R.string.invitation_has_accept));
+            ((TextView) vh.getView(R.id.tv_useInValidation)).setText(getContext().getResources().getString(R.string.invitation_be_aggree));
             ((TextView) vh.getView(R.id.tv_useInValidation)).setTextColor(getContext().getResources().getColor(R.color.blue));
         } else {
-            ((TextView) vh.getView(R.id.tv_useInValidation)).setText(getContext().getResources().getString(R.string.invitation_has_refused));
+            ((TextView) vh.getView(R.id.tv_useInValidation)).setText(getContext().getResources().getString(R.string.invitation_be_rejected));
             ((TextView) vh.getView(R.id.tv_useInValidation)).setTextColor(getContext().getResources().getColor(R.color.red));
         }
     }
 
     private void waitProcessStateView(final QuickAdapter.VH vh) {
-        ((TextView) vh.getView(R.id.tv_useInValidation)).setText(getContext().getResources().getString(R.string.invitation_wait_process));
+        ((TextView) vh.getView(R.id.tv_useInValidation)).setText(getContext().getResources().getString(R.string.invitation_be_process));
         ((TextView) vh.getView(R.id.tv_useInValidation)).setTextColor(getContext().getResources().getColor(R.color.light_red));
     }
+
 
 
 

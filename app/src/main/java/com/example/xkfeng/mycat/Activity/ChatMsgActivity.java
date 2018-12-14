@@ -1,6 +1,5 @@
 package com.example.xkfeng.mycat.Activity;
 
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -11,7 +10,6 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IInterface;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.text.Editable;
@@ -28,8 +26,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,11 +39,7 @@ import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
 import com.example.xkfeng.mycat.Fragment.AddBoradFragment;
 import com.example.xkfeng.mycat.Fragment.NullBoradFragment;
 import com.example.xkfeng.mycat.Fragment.VoiceBoradFragment;
-import com.example.xkfeng.mycat.Model.Gradle;
-import com.example.xkfeng.mycat.NetWork.HttpHelper;
-import com.example.xkfeng.mycat.NetWork.NetCallBackResultBean;
 import com.example.xkfeng.mycat.R;
-import com.example.xkfeng.mycat.RxBus.RxBus;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.StaticValueHelper;
@@ -54,14 +47,11 @@ import com.example.xkfeng.mycat.Util.StaticValueHelper;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import cn.jpush.im.android.api.ContactManager;
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
@@ -77,14 +67,25 @@ import io.github.rockerhieu.emojicon.EmojiconGridFragment;
 import io.github.rockerhieu.emojicon.EmojiconsFragment;
 import io.github.rockerhieu.emojicon.emoji.Emojicon;
 
-import static com.baidu.mapapi.BMapManager.getContext;
-
 
 public class ChatMsgActivity extends BaseActivity implements
         EmojiconGridFragment.OnEmojiconClickedListener,
         EmojiconsFragment.OnEmojiconBackspaceClickedListener,
         KeyBoradRelativeLayout.KeyBoradStateListener {
 
+
+    @BindView(R.id.tv_setBackText)
+    TextView tvSetBackText;
+    @BindView(R.id.tv_targetUserNameText)
+    TextView tvTargetUserNameText;
+    @BindView(R.id.tv_intoAboutUs)
+    TextView tvIntoAboutUs;
+    @BindView(R.id.iv_intoAboutUs)
+    ImageView ivIntoAboutUs;
+    @BindView(R.id.ll_titleLayout)
+    LinearLayout llTitleLayout;
+    @BindView(R.id.ll_chatBottomLayout)
+    LinearLayout llChatBottomLayout;
 
     enum SendOrAdd {
         send, add
@@ -99,8 +100,6 @@ public class ChatMsgActivity extends BaseActivity implements
     private static final String TAG = "ChatMsgActivity";
     @BindView(R.id.rl_rootLayoutView)
     KeyBoradRelativeLayout rlRootLayoutView;
-    @BindView(R.id.indexTitleLayout)
-    IndexTitleLayout indexTitleLayout;
     @BindView(R.id.editEmojicon)
     EmojiconEditText editEmojicon;
     @BindView(R.id.iv_sendImage)
@@ -149,7 +148,8 @@ public class ChatMsgActivity extends BaseActivity implements
 
     private String mTargetId;
     private String mTargetAappkey;
-    private String targetHeaderImg ;
+    private String targetHeaderImg;
+    private String chatMsgTitle ;
 
     /**
      * 针对消息的类型定制多种长按的弹出式菜单
@@ -166,8 +166,8 @@ public class ChatMsgActivity extends BaseActivity implements
     private ClipboardManager clipboardManager;
     private ClipData clipData;
 
-    private Bitmap myHeaderBitmap ;
-    private Bitmap yourHeaderBitmap ;
+    private Bitmap myHeaderBitmap;
+    private Bitmap yourHeaderBitmap;
 
 
     //    【A】stateUnspecified：软键盘的状态并没有指定，系统将选择一个合适的状态或依赖于主题的设置
@@ -190,7 +190,8 @@ public class ChatMsgActivity extends BaseActivity implements
 
         mTargetId = getIntent().getStringExtra(StaticValueHelper.TARGET_ID);
         mTargetAappkey = getIntent().getStringExtra(StaticValueHelper.TARGET_APP_KEY);
-        targetHeaderImg = getIntent().getStringExtra(StaticValueHelper.TARGET_HEADER_IMG) ;
+        targetHeaderImg = getIntent().getStringExtra(StaticValueHelper.TARGET_HEADER_IMG);
+        chatMsgTitle = getIntent().getStringExtra(StaticValueHelper.CHAT_MSG_TITLE) ;
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN |
                 WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
@@ -198,52 +199,30 @@ public class ChatMsgActivity extends BaseActivity implements
         uiHandler = new UIHandler(this);
         clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 
-        initTitleView();
+        initIndexTitleLayout();
         initInputView();
-        setMyHeaderBitmap() ;
+        setMyHeaderBitmap();
         setYourHeaderBitmap();
         initMessageView();
         initMenuPopupLayout();
     }
 
-    //初始化顶部标题
-    private void initTitleView() {
-
+    /**
+     * 设置顶部标题栏相关属性
+     */
+    private void initIndexTitleLayout() {
         //沉浸式状态栏
         DensityUtil.fullScreen(this);
-
 //        设置内边距
 //        其中left right bottom都用现有的
 //        top设置为现在的topPadding+状态栏的高度
 //        表现为将indexTitleLayout显示的数据放到状态栏下面
-        indexTitleLayout.setPadding(indexTitleLayout.getPaddingLeft(),
-                indexTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(this),
-                indexTitleLayout.getPaddingRight(),
-                indexTitleLayout.getPaddingBottom());
+        llTitleLayout.setPadding(llTitleLayout.getPaddingLeft(), llTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(this),
+                llTitleLayout.getPaddingRight(), llTitleLayout.getPaddingBottom());
 
+        tvTargetUserNameText.setText(chatMsgTitle);
 
-//        设置点击事件监听
-        indexTitleLayout.setTitleItemClickListener(new IndexTitleLayout.TitleItemClickListener() {
-            @Override
-            public void leftViewClick(View view) throws Exception {
-                /**
-                 * 退出当前Activity
-                 */
-                finish();
-            }
-
-            @Override
-            public void middleViewClick(View view) {
-
-            }
-
-            @Override
-            public void rightViewClick(View view) {
-
-            }
-        });
     }
-
 
     /**
      * 初始化输入键盘
@@ -264,20 +243,20 @@ public class ChatMsgActivity extends BaseActivity implements
     }
 
 
-    private void setMyHeaderBitmap(){
-        UserInfo userInfo = JMessageClient.getMyInfo() ;
-        if (userInfo != null && userInfo.getAvatarFile()!=null){
-            myHeaderBitmap = BitmapFactory.decodeFile(userInfo.getAvatarFile().toString()) ;
-        }else {
-            myHeaderBitmap = BitmapFactory.decodeResource(getResources() , R.mipmap.log) ;
+    private void setMyHeaderBitmap() {
+        UserInfo userInfo = JMessageClient.getMyInfo();
+        if (userInfo != null && userInfo.getAvatarFile() != null) {
+            myHeaderBitmap = BitmapFactory.decodeFile(userInfo.getAvatarFile().toString());
+        } else {
+            myHeaderBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.log);
         }
     }
 
-    private void setYourHeaderBitmap(){
-        if (!TextUtils.isEmpty(targetHeaderImg)){
-            yourHeaderBitmap = BitmapFactory.decodeFile(targetHeaderImg) ;
-        }else {
-            yourHeaderBitmap = BitmapFactory.decodeResource(getResources() , R.mipmap.log) ;
+    private void setYourHeaderBitmap() {
+        if (!TextUtils.isEmpty(targetHeaderImg)) {
+            yourHeaderBitmap = BitmapFactory.decodeFile(targetHeaderImg);
+        } else {
+            yourHeaderBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.log);
         }
     }
 
@@ -374,7 +353,7 @@ public class ChatMsgActivity extends BaseActivity implements
     /**
      * 消息长按接口类
      */
-    private ContentLongClickListener longClickListener = new ChatListAdapter.ContentLongClickListener() {
+    private ContentLongClickListener longClickListener = new ContentLongClickListener() {
 
         @Override
         public void onContentLoingClick(int pos, View view) {
@@ -442,11 +421,11 @@ public class ChatMsgActivity extends BaseActivity implements
                         break;
 
                     case 1:
-                        msgForwarding(msg) ;
+                        msgForwarding(msg);
                         break;
 
                     case 2:
-                        msgDelete(msg) ;
+                        msgDelete(msg);
                         break;
 
                 }
@@ -480,11 +459,11 @@ public class ChatMsgActivity extends BaseActivity implements
                         break;
 
                     case 1:
-                        msgForwarding(msg) ;
+                        msgForwarding(msg);
                         break;
 
                     case 2:
-                        msgDelete(msg) ;
+                        msgDelete(msg);
                         break;
 
                     case 3:
@@ -518,11 +497,11 @@ public class ChatMsgActivity extends BaseActivity implements
             public void itemClick(View view, int position) {
                 switch (position) {
                     case 0:
-                        msgForwarding(msg) ;
+                        msgForwarding(msg);
                         break;
 
                     case 1:
-                        msgDelete(msg) ;
+                        msgDelete(msg);
                         break;
 
                 }
@@ -552,11 +531,11 @@ public class ChatMsgActivity extends BaseActivity implements
                 switch (position) {
                     case 0:
 
-                        msgForwarding(msg) ;
+                        msgForwarding(msg);
                         break;
 
                     case 1:
-                        msgDelete(msg) ;
+                        msgDelete(msg);
                         break;
 
                     case 2:
@@ -585,12 +564,13 @@ public class ChatMsgActivity extends BaseActivity implements
     /**
      * 消息转发
      * 任意数据通用
+     *
      * @param msg
      */
-    private void msgForwarding(Message msg){
+    private void msgForwarding(Message msg) {
         BaseActivity.forwardMsg.clear();
-        BaseActivity.forwardMsg.add(msg) ;
-        Intent intent = new Intent(ChatMsgActivity.this , ForwardingActivity.class) ;
+        BaseActivity.forwardMsg.add(msg);
+        Intent intent = new Intent(ChatMsgActivity.this, ForwardingActivity.class);
         startActivity(intent);
     }
 
@@ -607,11 +587,11 @@ public class ChatMsgActivity extends BaseActivity implements
                 switch (i) {
                     case 0:
                         chatListAdapter.backOutMessage(msg);
-                        ITosast.showShort(ChatMsgActivity.this , "消息撤回成功").show();
+                        ITosast.showShort(ChatMsgActivity.this, "消息撤回成功").show();
 
                         break;
                     case 855001:
-                        ITosast.showShort(ChatMsgActivity.this , "发送时间过长，不能撤回").show();
+                        ITosast.showShort(ChatMsgActivity.this, "发送时间过长，不能撤回").show();
                         break;
                     default:
                         Toast.makeText(ChatMsgActivity.this, "发生了未知错误", Toast.LENGTH_SHORT).show();
@@ -624,15 +604,14 @@ public class ChatMsgActivity extends BaseActivity implements
     /**
      * 消息删除
      * 任意数据通用
+     *
      * @param msg
      */
-    private void msgDelete(Message msg){
-        conversation.deleteMessage(msg.getId()) ;
+    private void msgDelete(Message msg) {
+        conversation.deleteMessage(msg.getId());
         chatListAdapter.deleteMessage(msg);
-        ITosast.showShort(ChatMsgActivity.this , "消息删除成功").show();
+        ITosast.showShort(ChatMsgActivity.this, "消息删除成功").show();
     }
-
-
 
 
     /**
@@ -782,7 +761,8 @@ public class ChatMsgActivity extends BaseActivity implements
     }
 
     @OnClick({R.id.iv_sendImage, R.id.iv_chatVoiceImg,
-            R.id.iv_chatEmojiImg, R.id.editEmojicon})
+            R.id.iv_chatEmojiImg, R.id.editEmojicon,
+            R.id.tv_setBackText, R.id.iv_intoAboutUs, R.id.tv_intoAboutUs})
     public void onIvClick(View view) {
 
         /**
@@ -832,6 +812,19 @@ public class ChatMsgActivity extends BaseActivity implements
                     isOpenEmojiBorad(view, true);
                 }
                 break;
+
+            case R.id.tv_setBackText:
+
+                finish();
+                break;
+
+            case R.id.iv_intoAboutUs:
+            case R.id.tv_intoAboutUs:
+
+                Intent intent = new Intent(ChatMsgActivity.this , AboutActivity.class) ;
+                startActivity(intent) ;
+                break;
+
 
         }
     }
@@ -1236,14 +1229,14 @@ public class ChatMsgActivity extends BaseActivity implements
     protected void onDestroy() {
         super.onDestroy();
         JMessageClient.unRegisterEventReceiver(this);
-        if (messageList != null){
-            messageList = null ;
+        if (messageList != null) {
+            messageList = null;
         }
-        if (conversation != null){
-            conversation = null ;
+        if (conversation != null) {
+            conversation = null;
         }
         System.gc();
-}
+    }
 
     /**
      * 废弃
