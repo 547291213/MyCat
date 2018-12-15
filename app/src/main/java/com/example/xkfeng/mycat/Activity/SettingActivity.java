@@ -3,6 +3,7 @@ package com.example.xkfeng.mycat.Activity;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Gravity;
@@ -228,6 +229,10 @@ public class SettingActivity extends BaseActivity {
         final String item2 = "确定修改";
         final String item3 = "取消";
         final BottomDialog dialog = new BottomDialog(SettingActivity.this, item1, item2, item3);
+        dialog.setBackground(Color.WHITE);
+        dialog.setItem1TextColor(1 , Color.BLACK);
+        dialog.setItem1TextColor(2 , Color.BLACK);
+        dialog.setItem1TextColor(3 , Color.BLACK);
         dialog.setItemClickListener(new BottomDialog.ItemClickListener() {
             @Override
             public void onItem1Click(View view) {

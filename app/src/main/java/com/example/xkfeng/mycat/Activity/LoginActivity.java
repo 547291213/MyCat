@@ -186,6 +186,10 @@ public class LoginActivity extends BaseActivity {
         final String item2 = "用手机短信找回";
         final String item3 = "取消";
         final BottomDialog dialog = new BottomDialog(this, item1, item2, item3);
+        dialog.setBackground(Color.WHITE);
+        dialog.setItem1TextColor(1 , Color.BLACK);
+        dialog.setItem1TextColor(2 , Color.BLACK);
+        dialog.setItem1TextColor(3 , Color.BLACK);
         dialog.setItemClickListener(new BottomDialog.ItemClickListener() {
             @Override
             public void onItem1Click(View view) {

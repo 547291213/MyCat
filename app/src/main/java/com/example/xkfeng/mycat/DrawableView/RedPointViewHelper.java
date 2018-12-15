@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.SqlHelper.LoginSQLDao;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 
 import java.sql.SQLTransactionRollbackException;
@@ -46,6 +47,7 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
     private float mFarthestDistance;
     private int mPathColor;
     private TextView redPointView;
+    private boolean isResponseClickEvent = true ;
 
     private RedPointViewReleaseOutRangeListener redPointViewReleaseOutRangeListener ;
 
@@ -67,6 +69,9 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
     @Override
     public boolean onTouch(View v, MotionEvent event) {
 
+        if (!isResponseClickEvent){
+            return false ;
+        }
         int action = event.getAction();
         if (action == MotionEvent.ACTION_DOWN) {
             ViewParent parent = v.getParent();
@@ -119,6 +124,14 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
 
     }
 
+    /**
+     * 设置是否响应点击事件
+     * @param isResponseClickEvent
+     */
+    public void isResponseClickEvent(boolean isResponseClickEvent){
+        this.isResponseClickEvent = isResponseClickEvent ;
+    }
+
 
     /**
      * 初始化StickyView的
@@ -154,6 +167,13 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
      */
     public void setRedPointViewText(String string) {
 
+        /**
+         * 当点击监听接口为空的时候，不显示数据。避免异常
+         */
+//        if (redPointViewReleaseOutRangeListener == null){
+//            mShowView.setVisibility(View.GONE);
+//            return ;
+//        }
         if (mShowView != null && mShowView instanceof TextView) {
 
             /**
@@ -265,13 +285,20 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
 
     @Override
     public void redViewClickDown() {
+        if (redPointViewReleaseOutRangeListener != null){
+            redPointViewReleaseOutRangeListener.onRedViewClickDown();
+        }else {
+            Log.d("MessageFragment", "redViewClickDown: redPointReleaseListener is null");
+            removeOutView();
 
+        }
     }
 
     @Override
     public void redViewClickUp() {
-        if (redPointViewReleaseOutRangeListener != null)
-        redPointViewReleaseOutRangeListener.onRedViewCLickUp();
+        if (redPointViewReleaseOutRangeListener != null){
+            redPointViewReleaseOutRangeListener.onRedViewCLickUp();
+        }
     }
 
     /**

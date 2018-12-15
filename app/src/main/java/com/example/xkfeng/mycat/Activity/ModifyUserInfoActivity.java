@@ -204,7 +204,10 @@ public class ModifyUserInfoActivity extends BaseActivity {
                 String item2 = "拍照";
                 String item3 = "取消";
                 final BottomDialog bottomDialog = new BottomDialog(ModifyUserInfoActivity.this, item1, item2, item3);
-                bottomDialog.setTextViewColor(Color.WHITE);
+                bottomDialog.setBackground(Color.WHITE);
+                bottomDialog.setItem1TextColor(1 , Color.BLACK);
+                bottomDialog.setItem1TextColor(2 , Color.BLACK);
+                bottomDialog.setItem1TextColor(3 , Color.BLACK);
                 bottomDialog.setItemClickListener(new BottomDialog.ItemClickListener() {
                     @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override

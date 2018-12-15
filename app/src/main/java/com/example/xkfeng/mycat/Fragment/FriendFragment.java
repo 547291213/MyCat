@@ -30,6 +30,7 @@ import android.widget.Toast;
 import com.example.xkfeng.mycat.Activity.AddFriendActivity;
 import com.example.xkfeng.mycat.Activity.ChatMsgActivity;
 import com.example.xkfeng.mycat.Activity.FriendInfoActivity;
+import com.example.xkfeng.mycat.Activity.FriendSettingActivity;
 import com.example.xkfeng.mycat.Activity.FriendValidationActivity;
 import com.example.xkfeng.mycat.Activity.GroupListActivity;
 import com.example.xkfeng.mycat.Activity.IndexActivity;
@@ -114,8 +115,8 @@ public class FriendFragment extends Fragment {
 
     private DisplayMetrics metrics;
 
-    private PopupMenuLayout popupMenuLayoutFriendManager ;
-    private List<String> friendManagerList ;
+    private PopupMenuLayout popupMenuLayoutFriendManager;
+    private List<String> friendManagerList;
 
     public static final String HAS_NEW_FRIEND_EVENT = "newFriend";
 
@@ -145,7 +146,7 @@ public class FriendFragment extends Fragment {
 
         setIndexTitleLayout();
 
-        initPopupLayout() ;
+        initPopupLayout();
 
         setFriendInfoList();
 
@@ -198,13 +199,12 @@ public class FriendFragment extends Fragment {
         });
     }
 
-    private void initPopupLayout(){
+    private void initPopupLayout() {
 
-        friendManagerList = new ArrayList<>() ;
-        friendManagerList.add("好友管理") ;
-        friendManagerList.add("删除");
-        friendManagerList.add("取消") ;
-        popupMenuLayoutFriendManager = new PopupMenuLayout(mContext ,friendManagerList ,PopupMenuLayout.CONTENT_POPUP) ;
+        friendManagerList = new ArrayList<>();
+        friendManagerList.add("好友管理");
+        friendManagerList.add("取消");
+        popupMenuLayoutFriendManager = new PopupMenuLayout(mContext, friendManagerList, PopupMenuLayout.CONTENT_POPUP);
 
     }
 
@@ -222,25 +222,25 @@ public class FriendFragment extends Fragment {
                 /**
                  * 点击查看好友信息
                  */
-                ITosast.showShort(mContext , "Item click , user is : " + targetUserInfo.getUserName()).show();
-                Intent intent = new Intent() ;
-                intent.putExtra(StaticValueHelper.TARGET_ID , targetUserInfo.getUserName()) ;
-                intent.putExtra(StaticValueHelper.TARGET_APP_KEY , targetUserInfo.getAppKey()) ;
-                intent.putExtra(StaticValueHelper.IS_FRIEDN , true) ;
-                intent.setClass(getContext() , FriendInfoActivity.class) ;
+                ITosast.showShort(mContext, "Item click , user is : " + targetUserInfo.getUserName()).show();
+                Intent intent = new Intent();
+                intent.putExtra(StaticValueHelper.TARGET_ID, targetUserInfo.getUserName());
+                intent.putExtra(StaticValueHelper.TARGET_APP_KEY, targetUserInfo.getAppKey());
+                intent.putExtra(StaticValueHelper.IS_FRIEDN, true);
+                intent.setClass(getContext(), FriendInfoActivity.class);
                 startActivity(intent);
 
 
             }
 
             @Override
-            public void onItemLongClick(View view, int position, UserInfo targetUserInfo , int letterViewHeight) {
+            public void onItemLongClick(View view, int position, final UserInfo targetUserInfo, int letterViewHeight) {
                 /**
                  * 长按进行好友的相关管理
                  * 删除，发送消息
                  */
 
-                ITosast.showShort(mContext , "Item long click , user is : " + targetUserInfo.getUserName()).show();
+                ITosast.showShort(mContext, "Item long click , user is : " + targetUserInfo.getUserName()).show();
 
                 /**
                  * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
@@ -258,20 +258,20 @@ public class FriendFragment extends Fragment {
                 popupMenuLayoutFriendManager.setItemClickListener(new PopupMenuLayout.ItemClickListener() {
                     @Override
                     public void itemClick(View view, int pos) {
-                        switch (pos){
-                            case 0 :
-                                ITosast.showShort(mContext , "好友管理").show();
-                                break ;
+                        switch (pos) {
+                            case 0:
+                                Intent intent = new Intent();
+                                intent.setClass(mContext, FriendSettingActivity.class);
+                                intent.putExtra(StaticValueHelper.USER_NAME, targetUserInfo.getUserName());
+                                startActivity(intent);
+                                break;
 
-                            case 1 :
-                                ITosast.showShort(mContext , "删除").show();
-                                break ;
-
-                            case 2 :
+                            case 1:
                                 /**
                                  * this is cancle . do nothing
                                  */
-                                break ;
+                                break;
+
 
                         }
                         popupMenuLayoutFriendManager.dismiss();
@@ -429,24 +429,24 @@ public class FriendFragment extends Fragment {
     private List<FriendInfo> dataConversion(List<UserInfo> userInfoList) {
         List<FriendInfo> friendInfoList = new ArrayList<>();
         //String strs = PinyinUtils.getPingYin("新年好！Hello");
-        String name = null ;
-        String title = null ;
+        String name = null;
+        String title = null;
         for (UserInfo userInfo : userInfoList) {
             FriendInfo friendInfo = null;
 
             if (TextUtils.isEmpty(userInfo.getNotename())) {
                 if (TextUtils.isEmpty(userInfo.getNickname())) {
                     name = PinyinUtil.getPingYin(userInfo.getUserName());
-                    title = userInfo.getUserName() ;
+                    title = userInfo.getUserName();
                 } else {
                     name = PinyinUtil.getPingYin(userInfo.getNickname());
-                    title = userInfo.getNickname() ;
+                    title = userInfo.getNickname();
                 }
             } else {
                 name = PinyinUtil.getPingYin(userInfo.getNotename());
-                title = userInfo.getNotename() ;
+                title = userInfo.getNotename();
             }
-            friendInfo = new FriendInfo(userInfo, name.substring(0, 1) , name , title);
+            friendInfo = new FriendInfo(userInfo, name.substring(0, 1), name, title);
             friendInfoList.add(friendInfo);
         }
         return friendInfoList;

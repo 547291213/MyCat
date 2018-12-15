@@ -81,6 +81,9 @@ public class UserInfoActivity extends BaseActivity {
     private UserInfo userInfo;
     private CircleImageView circleImageView;
 
+    private boolean isFirst = true;
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
 
@@ -117,15 +120,6 @@ public class UserInfoActivity extends BaseActivity {
      */
     private void setUserInfo() {
 
-//        JMessageClient.getUserInfo(getIntent().getStringExtra("userName"), new GetUserInfoCallback() {
-//            @Override
-//            public void gotResult(int i, String s, UserInfo userInfo) {
-//                if ( i == 0 ){
-//                    userInfo = userInfo ;
-//                }
-//            }
-//        });
-
         userInfo = JMessageClient.getMyInfo();
         tvUserInfoUserSex.setText(StringUtil.isEmpty(userInfo.getGender().name()) == true ? "unkonwn" : userInfo.getGender().name());
         tvUserInfoUserBirthday.setText(StringUtil.isEmpty(TimeUtil.ms2date("yyyy-MM-dd", userInfo.getBirthday()).toString()) == true ?
@@ -153,7 +147,7 @@ public class UserInfoActivity extends BaseActivity {
          * 更新用户资料信息
          */
         userInfo = JMessageClient.getMyInfo();
-        if (userInfo.getAvatar()!=null&&!StringUtil.isEmpty(userInfo.getAvatarFile().toString())) {
+        if (userInfo.getAvatar() != null && !StringUtil.isEmpty(userInfo.getAvatarFile().toString())) {
             //  circleImageView.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatar()));
             Glide.with(UserInfoActivity.this)
                     .load(userInfo.getAvatarFile())
@@ -316,11 +310,18 @@ public class UserInfoActivity extends BaseActivity {
 //                " STATUS_TOP:" + MessageFragment.STATUSBAR_PADDING_TOP  +
 //                " statusHeight:" + DensityUtil.getStatusHeight(this));
 
+        int titlePaddingTop = 0;
+        if (isFirst) {
+            isFirst = false;
+            titlePaddingTop = indexTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(this);
 
-        indexTitleLayout.setPadding(MessageFragment.STATUSBAR_PADDING_lEFT,
-                MessageFragment.STATUSBAR_PADDING_TOP,
-                MessageFragment.STATUSBAR_PADDING_RIGHT,
-                MessageFragment.STATUSBAR_PADDING_BOTTOM);
+        } else {
+            titlePaddingTop = indexTitleLayout.getPaddingTop();
+        }
+        indexTitleLayout.setPadding(indexTitleLayout.getPaddingLeft(),
+                titlePaddingTop,
+                indexTitleLayout.getPaddingRight(),
+                indexTitleLayout.getPaddingBottom());
 
 
 //        设置点击事件监听

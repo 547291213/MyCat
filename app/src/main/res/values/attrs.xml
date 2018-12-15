@@ -2,7 +2,7 @@
 <resources>
     <style name="BottomDialog" parent="@android:style/Theme.Dialog">
         <item name="android:windowFrame">@null</item> <!-- 无边框-->
-        <item name="android:backgroundDimAmount">0.5</item>
+        <!--<item name="android:backgroundDimAmount">0.5</item>-->
         <item name="android:windowIsFloating">true</item> <!-- 悬浮在Activity之上 -->
 
         <item name="android:windowNoTitle">true</item>  <!-- 无标题 -->

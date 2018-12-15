@@ -85,6 +85,7 @@ public class ListSlideView extends HorizontalScrollView {
     //自定义接口，将事件传递出去
     private SlideViewClickListener slideViewClickListener;
     private SlideViewIsOpenListener slideViewIsOpenListener ;
+    private RedPointerViewListner redPointerViewListner ;
 
 
     private static final String TAG = "ListSlideView";
@@ -123,7 +124,6 @@ public class ListSlideView extends HorizontalScrollView {
         if (!once) {
             once = true;
             int width = DensityUtil.getScreenWidth(mContext);
-//            Log.d(TAG, "onMeasure: width " + width);
 
             /**
              * 设置View宽度为屏幕宽度
@@ -142,6 +142,31 @@ public class ListSlideView extends HorizontalScrollView {
              */
             View redPointMessage = relativeLayout.findViewById(R.id.redpoint_view_message);
             stickyViewHelper = new RedPointViewHelper(mContext, redPointMessage, R.layout.item_drag_view);
+            stickyViewHelper.setRedPointViewReleaseOutRangeListener(new RedPointViewHelper.RedPointViewReleaseOutRangeListener() {
+                @Override
+                public void onReleaseOutRange() {
+
+                    if (redPointerViewListner != null){
+                        redPointerViewListner.onRedPointerClickRealeaseOutRange();
+                    }
+                }
+
+                @Override
+                public void onRedViewClickDown() {
+
+                    if (redPointerViewListner != null){
+                        redPointerViewListner.onRedPointerClickDown();
+                    }
+                }
+
+                @Override
+                public void onRedViewCLickUp() {
+
+                    if (redPointerViewListner != null){
+                        redPointerViewListner.onRedPointerClickUp();
+                    }
+                }
+            });
 
             /**
              * 消息对象内容的获取
@@ -160,7 +185,7 @@ public class ListSlideView extends HorizontalScrollView {
             relativeLayout.setOnLongClickListener(new OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (slideViewClickListener != null) {
+                    if (slideViewClickListener != null && !isOpen) {
                         slideViewClickListener.contentViewLongClick(v);
                         return true;
                     }
@@ -171,7 +196,11 @@ public class ListSlideView extends HorizontalScrollView {
             relativeLayout.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (slideViewClickListener != null) {
+                    if (slideViewClickListener != null ) {
+                        if (isOpen){
+                            closeSideSlide();
+                            return ;
+                        }
                         slideViewClickListener.contentViewClick(v);
                     }
                 }
@@ -184,9 +213,7 @@ public class ListSlideView extends HorizontalScrollView {
             topView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "onClick: onTouchEvent topView " + slideViewClickListener + " Test :" + TEST);
                     if (slideViewClickListener != null) {
-                        Log.d(TAG, "onClick: onTouchEvent : not-null");
                         slideViewClickListener.topViewClick(v);
                     }
                 }
@@ -255,12 +282,23 @@ public class ListSlideView extends HorizontalScrollView {
         int action = ev.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN://按下
+                if (slideViewIsOpenListener != null){
+                    slideViewIsOpenListener.isOpen(true);
+                }
+                stickyViewHelper.isResponseClickEvent(!isOpen);
+
+                break ;
             case MotionEvent.ACTION_MOVE://移动
+                if (slideViewIsOpenListener != null){
+                    slideViewIsOpenListener.isOpen(true);
+                }
+                stickyViewHelper.isResponseClickEvent(!isOpen);
+
                 break;
             case MotionEvent.ACTION_UP://松开
             case MotionEvent.ACTION_CANCEL:
+
                 changeScrollX();
-//                Log.d(TAG, "onTouchEvent: UP OR CANCEL");
                 return true;
             default:
                 break;
@@ -285,13 +323,21 @@ public class ListSlideView extends HorizontalScrollView {
         } else {
             this.smoothScrollTo(0, 0);
             isOpen = false;
-        }
-        if (slideViewIsOpenListener != null){
-            if (getScrollX() > 0){
-                slideViewIsOpenListener.isOpen(true);
-            }else {
+
+            if (slideViewIsOpenListener != null){
                 slideViewIsOpenListener.isOpen(false);
             }
+
+        }
+
+        stickyViewHelper.isResponseClickEvent(!isOpen);
+
+    }
+
+    public void closeSideSlide(){
+        this.smoothScrollTo(0,0);
+        if (slideViewIsOpenListener != null){
+            slideViewIsOpenListener.isOpen(false);
         }
     }
 
@@ -305,105 +351,14 @@ public class ListSlideView extends HorizontalScrollView {
     }
 
 
-    /**
-     * 设置消息用户头像
-     *
-     * @param bitmap 消息用户头像
-     */
-    public void setPciv_messageHeaderImageSource(Bitmap bitmap) {
-        pciv_messageHeaderImage.setImageBitmap(bitmap);
-    }
+    public void setStickyViewHelperText(String count){
 
-    /**
-     * 设置消息标题
-     *
-     * @param string 消息标题
-     */
-    public void setTv_meessageTitleText(String string) {
-        this.tv_meessageTitle.setText(string);
-    }
-
-    /**
-     * 设置消息内容
-     *
-     * @param string 消息内容
-     */
-    public void setTv_messageContentText(String string) {
-        this.tv_messageContent.setText(string);
-    }
-
-    public void setStickyViewHelper(String string) {
-        if ("false".equals(string)) {
-            if (stickyViewHelper != null) {
-                stickyViewHelper.setViewNotShow();
-            }
-        } else {
-            if (stickyViewHelper != null) {
-                stickyViewHelper.setRedPointViewText(string);
-                stickyViewHelper.setViewShow();
-
-            }
+        if (stickyViewHelper == null){
+            measure(0 , 0);
         }
-
+        stickyViewHelper.setRedPointViewText(count);
 
     }
-
-    /**
-     * 消息最近的消息时间
-     *
-     * @param string 消息时间
-     */
-    public void setTv_meessageTime(String string) {
-        this.tv_meessageTime.setText(string);
-    }
-
-    /**
-     * 获取置顶TextView显示的文本
-     * @return text
-     */
-    public String getTopViewText(){
-        return topView.getText().toString() ;
-    }
-
-    /**
-     * 设置置顶TextView的显示
-     * @param isTop 是否置顶
-     */
-    public void setTopViewText(Boolean isTop){
-        if (topView == null){
-            return ;
-        }
-        if (isTop){
-            topView.setText(mContext.getResources().getString(R.string.listSlideView_top));
-        }else {
-            topView.setText(mContext.getResources().getString(R.string.listSlideView_unTop));
-        }
-    }
-
-    /**
-     * 获取标记读否显示的文本
-     * @return text
-     */
-    public String getMarkReadViewText(){
-        return markReadView.getText().toString() ;
-    }
-
-    /**
-     * 设置标志读TextView的显示
-     * @param isMarkReadFlag 是否已读
-     */
-    public void setMarkReadViewText(Boolean isMarkReadFlag){
-        if (markReadView == null){
-            return ;
-        }
-        if (isMarkReadFlag){
-            markReadView.setText(mContext.getResources().getString(R.string.listSlideView_markRead));
-        }else {
-            markReadView.setText(mContext.getResources().getString(R.string.listSlideView_markUnread));
-        }
-    }
-
-
     /**
      * 外部调用设置接口
      *
@@ -418,7 +373,18 @@ public class ListSlideView extends HorizontalScrollView {
         this.slideViewIsOpenListener = slideViewIsOpenListener ;
     }
 
+    public void setRedPointerViewListner(RedPointerViewListner redPointerViewListner){
+        this.redPointerViewListner = redPointerViewListner ;
+    }
 
+
+    public interface RedPointerViewListner{
+        public void onRedPointerClickDown() ;
+
+        public void onRedPointerClickRealeaseOutRange() ;
+
+        public void onRedPointerClickUp() ;
+    }
 
     /**
      * 自定义接口

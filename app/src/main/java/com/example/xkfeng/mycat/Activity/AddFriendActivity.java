@@ -4,17 +4,15 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.provider.CalendarContract;
 import android.support.annotation.Nullable;
-import android.support.transition.Visibility;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.xkfeng.mycat.DrawableView.DrawableRightEdit;
 import com.example.xkfeng.mycat.R;
@@ -48,6 +46,10 @@ public class AddFriendActivity extends BaseActivity {
     Button btAddFriendBtn;
     @BindView(R.id.ll_addFriendInfoLayout)
     LinearLayout llAddFriendInfoLayout;
+    @BindView(R.id.tv_intoAboutUs)
+    TextView tvIntoAboutUs;
+    @BindView(R.id.iv_intoAboutUs)
+    ImageView ivIntoAboutUs;
 
     private Drawable rightDrawable;
     private Drawable leftrawable;
@@ -122,7 +124,8 @@ public class AddFriendActivity extends BaseActivity {
 
     }
 
-    @OnClick({R.id.bt_addFriendOkBtn , R.id.tv_meessageTitle ,R.id.bt_addFriendBtn})
+    @OnClick({R.id.bt_addFriendOkBtn, R.id.tv_meessageTitle, R.id.bt_addFriendBtn,
+            R.id.tv_setBackText, R.id.tv_intoAboutUs, R.id.iv_intoAboutUs})
     public void onItemClick(View view) {
         switch (view.getId()) {
             case R.id.bt_addFriendOkBtn:
@@ -143,34 +146,47 @@ public class AddFriendActivity extends BaseActivity {
 
                             default:
                                 llAddFriendInfoLayout.setVisibility(View.GONE);
-                                 break;
+                                break;
                         }
                     }
                 });
                 break;
 
-            case R.id.tv_meessageTitle :
+            case R.id.tv_meessageTitle:
 
                 /**
                  *
                  */
-                Intent intent = new Intent() ;
+                Intent intent = new Intent();
                 intent.putExtra(StaticValueHelper.TARGET_ID, mTargetUserInfo.getUserName());
                 intent.putExtra(StaticValueHelper.TARGET_APP_KEY, mTargetUserInfo.getAppKey());
-                intent.putExtra(StaticValueHelper.IS_FRIEDN , mTargetUserInfo.isFriend()) ;
+                intent.putExtra(StaticValueHelper.IS_FRIEDN, mTargetUserInfo.isFriend());
                 intent.setClass(AddFriendActivity.this, FriendInfoActivity.class);
                 startActivity(intent);
-                break ;
+                break;
 
-            case R.id.bt_addFriendBtn :
-                Intent intent1 = new Intent() ;
+            case R.id.bt_addFriendBtn:
+                Intent intent1 = new Intent();
                 intent1.putExtra(StaticValueHelper.TARGET_ID, mTargetUserInfo.getUserName());
                 intent1.putExtra(StaticValueHelper.TARGET_APP_KEY, mTargetUserInfo.getAppKey());
-                intent1.putExtra(StaticValueHelper.IS_FRIEDN , mTargetUserInfo.isFriend()) ;
+                intent1.putExtra(StaticValueHelper.IS_FRIEDN, mTargetUserInfo.isFriend());
                 intent1.setClass(AddFriendActivity.this, SendFriendRequestActivity.class);
                 startActivity(intent1);
 
                 break;
+
+            case R.id.tv_setBackText :
+                finish();
+                break ;
+
+            case R.id.tv_intoAboutUs :
+            case R.id.iv_intoAboutUs :
+
+                Intent intent2 = new Intent() ;
+                intent2.setClass(AddFriendActivity.this , AboutActivity.class) ;
+                startActivity(intent2);
+                break ;
+
         }
 
 

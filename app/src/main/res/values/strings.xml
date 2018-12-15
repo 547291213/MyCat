@@ -72,4 +72,10 @@
     <string name="chat_msg_process_delete">删除</string>
     <string name="chat_msg_process_withdraw">撤回</string>
     <string name="chat_msg_process_forwarding">转发</string>
+
+
+    <!--bottom dialog for delete friend-->
+    <string name="chat_friend_delete_tip">同时会屏蔽对方的临时会话，不再接收此人的消息</string>
+    <string name="chat_friend_delete_delte">删除</string>
+    <string name="chat_friend_delete_cancle">取消</string>
 </resources>

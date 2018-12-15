@@ -8,10 +8,14 @@ import com.example.xkfeng.mycat.NetWork.OkHttpProcesser;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.UserAutoLoginHelper;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import cn.jpush.im.android.api.JMessageClient;
 
 public class MyApplication extends Application {
     private UserAutoLoginHelper userAutoLoginHelper;
+    public static Map<String,Integer> sideSlideOpenCount = new HashMap<>();
 
     @Override
     public void onCreate() {
