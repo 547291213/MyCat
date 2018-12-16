@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
@@ -27,31 +29,31 @@ public class EmptyRecyclerView extends RecyclerView {
 
         @Override
         public void onItemRangeChanged(int positionStart, int itemCount) {
-            super.onItemRangeChanged(positionStart , itemCount);
+            super.onItemRangeChanged(positionStart, itemCount);
             onChanged();
         }
 
         @Override
         public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
-            super.onItemRangeChanged(positionStart , itemCount , payload);
+            super.onItemRangeChanged(positionStart, itemCount, payload);
             onChanged();
         }
 
         @Override
         public void onItemRangeInserted(int positionStart, int itemCount) {
-            super.onItemRangeInserted(positionStart ,itemCount );
+            super.onItemRangeInserted(positionStart, itemCount);
             onChanged();
         }
 
         @Override
         public void onItemRangeRemoved(int positionStart, int itemCount) {
-            super.onItemRangeRemoved(positionStart , itemCount);
+            super.onItemRangeRemoved(positionStart, itemCount);
             onChanged();
         }
 
         @Override
         public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
-            super.onItemRangeMoved(fromPosition ,toPosition , itemCount);
+            super.onItemRangeMoved(fromPosition, toPosition, itemCount);
             onChanged();
         }
     };
@@ -65,9 +67,9 @@ public class EmptyRecyclerView extends RecyclerView {
         super(context, attrs);
     }
 
-    public void setmEmptyView(View view){
+    public void setmEmptyView(View view) {
 
-        mEmptyView = view ;
+        mEmptyView = view;
 //        if (view.getParent() != null){
 //            ((ViewGroup)view.getParent()).removeView(view);
 //        }
@@ -75,7 +77,7 @@ public class EmptyRecyclerView extends RecyclerView {
 
     }
 
-    public void setAdapter(RecyclerView.Adapter adapter){
+    public void setAdapter(RecyclerView.Adapter adapter) {
         super.setAdapter(adapter);
         adapter.registerAdapterDataObserver(mObserver);
         mObserver.onChanged();

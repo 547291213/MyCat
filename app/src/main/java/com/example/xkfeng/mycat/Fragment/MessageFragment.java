@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -24,7 +23,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,15 +31,15 @@ import com.example.xkfeng.mycat.Activity.CreateGroupChatActivity;
 import com.example.xkfeng.mycat.Activity.IndexActivity;
 import com.example.xkfeng.mycat.Activity.SearchActivity;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
-import com.example.xkfeng.mycat.DrawableView.ListSlideView;
+import com.example.xkfeng.mycat.DrawableView.MessageListDrawable.MsgListSlideView;
 import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
-import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
+import com.example.xkfeng.mycat.Model.HasMsgListOpen;
 import com.example.xkfeng.mycat.Model.JPushMessageInfo;
-import com.example.xkfeng.mycat.Model.MessageInfo;
 import com.example.xkfeng.mycat.R;
-import com.example.xkfeng.mycat.RecyclerDefine.EmptyRecyclerView;
+import com.example.xkfeng.mycat.DrawableView.MessageListDrawable.MsgRecyclerView;
 import com.example.xkfeng.mycat.RecyclerDefine.QucikAdapterWrapter;
 import com.example.xkfeng.mycat.RecyclerDefine.QuickAdapter;
+import com.example.xkfeng.mycat.RxBus.RxBus;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.StaticValueHelper;
@@ -51,13 +49,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import javax.xml.validation.ValidatorHandler;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.PromptContent;
@@ -65,8 +60,14 @@ import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
-import static com.example.xkfeng.mycat.MyApplication.MyApplication.sideSlideOpenCount;
+import static com.example.xkfeng.mycat.DrawableView.MessageListDrawable.MsgRecyclerView.itemOpenCount;
+
 
 public class MessageFragment extends Fragment {
 
@@ -80,7 +81,7 @@ public class MessageFragment extends Fragment {
     Unbinder unbinder;
 
     @BindView(R.id.rv_messageRecyclerView)
-    EmptyRecyclerView rvMessageRecyclerView;
+    MsgRecyclerView rvMessageRecyclerView;
     @BindView(R.id.srl_messageRefreshLayout)
     SwipeRefreshLayout srlMessageRefreshLayout;
 
@@ -110,6 +111,9 @@ public class MessageFragment extends Fragment {
 
     private Handler handler;
     private Runnable runnable;
+
+    public  Map<String,Integer> sideSlideOpenCount = new HashMap<>();
+
 
 
     @Nullable
@@ -167,6 +171,8 @@ public class MessageFragment extends Fragment {
         //下拉刷新
         initRefreshLayout();
 
+        initRxBus();
+
     }
 
 
@@ -182,13 +188,6 @@ public class MessageFragment extends Fragment {
         etSearchEdit.setCompoundDrawablePadding(-left.getIntrinsicWidth() / 2 + 5);
         etSearchEdit.setCompoundDrawables(left, null, null, null);
         etSearchEdit.setAlpha((float) 0.6);
-        //点击转到搜索页面
-        etSearchEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(mContext, SearchActivity.class));
-            }
-        });
 
     }
 
@@ -237,15 +236,19 @@ public class MessageFragment extends Fragment {
                     public void itemClick(View view, int position) {
                         switch (position) {
                             case 0:
-                                mContext.startActivity(new Intent(mContext, CreateGroupChatActivity.class));
+//                                mContext.startActivity(new Intent(mContext, CreateGroupChatActivity.class));
+
+                                ITosast.showShort(mContext , "进入创建群聊界面").show();
                                 popupMenuLayout_MENU.dismiss();
                                 break;
                             case 1:
-                                Toast.makeText(mContext, "AddBuddy", Toast.LENGTH_SHORT).show();
+
+                                ITosast.showShort(mContext , "添加好友").show();
                                 popupMenuLayout_MENU.dismiss();
                                 break;
                             case 2:
-                                Toast.makeText(mContext, "Scan", Toast.LENGTH_SHORT).show();
+
+                                ITosast.showShort(mContext , "扫一扫").show();
                                 popupMenuLayout_MENU.dismiss();
                                 break;
                         }
@@ -428,7 +431,7 @@ public class MessageFragment extends Fragment {
         jpushQuickAdapter = new QuickAdapter<JPushMessageInfo>(jPushMessageInfoList) {
             @Override
             public int getLayoutId(int viewType) {
-                return R.layout.message_list_item;
+                return R.layout.msg_list_slide_item;
             }
 
             @Override
@@ -502,8 +505,8 @@ public class MessageFragment extends Fragment {
 //                ((View) vh.getView(R.id.redpoint_view_message)), R.layout.item_drag_view);
 //        stickyViewHelper.setRedPointViewText(data.getUnReadCount());
 
-//        ((ListSlideView)vh.getView(R.id.listlide)).setStickyViewHelperText(data.getUnReadCount());
-        ((ListSlideView)vh.getView(R.id.listlide)).setRedPointerViewListner(new ListSlideView.RedPointerViewListner() {
+//        ((MsgListSlideView)vh.getView(R.id.listlide)).setStickyViewHelperText(data.getUnReadCount());
+        ((MsgListSlideView)vh.getView(R.id.listlide)).setRedPointerViewListner(new MsgListSlideView.RedPointerViewListner() {
             @Override
             public void onRedPointerClickDown() {
                 if (handler != null) {
@@ -554,14 +557,14 @@ public class MessageFragment extends Fragment {
      * 侧滑菜单是否打开的事件监听处理
      * @param vh
      */
-    private void setSideSlipIsOpenListener(QuickAdapter.VH vh , final JPushMessageInfo data) {
+    private void setSideSlipIsOpenListener(final QuickAdapter.VH vh , final JPushMessageInfo data) {
         /**
          * 滑动消息栏是否打开的接口回调
          * 使用原因：
          *   因为加载会话列表是个定时任务，会不停的定时调用，
          *   那么任何和该布局有修改的地方都应该先停止定时任务，在修改完成后恢复
          */
-        ((ListSlideView) vh.getView(R.id.listlide)).setSlideViewIsOpenListener(new ListSlideView.SlideViewIsOpenListener() {
+        ((MsgListSlideView) vh.getView(R.id.listlide)).setSlideViewIsOpenListener(new MsgListSlideView.SlideViewIsOpenListener() {
             @Override
             public void isOpen(boolean isOpen) {
                 if (isOpen) {
@@ -571,6 +574,10 @@ public class MessageFragment extends Fragment {
 
                     if (!sideSlideOpenCount.containsKey(data.getMsgID())){
                         sideSlideOpenCount.put(data.getMsgID() , 1) ;
+                    }
+
+                    if (((MsgListSlideView)vh.getView(R.id.listlide)).getIsOpen() == true){
+                        rvMessageRecyclerView.addOpenItem(vh);
                     }
                 } else {
                     if (sideSlideOpenCount.containsKey(data.getMsgID())){
@@ -582,7 +589,7 @@ public class MessageFragment extends Fragment {
                 }
             }
         });
-        ((ListSlideView)vh.getView(R.id.listlide)).setStickyViewHelperText(data.getUnReadCount());
+        ((MsgListSlideView)vh.getView(R.id.listlide)).setStickyViewHelperText(data.getUnReadCount());
     }
 
     /**
@@ -595,12 +602,12 @@ public class MessageFragment extends Fragment {
         /**
          * 滑动消息栏点击事件实现
          */
-        ((ListSlideView) vh.getView(R.id.listlide)).setSlideViewClickListener(new ListSlideView.SlideViewClickListener() {
+        ((MsgListSlideView) vh.getView(R.id.listlide)).setSlideViewClickListener(new MsgListSlideView.SlideViewClickListener() {
             @Override
             public void topViewClick(View view) {
                 //no use
                  //外部点击完成后，关闭侧滑菜单
-                ((ListSlideView)vh.getView(R.id.listlide)).closeSideSlide();
+                ((MsgListSlideView)vh.getView(R.id.listlide)).closeSideSlide();
             }
 
             @Override
@@ -613,7 +620,7 @@ public class MessageFragment extends Fragment {
                 }
 
                 //外部点击完成后，关闭侧滑菜单
-                ((ListSlideView)vh.getView(R.id.listlide)).closeSideSlide();
+                ((MsgListSlideView)vh.getView(R.id.listlide)).closeSideSlide();
 
             }
 
@@ -622,7 +629,7 @@ public class MessageFragment extends Fragment {
                 deleteConversion(data , true , 0);
 
                 //外部点击完成后，关闭侧滑菜单
-                ((ListSlideView)vh.getView(R.id.listlide)).closeSideSlide();
+                ((MsgListSlideView)vh.getView(R.id.listlide)).closeSideSlide();
             }
 
             @Override
@@ -631,9 +638,9 @@ public class MessageFragment extends Fragment {
                 if (handler != null) {
                     handler.removeCallbacks(runnable);
                 }
-                if (Integer.parseInt(data.getUnReadCount()) > 0) {
+                if (Integer.parseInt(data.getUnReadCount()) > 0 ) {
                     markReadPopupLayoutProcess(view , vh , data , pos);
-                }else {
+                }else if (Integer.parseInt(data.getUnReadCount()) <= 0 ){
                     markUnReadPopupLayoutProcess(view , vh , data , pos);
                 }
             }
@@ -813,6 +820,53 @@ public class MessageFragment extends Fragment {
 
     }
 
+
+    private void initRxBus(){
+        RxBus.getInstance()
+                .toObservable(HasMsgListOpen.class)
+                .observeOn(Schedulers.io())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<HasMsgListOpen>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(HasMsgListOpen map) {
+                        for (Map.Entry<QuickAdapter.VH, Integer> vo : itemOpenCount.entrySet()) {
+                            ((MsgListSlideView) vo.getKey().getView(R.id.listlide)).closeSideSlide();
+                        }
+                        rvMessageRecyclerView.clearOpenItem();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+
+    @OnClick(R.id.et_searchEdit)
+    public void onItemClick(View view){
+        switch (view.getId()){
+            case R.id.et_searchEdit :
+                HasMsgListOpen msgListOpen = new HasMsgListOpen() ;
+                if (MsgRecyclerView.itemOpenCount.size() > 0 ){
+                    RxBus.getInstance().post(msgListOpen);
+                }
+                startActivity(new Intent(mContext, SearchActivity.class));
+                break ;
+
+
+        }
+    }
 
     @Override
     public void onStop() {

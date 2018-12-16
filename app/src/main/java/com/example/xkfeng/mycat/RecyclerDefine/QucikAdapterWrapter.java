@@ -78,4 +78,6 @@ public class QucikAdapterWrapter<T> extends RecyclerView.Adapter<RecyclerView.Vi
         this.adView = view;
     }
 
+
+
 }

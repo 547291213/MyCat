@@ -1,35 +1,25 @@
-package com.example.xkfeng.mycat.DrawableView;
+package com.example.xkfeng.mycat.DrawableView.MessageListDrawable;
 
 import android.content.Context;
-import android.content.IntentFilter;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
-import android.speech.tts.TextToSpeech;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
+import com.example.xkfeng.mycat.Model.HasMsgListOpen;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.RxBus.RxBus;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 
-import org.w3c.dom.Attr;
-
-import butterknife.internal.ListenerClass;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.example.xkfeng.mycat.R.layout.message_item;
+public class MsgListSlideView extends HorizontalScrollView {
 
-public class ListSlideView extends HorizontalScrollView {
 
     //内容
     private RelativeLayout relativeLayout;
@@ -39,9 +29,6 @@ public class ListSlideView extends HorizontalScrollView {
 
     //标记读取与否
     private TextView markReadView;
-
-    //是否有标记读取与否的标志 （群助手提示消息没有，个人聊天和群聊有）
-    private Boolean isMarkReadFlag = true;
 
     //删除
     private TextView deleteView;
@@ -54,6 +41,7 @@ public class ListSlideView extends HorizontalScrollView {
 
     //是否第一次测量（只在onMeasure中调用一次）
     private Boolean once = false;
+
     /**
      * 消息来源用户头像，群头像
      */
@@ -71,34 +59,36 @@ public class ListSlideView extends HorizontalScrollView {
      */
     private TextView tv_meessageTime;
 
+    private HasMsgListOpen msgListOpen ;
+
 
     //自定义接口，将事件传递出去
-    private SlideViewClickListener slideViewClickListener;
-    private RedPointerViewListner redPointerViewListner ;
+    private MsgListSlideView.SlideViewClickListener slideViewClickListener;
+    private MsgListSlideView.SlideViewIsOpenListener slideViewIsOpenListener ;
+    private MsgListSlideView.RedPointerViewListner redPointerViewListner ;
 
-
-    private static final String TAG = "ListSlideView";
+    private static final String TAG = "MsgListSlideView";
     private Context mContext;
 
     private RedPointViewHelper stickyViewHelper;
 
-    public ListSlideView(Context context) {
+    public MsgListSlideView(Context context) {
         this(context, null);
 
     }
 
-    public ListSlideView(Context context, AttributeSet attrs) {
+    public MsgListSlideView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public ListSlideView(Context context, AttributeSet attrs, int str) {
+    public MsgListSlideView(Context context, AttributeSet attrs, int str) {
         super(context, attrs, str);
         mContext = context;
         this.setOverScrollMode(OVER_SCROLL_NEVER);
+        msgListOpen = new HasMsgListOpen() ;
 
 
     }
-
 
     /**
      * @param widthMeasureSpec
@@ -140,6 +130,10 @@ public class ListSlideView extends HorizontalScrollView {
                 @Override
                 public void onRedViewClickDown() {
 
+                    if (MsgRecyclerView.itemOpenCount.size() > 0 ){
+                        RxBus.getInstance().post(msgListOpen);
+                        return ;
+                    }
                     if (redPointerViewListner != null){
                         redPointerViewListner.onRedPointerClickDown();
                     }
@@ -171,7 +165,11 @@ public class ListSlideView extends HorizontalScrollView {
             relativeLayout.setOnLongClickListener(new OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (slideViewClickListener != null && !isOpen) {
+                    if (slideViewClickListener != null) {
+                        if (MsgRecyclerView.itemOpenCount.size() > 0 ){
+                            RxBus.getInstance().post(msgListOpen);
+                            return true;
+                        }
                         slideViewClickListener.contentViewLongClick(v);
                         return true;
                     }
@@ -183,8 +181,9 @@ public class ListSlideView extends HorizontalScrollView {
                 @Override
                 public void onClick(View v) {
                     if (slideViewClickListener != null ) {
-                        if (isOpen){
-                            closeSideSlide();
+                        if (MsgRecyclerView.itemOpenCount.size() > 0 ){
+
+                            RxBus.getInstance().post(msgListOpen);
                             return ;
                         }
                         slideViewClickListener.contentViewClick(v);
@@ -268,9 +267,17 @@ public class ListSlideView extends HorizontalScrollView {
         int action = ev.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN://按下
+                if (slideViewIsOpenListener != null){
+                    slideViewIsOpenListener.isOpen(true);
+                }
+                stickyViewHelper.isResponseClickEvent(!isOpen);
 
                 break ;
             case MotionEvent.ACTION_MOVE://移动
+                if (slideViewIsOpenListener != null){
+                    slideViewIsOpenListener.isOpen(true);
+                }
+                stickyViewHelper.isResponseClickEvent(!isOpen);
 
                 break;
             case MotionEvent.ACTION_UP://松开
@@ -298,10 +305,16 @@ public class ListSlideView extends HorizontalScrollView {
         if (getScrollX() >= (mScrollWidth / 2)) {
             this.smoothScrollTo(mScrollWidth, 0);
             isOpen = true;
+            if (slideViewIsOpenListener != null){
+                slideViewIsOpenListener.isOpen(true);
+            }
         } else {
             this.smoothScrollTo(0, 0);
             isOpen = false;
 
+            if (slideViewIsOpenListener != null){
+                slideViewIsOpenListener.isOpen(false);
+            }
 
         }
 
@@ -311,19 +324,44 @@ public class ListSlideView extends HorizontalScrollView {
 
     public void closeSideSlide(){
         this.smoothScrollTo(0,0);
+        if (slideViewIsOpenListener != null){
+            slideViewIsOpenListener.isOpen(false);
+        }
     }
 
+    /**
+     * 外部调用
+     *
+     * @return 拖动菜单是否处于打开状态
+     */
+    public Boolean getIsOpen() {
+        return isOpen;
+    }
+
+
+    public void setStickyViewHelperText(String count){
+
+        if (stickyViewHelper == null){
+            measure(0 , 0);
+        }
+        stickyViewHelper.setRedPointViewText(count);
+
+    }
     /**
      * 外部调用设置接口
      *
      * @param slideViewClickListener
      */
-    public void setSlideViewClickListener(SlideViewClickListener slideViewClickListener) {
+    public void setSlideViewClickListener(MsgListSlideView.SlideViewClickListener slideViewClickListener) {
         this.slideViewClickListener = slideViewClickListener;
 
     }
 
-    public void setRedPointerViewListner(RedPointerViewListner redPointerViewListner){
+    public void setSlideViewIsOpenListener(MsgListSlideView.SlideViewIsOpenListener slideViewIsOpenListener){
+        this.slideViewIsOpenListener = slideViewIsOpenListener ;
+    }
+
+    public void setRedPointerViewListner(MsgListSlideView.RedPointerViewListner redPointerViewListner){
         this.redPointerViewListner = redPointerViewListner ;
     }
 
@@ -363,5 +401,4 @@ public class ListSlideView extends HorizontalScrollView {
 
         public void isOpen(boolean isOpen) ;
     }
-
 }

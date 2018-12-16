@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.xkfeng.mycat.DrawableView.MessageListDrawable.MsgListSlideView
+    android:id="@+id/msgListLayout"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:paddingBottom="1dp"
+    android:scrollbars="none"
+    android:descendantFocusability="beforeDescendants"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:id="@+id/rl_contentLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+
+            <include
+                android:id="@+id/messageItem"
+                layout="@layout/message_item"
+
+                />
+        </RelativeLayout>
+
+        <!--<RelativeLayout-->
+        <!--android:id="@+id/rl_contentLayout"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent">-->
+
+        <!--<TextView-->
+        <!--android:id="@+id/tv_testView"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:text="Hello world!"-->
+        <!--android:textSize="24dp"-->
+        <!--android:textColor="#dde65b05"-->
+        <!--android:gravity="center"-->
+        <!--/>-->
+
+        <!--</RelativeLayout>-->
+
+
+        <TextView
+            android:id="@+id/tv_topSlideView"
+            android:layout_toRightOf="@id/rl_contentLayout"
+            android:text="置顶"
+            android:background="@color/gray"
+
+            style="@style/SlideTextViewStyle"
+
+            />
+
+        <TextView
+            android:id="@+id/tv_flagSlideView"
+            android:layout_toRightOf="@id/tv_topSlideView"
+            android:text="标记未读"
+            android:background="@color/orange"
+            style="@style/SlideTextViewStyle"
+
+            />
+        <TextView
+            android:id="@+id/tv_deleteSlideView"
+            android:layout_toRightOf="@id/tv_flagSlideView"
+            android:text="删除"
+            android:background="@color/red"
+
+            style="@style/SlideTextViewStyle"
+            />
+
+
+    </RelativeLayout>
+
+
+
+</com.example.xkfeng.mycat.DrawableView.MessageListDrawable.MsgListSlideView>

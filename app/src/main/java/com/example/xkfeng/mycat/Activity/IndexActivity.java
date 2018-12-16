@@ -38,6 +38,7 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.DrawableView.IndexBottomLayout;
+import com.example.xkfeng.mycat.DrawableView.MessageListDrawable.MsgRecyclerView;
 import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
 import com.example.xkfeng.mycat.DrawableView.ViewPagerSlide;
 import com.example.xkfeng.mycat.Fragment.BottomTabFragmentPageAdapter;
@@ -45,6 +46,7 @@ import com.example.xkfeng.mycat.Fragment.DynamicFragment;
 import com.example.xkfeng.mycat.Fragment.FriendFragment;
 import com.example.xkfeng.mycat.Fragment.MessageFragment;
 import com.example.xkfeng.mycat.Model.BaiduLocation;
+import com.example.xkfeng.mycat.Model.HasMsgListOpen;
 import com.example.xkfeng.mycat.Model.LocationBean;
 import com.example.xkfeng.mycat.Model.MsgEvent;
 import com.example.xkfeng.mycat.Model.WeatherBean;
@@ -133,23 +135,19 @@ public class IndexActivity extends BaseActivity {
 
     public static boolean isFirst = true;
 
+    /**
+     *
+     */
+    private HasMsgListOpen msgListOpen = new HasMsgListOpen() ;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-//        if (Build.VERSION.SDK_INT >= 21) {
-//            View decorView = getWindow().getDecorView();
-//            //设置全屏和状态栏透明
-//            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-//
-//            getWindow().setStatusBarColor(Color.RED);
-//        }
         setContentView(R.layout.index_layout);
         ButterKnife.bind(this);
         metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
 
         //沉浸式View
         DensityUtil.fullScreen(this);
@@ -158,7 +156,6 @@ public class IndexActivity extends BaseActivity {
 
         //抽屉设置
         setNavView();
-
 
         //初始化布局
         initView();
@@ -317,23 +314,7 @@ public class IndexActivity extends BaseActivity {
                     public void onNext(final MsgEvent msgEvent) {
                         navView.getMenu().findItem(R.id.nav_city).setTitle(msgEvent.getT().getLocationData());
                         navView.getMenu().findItem(R.id.nav_weather).setTitle(msgEvent.getT().getWeather());
-//                        navView.postInvalidate();
-//                        navView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//                            @Override
-//                            public void onGlobalLayout() {
-//
-//
-////                        if ((MenuItem) navView.findViewById(R.id.nav_city) != null && (MenuItem) navView.findViewById(R.id.nav_weather) != null) {
-////                            navView.getMenu().getItem(2).setTitle();
-////                            navView.getMenu().getItem(3).setTitle(msgEvent.getT().getWeather());
-////                            ((MenuItem) navView.findViewById(R.id.nav_city)).setTitle(msgEvent.getT().getLocationData());
-////                            ((MenuItem) navView.findViewById(R.id.nav_weather)).setTitle(msgEvent.getT().getWeather());
-////                        }
-//                                navView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-//                            }
-//                        });
 
-//                        Log.d(TAG, "onNext: Success :" + msgEvent.getT().getLocationData() + " Weather:" + msgEvent.getT().getWeather());
                     }
 
                     @Override
@@ -405,9 +386,6 @@ public class IndexActivity extends BaseActivity {
 
                     @Override
                     public void onSuccess(WeatherBean weatherBean) {
-//                        Log.d(TAG, "onSuccess: " + IPUtil.getIPAddress(getApplicationContext()));
-//
-//                        Log.d(TAG, "onSuccess: " + weatherBean.getHeWeather6().get(0).getBasic().getLocation());
                         String locationData = null;
                         String weather = null;
                         if (weatherBean.getHeWeather6() != null) {
@@ -431,8 +409,6 @@ public class IndexActivity extends BaseActivity {
                              */
                             RxBus.getInstance().post(new MsgEvent("location", locationBean));
                         }
-
-//                        Log.d(TAG, "onSuccess: " + weatherBean.getHeWeather6().get(0).getNow().getCond_txt());
 
                     }
                 });
@@ -584,6 +560,9 @@ public class IndexActivity extends BaseActivity {
             @Override
             public void onDrawerOpened(@NonNull View drawerView) {
 
+                if (MsgRecyclerView.itemOpenCount.size() > 0 ){
+                    RxBus.getInstance().post(msgListOpen);
+                }
             }
 
             @Override
@@ -786,9 +765,13 @@ public class IndexActivity extends BaseActivity {
                     setIbIndexBottomCheckState_UnChecked(ibIndexBottomDynamic);
                     //将当前View设置为选中状态
                     setIbIndexBottomCheckState_Checked(ibIndexBottomFriend);
-
                     //页面切换
                     vpIndexFragmentPager.setCurrentItem(1);
+                    // 当前有已经打开的侧滑菜单的时候需要关闭
+                    if (MsgRecyclerView.itemOpenCount.size() > 0 ){
+                        RxBus.getInstance().post(msgListOpen);
+                    }
+
                 }
                 break;
             case R.id.ib_indexBottomDynamic:
@@ -804,6 +787,10 @@ public class IndexActivity extends BaseActivity {
                     setIbIndexBottomCheckState_Checked(ibIndexBottomDynamic);
                     //页面切换
                     vpIndexFragmentPager.setCurrentItem(2);
+                    // 当前有已经打开的侧滑菜单的时候需要关闭
+                    if (MsgRecyclerView.itemOpenCount.size() > 0 ){
+                        RxBus.getInstance().post(msgListOpen);
+                    }
                 }
                 break;
         }

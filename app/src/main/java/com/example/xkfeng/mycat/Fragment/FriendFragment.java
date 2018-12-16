@@ -222,7 +222,6 @@ public class FriendFragment extends Fragment {
                 /**
                  * 点击查看好友信息
                  */
-                ITosast.showShort(mContext, "Item click , user is : " + targetUserInfo.getUserName()).show();
                 Intent intent = new Intent();
                 intent.putExtra(StaticValueHelper.TARGET_ID, targetUserInfo.getUserName());
                 intent.putExtra(StaticValueHelper.TARGET_APP_KEY, targetUserInfo.getAppKey());
@@ -240,14 +239,18 @@ public class FriendFragment extends Fragment {
                  * 删除，发送消息
                  */
 
-                ITosast.showShort(mContext, "Item long click , user is : " + targetUserInfo.getUserName()).show();
-
                 /**
                  * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
                  * 由于contentView还未绘制，这时候的width、height都是0。
                  * 因此需要通过measure测量出contentView的大小，才能进行计算。
                  */
 
+                /**
+                 * TODO
+                 *    当首次进入好友列表界面，在长按顶部列表项之后，快速下拉到底部，长按底部列表项，
+                 *    弹出位置不对，没有letterHeight为0
+                 */
+                Log.d(TAG, "onItemLongClick: height :" + view.getHeight() + "  measureHeight : " + view.getMeasuredHeight());
                 popupMenuLayoutFriendManager.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayoutFriendManager.getWidth()),
                         DensityUtil.makeDropDownMeasureSpec(popupMenuLayoutFriendManager.getHeight()));
 

@@ -47,7 +47,7 @@
             android:layout_height="match_parent"
             android:layout_below="@id/et_searchEdit">
 
-            <com.example.xkfeng.mycat.RecyclerDefine.EmptyRecyclerView
+            <com.example.xkfeng.mycat.DrawableView.MessageListDrawable.MsgRecyclerView
                 android:id="@+id/rv_messageRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
