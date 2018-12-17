@@ -14,10 +14,75 @@ import com.example.xkfeng.mycat.RecyclerDefine.QuickAdapter;
 
 import java.util.HashMap;
 import java.util.Map;
+/**
+ * 当存在item处于打开状态的时候，
+ * 1 屏蔽掉任意点击事件
+ * 2 对打开菜单的额外选项提供点击
+ * 2 对列表的其他任意部分点击都将变成让之前打开的列表关闭
+ */
 
 public class MsgRecyclerView extends RecyclerView {
-    private View mEmptyView;
+    /**
+     * 记录当前已经打开的侧滑菜单栏的数据
+     */
     public static Map<QuickAdapter.VH, Integer> itemOpenCount = new HashMap<>();
+
+
+    private View mEmptyView;
+
+
+    public MsgRecyclerView(Context context) {
+        this(context, null);
+    }
+
+    public MsgRecyclerView(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+
+    }
+
+    public void setmEmptyView(View view) {
+        mEmptyView = view;
+
+    }
+
+    public void setAdapter(RecyclerView.Adapter adapter) {
+        super.setAdapter(adapter);
+        adapter.registerAdapterDataObserver(mObserver);
+        mObserver.onChanged();
+    }
+
+
+    public Map<QuickAdapter.VH, Integer> getItemOpenCount() {
+        return itemOpenCount;
+    }
+
+    public int getItemOpenCountSize() {
+        return itemOpenCount.size();
+    }
+
+    public void addOpenItem(QuickAdapter.VH vh, int pos) {
+        if (!itemOpenCount.containsKey(vh)) {
+            itemOpenCount.put(vh, pos);
+        }
+    }
+
+    public void addOpenItem(QuickAdapter.VH vh) {
+        if (!itemOpenCount.containsKey(vh)) {
+            itemOpenCount.put(vh, -2);
+        }
+    }
+
+    public void clearOpenItem() {
+        itemOpenCount.clear();
+    }
+
+    public void removeItem(QuickAdapter.VH vh) {
+        if (itemOpenCount.containsKey(vh)) {
+            itemOpenCount.remove(vh);
+        }
+    }
+
+
     private AdapterDataObserver mObserver = new AdapterDataObserver() {
         @Override
         public void onChanged() {
@@ -63,80 +128,6 @@ public class MsgRecyclerView extends RecyclerView {
         }
     };
 
-
-    public MsgRecyclerView(Context context) {
-        this(context, null);
-    }
-
-    public MsgRecyclerView(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-
-    }
-
-    public void setmEmptyView(View view) {
-
-        mEmptyView = view;
-
-    }
-
-    public void setAdapter(RecyclerView.Adapter adapter) {
-        super.setAdapter(adapter);
-        adapter.registerAdapterDataObserver(mObserver);
-        mObserver.onChanged();
-    }
-
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-
-        /**
-         * 当存在item处于打开状态的时候，
-         * 1 屏蔽掉任意点击事件
-         * 2 对打开菜单的额外选项提供点击
-         * 2 对列表的其他任意部分点击都将变成让之前打开的列表关闭
-         */
-//        if (itemOpenCount.size() > 0){
-//            Log.d("MessageFragment", "dispatchTouchEvent: size > 0 " + itemOpenCount.size());
-//            for(Map.Entry<QuickAdapter.VH, Integer> vo : itemOpenCount.entrySet()){
-//                ((MsgListSlideView)vo.getKey().getView(R.id.listlide)).closeSideSlide();
-//                Log.d("MessageFragment", "dispatchTouchEvent: key : " + vo.getKey() + "  value :" + vo.getValue());
-//
-//            }
-//            clearOpenItem();
-//            return false ;
-//        }
-        return super.dispatchTouchEvent(ev);
-    }
-
-    public Map<QuickAdapter.VH, Integer> getItemOpenCount() {
-        return itemOpenCount;
-    }
-
-    public int getItemOpenCountSize() {
-        return itemOpenCount.size();
-    }
-
-    public void addOpenItem(QuickAdapter.VH vh, int pos) {
-        if (!itemOpenCount.containsKey(vh)) {
-            itemOpenCount.put(vh, pos);
-        }
-    }
-
-    public void addOpenItem(QuickAdapter.VH vh) {
-        if (!itemOpenCount.containsKey(vh)) {
-            itemOpenCount.put(vh, -2);
-        }
-    }
-
-    public void clearOpenItem() {
-        itemOpenCount.clear();
-    }
-
-    public void removeItem(QuickAdapter.VH vh) {
-        if (itemOpenCount.containsKey(vh)) {
-            itemOpenCount.remove(vh);
-        }
-    }
 
 
 }

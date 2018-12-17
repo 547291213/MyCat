@@ -228,6 +228,19 @@
 
             />
 
+        <!--Activity : view album for send-->
+        <activity android:name=".Activity.ViewImageActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+
+            />
+        <!--Activity : preview picture -->
+        <activity android:name=".Activity.PreviewPictureActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+
+            />
+
+
+
         <!--for take photo-->
         <provider
             android:authorities="com.example.xkfeng.mycat.fileprovider"

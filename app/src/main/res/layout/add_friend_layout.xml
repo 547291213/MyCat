@@ -43,8 +43,8 @@
 
             <ImageView
                 android:id="@+id/iv_intoAboutUs"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:layout_gravity="right|center_vertical"
                 android:layout_marginRight="8dp"
                 android:scaleType="fitXY"
@@ -81,6 +81,7 @@
                 android:inputType="text"
                 android:paddingLeft="5dp"
                 android:textSize="20sp"
+                android:drawablePadding="3dp"
 
                 />
 

@@ -1,14 +1,20 @@
 package com.example.xkfeng.mycat.Fragment;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.example.xkfeng.mycat.Activity.ViewImageActivity;
 import com.example.xkfeng.mycat.DrawableView.DrawableTopTextView;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.ITosast;
@@ -58,43 +64,47 @@ public class AddBoradFragment extends Fragment {
         unbinder.unbind();
     }
 
-    @OnClick({R.id.tv_chatMsgAlbum ,R.id.tv_chatMsgPhoto ,R.id.tv_chatMsgPosition ,
-            R.id.tv_chatMsgBusiness ,R.id.tv_chatMsgGif ,R.id.tv_chatMsgFile})
-    public void onItemClick(View view){
-        switch (view.getId()){
-            case R.id.tv_chatMsgAlbum :
-
-                ITosast.showShort(getContext() , "album").show();
+    @OnClick({R.id.tv_chatMsgAlbum, R.id.tv_chatMsgPhoto, R.id.tv_chatMsgPosition,
+            R.id.tv_chatMsgBusiness, R.id.tv_chatMsgGif, R.id.tv_chatMsgFile})
+    public void onItemClick(View view) {
+        switch (view.getId()) {
+            case R.id.tv_chatMsgAlbum:
+                if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ITosast.showShort(mContext ,"请在应用管理中打开“读写存储”访问权限！" ).show();
+                } else {
+                    startActivity(new Intent(mContext, ViewImageActivity.class));
+                }
                 break;
 
-            case R.id.tv_chatMsgPhoto :
+            case R.id.tv_chatMsgPhoto:
 
-                ITosast.showShort(getContext() , "photo").show();
-                break ;
+                ITosast.showShort(getContext(), "photo").show();
+                break;
 
-            case R.id.tv_chatMsgPosition :
-
-
-                ITosast.showShort(getContext() , "position").show();
-                break ;
-
-            case R.id.tv_chatMsgBusiness :
+            case R.id.tv_chatMsgPosition:
 
 
-                ITosast.showShort(getContext() , "business").show();
-                break ;
+                ITosast.showShort(getContext(), "position").show();
+                break;
 
-            case R.id.tv_chatMsgGif :
-
-
-                ITosast.showShort(getContext() , "gif").show();
-                break ;
-
-            case R.id.tv_chatMsgFile :
+            case R.id.tv_chatMsgBusiness:
 
 
-                ITosast.showShort(getContext() , "file").show();
-                break ;
+                ITosast.showShort(getContext(), "business").show();
+                break;
+
+            case R.id.tv_chatMsgGif:
+
+
+                ITosast.showShort(getContext(), "gif").show();
+                break;
+
+            case R.id.tv_chatMsgFile:
+
+
+                ITosast.showShort(getContext(), "file").show();
+                break;
         }
     }
 }

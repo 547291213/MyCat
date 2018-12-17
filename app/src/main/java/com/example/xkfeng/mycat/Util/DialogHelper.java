@@ -57,7 +57,7 @@ public class DialogHelper {
         textView.setText(msg);
         dialog.setContentView(view);
         dialog.setCancelable(false);
-        dialog.setCanceledOnTouchOutside(true);
+        dialog.setCanceledOnTouchOutside(false);
 
         return dialog;
     }
