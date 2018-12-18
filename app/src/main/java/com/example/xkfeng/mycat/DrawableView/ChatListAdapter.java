@@ -222,6 +222,7 @@ public class ChatListAdapter extends BaseAdapter {
             mImgMsgQueue.offer(message);
             increaseStartPosition();
             sendImgMsg(mImgMsgQueue.element());
+            Log.d("ChatMsgActivity", "setSendImgMsg: ");
         }
     }
 

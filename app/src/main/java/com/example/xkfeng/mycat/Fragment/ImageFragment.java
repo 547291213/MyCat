@@ -142,8 +142,6 @@ public class ImageFragment extends Fragment implements ImageAdapter.UpdateSelect
             }
             switch (msg.what) {
                 case SCAN_OK:
-
-                    ITosast.showShort(mContext, "成功").show();
                     imageFragment.loadingDialog.dismiss();
                     imageFragment.imageAdapter = new ImageAdapter(imageFragment, mImages);
                     imageFragment.imageAdapter.setUpdateSelectStateListener(imageFragment);

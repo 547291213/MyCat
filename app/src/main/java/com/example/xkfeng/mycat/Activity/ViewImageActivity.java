@@ -18,6 +18,7 @@ import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class ViewImageActivity extends BaseActivity implements ImageFragment.Ima
     @BindView(R.id.fl_imageFragment)
     FrameLayout flImageFragment;
 
-    private List<String> selectedImgPathList ;
+    private ArrayList<String> selectedImgPathList ;
 
     private ImageFragment imageFragment;
 
@@ -110,6 +111,11 @@ public class ViewImageActivity extends BaseActivity implements ImageFragment.Ima
                     ITosast.showShort(ViewImageActivity.this , "暂未选中图片").show();
                     return ;
                 }
+                /* 消息发送 */
+                Intent intent = new Intent() ;
+                intent.putStringArrayListExtra("imagePath" ,  selectedImgPathList) ;
+                setResult(RESULT_OK ,intent );
+                finish();
 
                 break;
         }

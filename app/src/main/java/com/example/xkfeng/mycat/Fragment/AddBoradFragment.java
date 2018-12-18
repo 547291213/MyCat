@@ -1,6 +1,7 @@
 package com.example.xkfeng.mycat.Fragment;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.xkfeng.mycat.Activity.ChatMsgActivity;
 import com.example.xkfeng.mycat.Activity.ViewImageActivity;
 import com.example.xkfeng.mycat.DrawableView.DrawableTopTextView;
 import com.example.xkfeng.mycat.R;
@@ -42,14 +44,18 @@ public class AddBoradFragment extends Fragment {
     private View view;
     private Context mContext;
     private static final String TAG = "AddBoradFragment";
+    private Activity mActivity ;
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.add_borad_fragment, container, false);
-        mContext = getContext();
         unbinder = ButterKnife.bind(this, view);
+        mActivity = getActivity() ;
+        mContext = getContext();
+
         return view;
     }
 
@@ -73,7 +79,8 @@ public class AddBoradFragment extends Fragment {
                         != PackageManager.PERMISSION_GRANTED) {
                     ITosast.showShort(mContext ,"请在应用管理中打开“读写存储”访问权限！" ).show();
                 } else {
-                    startActivity(new Intent(mContext, ViewImageActivity.class));
+                    mActivity.startActivityForResult(new Intent(mContext , ViewImageActivity.class) , ChatMsgActivity.REQUEST_CAMERA);
+
                 }
                 break;
 

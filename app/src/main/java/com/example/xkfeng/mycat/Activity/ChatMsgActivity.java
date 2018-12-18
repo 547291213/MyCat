@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -44,6 +45,7 @@ import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.StaticValueHelper;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +54,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
@@ -66,6 +69,9 @@ import io.github.rockerhieu.emojicon.EmojiconEditText;
 import io.github.rockerhieu.emojicon.EmojiconGridFragment;
 import io.github.rockerhieu.emojicon.EmojiconsFragment;
 import io.github.rockerhieu.emojicon.emoji.Emojicon;
+import top.zibin.luban.CompressionPredicate;
+import top.zibin.luban.Luban;
+import top.zibin.luban.OnCompressListener;
 
 
 public class ChatMsgActivity extends BaseActivity implements
@@ -142,13 +148,18 @@ public class ChatMsgActivity extends BaseActivity implements
     // 默认为add
     private int sendOrAdd = SendOrAdd.add.ordinal();
 
+    /**
+     * 消息下拉更新
+     */
     private static final int REFRESH_LAST_PAGE = 0x123;
-
     private UIHandler uiHandler;
 
+    /**
+     * 会话列表数据
+     */
     private String mTargetId;
     private String mTargetAappkey;
-    private String chatMsgTitle ;
+    private String chatMsgTitle;
 
     /**
      * 针对消息的类型定制多种长按的弹出式菜单
@@ -162,8 +173,13 @@ public class ChatMsgActivity extends BaseActivity implements
     private PopupMenuLayout otherContentSend;
     private List<String> otherContentSendList;
 
+    /**
+     * 文本复制管理
+     */
     private ClipboardManager clipboardManager;
     private ClipData clipData;
+
+    public static final int REQUEST_CAMERA = 100;
 
 
     //    【A】stateUnspecified：软键盘的状态并没有指定，系统将选择一个合适的状态或依赖于主题的设置
@@ -186,7 +202,7 @@ public class ChatMsgActivity extends BaseActivity implements
 
         mTargetId = getIntent().getStringExtra(StaticValueHelper.TARGET_ID);
         mTargetAappkey = getIntent().getStringExtra(StaticValueHelper.TARGET_APP_KEY);
-        chatMsgTitle = getIntent().getStringExtra(StaticValueHelper.CHAT_MSG_TITLE) ;
+        chatMsgTitle = getIntent().getStringExtra(StaticValueHelper.CHAT_MSG_TITLE);
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN |
                 WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
@@ -793,8 +809,8 @@ public class ChatMsgActivity extends BaseActivity implements
             case R.id.iv_intoAboutUs:
             case R.id.tv_intoAboutUs:
 
-                Intent intent = new Intent(ChatMsgActivity.this , AboutActivity.class) ;
-                startActivity(intent) ;
+                Intent intent = new Intent(ChatMsgActivity.this, AboutActivity.class);
+                startActivity(intent);
                 break;
 
 
@@ -1196,6 +1212,113 @@ public class ChatMsgActivity extends BaseActivity implements
         }
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_CAMERA:
+                if (data != null && resultCode == RESULT_OK) {
+                    onResultSendImg(data);
+                } else {
+                    ITosast.showShort(ChatMsgActivity.this, "获取图片数据失败").show();
+                }
+                break;
+
+            default:
+                ITosast.showShort(ChatMsgActivity.this, "未知请求类型").show();
+                break;
+        }
+    }
+
+
+    /**
+     * 从相册返回后进行图片发送处理，
+     * 这里进行数据收集
+     * @param data
+     */
+    private ArrayList<String> imgPathList;
+    private void onResultSendImg(Intent data) {
+        imgPathList = data.getStringArrayListExtra("imagePath");
+        if (imgPathList == null || imgPathList.size()==0) {
+            ITosast.showShort(ChatMsgActivity.this, "获取图片数据失败").show();
+            return;
+        }
+        for (int i = 0; i < imgPathList.size(); i++) {
+//            compressedImg(imgPathList.get(i));
+            encapsulateData(new File(imgPathList.get(i)));
+        }
+    }
+
+    /**
+     * 压缩图片
+     * 三方框架Luban
+     * @param path 图片路径
+     * 无法使用，原因未知
+     */
+    @Deprecated
+    private void compressedImg(String path) {
+        Log.d(TAG, "compressedImg: ");
+        Luban.with(ChatMsgActivity.this)
+                .load(new File(path))
+                .ignoreBy(100)
+//                .setTargetDir(Environment.getExternalStorageDirectory() + "/mycat/sendImg/")
+                .filter(new CompressionPredicate() {
+                    @Override
+                    public boolean apply(String path) {
+                        return !(TextUtils.isEmpty(path) || path.toLowerCase().endsWith(".gif"));
+                    }
+                })
+                .setCompressListener(new OnCompressListener() {
+                    @Override
+                    public void onStart() {
+                        Log.d(TAG, "onStart: ");
+                    }
+                    @Override
+                    public void onSuccess(File file) {
+
+                        Log.d(TAG, "onSuccess: ");
+                        encapsulateData(file);
+
+                    }
+                    @Override
+                    public void onError(Throwable e) {
+
+                        Log.d(TAG, "onError: ");
+                    }
+                });
+    }
+
+    /**
+     * 封装数据
+     * 将文件封装为图片数据，用于传输
+     * @param file
+     */
+    private void encapsulateData(File file) {
+        //所有图片都在这里拿到
+        ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
+            @Override
+            public void gotResult(int responseCode, String responseMessage, ImageContent imageContent) {
+                if (responseCode == 0) {
+                    Message msg = conversation.createSendMessage(imageContent);
+                    handleSendMsg(msg.getId());
+                }else {
+                    ITosast.showShort(ChatMsgActivity.this , "封装图片数据失败").show();
+                }
+            }
+        });
+    }
+
+    /**
+     * 处理发送图片，
+     * 刷新界面
+     * @param data intent
+     */
+    private void handleSendMsg(int data) {
+        chatListAdapter.setSendImgMsg(data);
+        rlRootLayoutView.setToBottom();
+
+
+    }
 
     @Override
     protected void onDestroy() {

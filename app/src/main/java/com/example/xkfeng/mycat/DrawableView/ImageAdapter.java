@@ -27,6 +27,10 @@ public class ImageAdapter extends BaseAdapter {
 
 
     private ImageFragment imageFragment;
+    /**
+     * 记录当前已经选中的图片的数据
+     * 记录当已经选中的图片的数目
+     */
     private List<ImageFileItem> fileItemList;
     private LayoutInflater layoutInflater;
     private SparseBooleanArray selectedMap = new SparseBooleanArray();
@@ -36,9 +40,9 @@ public class ImageAdapter extends BaseAdapter {
 
     //一次最大发送的图片数目
     private final int MAX_SEND_IMG = 5;
-
+    
     //当前已经选中的图片数目
-    private static int CURRENT_SELECT_COUNT = 0;
+//    private static int selectedMap.size() = 0;
 
     public ImageAdapter(ImageFragment imageFragment, List<ImageFileItem> fileItems) {
         this.imageFragment = imageFragment;
@@ -86,7 +90,6 @@ public class ImageAdapter extends BaseAdapter {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
-                intent.putExtra("browserAvatar", true);
                 intent.putExtra("imagePath", imageFileItem.getmFilePath());
                 intent.setClass(mContext, PreviewPictureActivity.class);
                 mContext.startActivity(intent);
@@ -100,13 +103,12 @@ public class ImageAdapter extends BaseAdapter {
             @Override
             public void onClick(View view) {
                 if (viewHolder.checkBox.isChecked()) {
-                    if (CURRENT_SELECT_COUNT < MAX_SEND_IMG) {
+                    if (selectedMap.size() < MAX_SEND_IMG) {
                         selectedMap.append(position, true);
                         viewHolder.checkBox.setChecked(true);
                         addAnimation(viewHolder.checkBox);
-                        CURRENT_SELECT_COUNT++;
                         if (updateSelectStateListener != null) {
-                            updateSelectStateListener.onSelected(imageFileItem.getmFilePath(), imageFileItem.getFileSize(), CURRENT_SELECT_COUNT);
+                            updateSelectStateListener.onSelected(imageFileItem.getmFilePath(), imageFileItem.getFileSize(), selectedMap.size());
                         }
 
                     } else {
@@ -116,9 +118,8 @@ public class ImageAdapter extends BaseAdapter {
                 } else {
                     viewHolder.checkBox.setChecked(false);
                     selectedMap.delete(position);
-                    CURRENT_SELECT_COUNT--;
                     if (updateSelectStateListener != null) {
-                        updateSelectStateListener.onReleased(imageFileItem.getmFilePath(), imageFileItem.getFileSize(), CURRENT_SELECT_COUNT);
+                        updateSelectStateListener.onReleased(imageFileItem.getmFilePath(), imageFileItem.getFileSize(), selectedMap.size());
                     }
                 }
             }
