@@ -348,7 +348,6 @@ public class ChatMsgActivity extends BaseActivity implements
 
             Message msg = chatListAdapter.getMessage(pos);
             if (msg == null) {
-                Toast.makeText(ChatMsgActivity.this, "MSG NULL", Toast.LENGTH_SHORT).show();
                 return;
             }
             /**

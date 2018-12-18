@@ -2,6 +2,7 @@ package com.example.xkfeng.mycat.DrawableView;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
@@ -14,6 +15,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.example.xkfeng.mycat.Activity.PreviewPictureActivity;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.squareup.picasso.Picasso;
@@ -32,6 +34,7 @@ import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageDirect;
 import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
@@ -64,8 +67,9 @@ public class ChatListAdapterController {
         mContext = context;
         mActivity = (Activity) context;
         mConversation = conversation;
-
-        this.contentLongClickListener = contentLongClickListener ;
+        mMsgList = messageList ;
+        this.chatListAdapter = chatListAdapter ;
+        this.contentLongClickListener = contentLongClickListener;
 
         if (conversation.getType() == ConversationType.single) {
             mUserInfo = (UserInfo) conversation.getTargetInfo();
@@ -148,7 +152,7 @@ public class ChatListAdapterController {
         final String jiguang = imageContent.getStringExtra("jiguang");
         //拿取本地略缩图
         final String path = imageContent.getLocalThumbnailPath();
-
+        //图片实际路径
         if (path == null) {
 
             imageContent.downloadThumbnailImage(msg, new DownloadCompletionCallback() {
@@ -157,7 +161,6 @@ public class ChatListAdapterController {
                     if (i == 0) {
                         final ImageView imageView = setPictureScale(jiguang, msg, file.getPath(), viewHolder.picture);
                         Picasso.get().load(file).into(imageView);
-                        Log.d("Chat", "onComplete: 从服务器加载图片");
                     }
                 }
             });
@@ -272,7 +275,8 @@ public class ChatListAdapterController {
         }
         if (viewHolder.picture != null) {
             // 点击预览图片
-//            viewHolder.picture.setOnClickListener(new BtnOrTxtListener(position, viewHolder));
+            viewHolder.picture.setOnClickListener(new OnItemClickListener(viewHolder , position)) ;
+
             viewHolder.picture.setTag(position);
             viewHolder.picture.setOnLongClickListener(contentLongClickListener);
 
@@ -287,7 +291,6 @@ public class ChatListAdapterController {
             });
         }
     }
-
 
 
     private void sendingImage(final Message msg, final ChatListAdapter.ViewHolder holder) {
@@ -342,6 +345,7 @@ public class ChatListAdapterController {
 
         }
     }
+
     private void sendingTextOrVoice(final ChatListAdapter.ViewHolder viewHolder, final Message msg) {
 
         viewHolder.text_receipt.setVisibility(View.GONE);
@@ -375,6 +379,57 @@ public class ChatListAdapterController {
                     }
                 }
             });
+        }
+    }
+
+
+    public class OnItemClickListener implements View.OnClickListener {
+
+        private ChatListAdapter.ViewHolder holder;
+        private Message msg;
+
+        public OnItemClickListener(ChatListAdapter.ViewHolder viewHolder, int pos) {
+            msg = mMsgList.get(pos);
+            this.holder = viewHolder;
+        }
+
+        @Override
+        public void onClick(View view) {
+            switch (msg.getContentType()) {
+                case text:
+
+
+                    break;
+
+                case image:
+                    if (holder.picture != null && view.getId() == holder.picture.getId()) {
+                        if (TextUtils.isEmpty(((ImageContent)msg.getContent()).getLocalThumbnailPath())){
+                            ITosast.showShort(mContext , "获取图片数据失败").show();
+                            return ;
+                        }
+                        Intent intent = new Intent();
+                        intent.putExtra("imagePath", ((ImageContent)msg.getContent()).getLocalThumbnailPath());
+                        intent.setClass(mContext, PreviewPictureActivity.class);
+                        mContext.startActivity(intent);
+                    }
+                    break;
+
+                case file:
+
+                    break;
+
+                case voice:
+
+                    break;
+
+                case location:
+
+                    break;
+
+                default:
+                    ITosast.showShort(mContext, "未知数据类型").show();
+                    break;
+            }
         }
     }
 
