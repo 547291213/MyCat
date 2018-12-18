@@ -51,6 +51,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.security.auth.callback.CallbackHandler;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -185,7 +187,8 @@ public class ChatMsgActivity extends BaseActivity implements
     private ClipboardManager clipboardManager;
     private ClipData clipData;
 
-    public static final int REQUEST_CAMERA = 100;
+    public static final int RequestCode_CAMERA = 100;
+    public static final int RequestCode_PHOTO = 101;
 
 
     //    【A】stateUnspecified：软键盘的状态并没有指定，系统将选择一个合适的状态或依赖于主题的设置
@@ -777,7 +780,7 @@ public class ChatMsgActivity extends BaseActivity implements
                 }
             }
         } else {
-            ITosast.showShort(ChatMsgActivity.this , "群聊消息暂无处理").show();
+            ITosast.showShort(ChatMsgActivity.this, "群聊消息暂无处理").show();
         }
     }
 
@@ -1249,11 +1252,23 @@ public class ChatMsgActivity extends BaseActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case REQUEST_CAMERA:
+            case RequestCode_CAMERA:
                 if (data != null && resultCode == RESULT_OK) {
                     onResultSendImg(data);
                 } else {
                     ITosast.showShort(ChatMsgActivity.this, "获取图片数据失败").show();
+                }
+                break;
+
+            case RequestCode_PHOTO:
+                if (resultCode == RESULT_OK) {
+                    if (addBoradFragment.getImageFileDir() == null) {
+                        ITosast.showShort(ChatMsgActivity.this, "获取照片失败").show();
+                        return;
+                    }
+                    ITosast.showShort(ChatMsgActivity.this, "获取照片成功").show();
+                    //压缩，上传
+                    encapsulateData(addBoradFragment.getImageFileDir());
                 }
                 break;
 

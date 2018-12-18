@@ -447,7 +447,7 @@ public class ModifyUserInfoActivity extends BaseActivity {
     public Uri getImageUri() {
         Uri imageUri;
         //创建文件
-        imageFileDir = new File(Environment.getExternalStorageDirectory(), "header_image.jpg");
+        imageFileDir = new File(Environment.getExternalStorageDirectory(), "/mycat/img/header_image.jpg");
         try {
             //创建目录
             imageFileDir.getParentFile().mkdirs();

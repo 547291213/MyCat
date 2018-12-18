@@ -5,22 +5,30 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.xkfeng.mycat.Activity.ChatMsgActivity;
+import com.example.xkfeng.mycat.Activity.ModifyUserInfoActivity;
 import com.example.xkfeng.mycat.Activity.ViewImageActivity;
 import com.example.xkfeng.mycat.DrawableView.DrawableTopTextView;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.HandleResponseCode;
 import com.example.xkfeng.mycat.Util.ITosast;
+
+import java.io.File;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,6 +61,7 @@ public class AddBoradFragment extends Fragment {
     private static final String TAG = "AddBoradFragment";
     private Activity mActivity;
     private OnBusinessItemClickListener onBusinessItemClickListener;
+    private  File imageFileDir;
 
 
     @Nullable
@@ -87,14 +96,27 @@ public class AddBoradFragment extends Fragment {
                         != PackageManager.PERMISSION_GRANTED) {
                     ITosast.showShort(mContext, "请在应用管理中打开“读写存储”访问权限！").show();
                 } else {
-                    mActivity.startActivityForResult(new Intent(mContext, ViewImageActivity.class), ChatMsgActivity.REQUEST_CAMERA);
+                    mActivity.startActivityForResult(new Intent(mContext, ViewImageActivity.class), ChatMsgActivity.RequestCode_CAMERA);
 
                 }
                 break;
 
             case R.id.tv_chatMsgPhoto:
 
-                ITosast.showShort(getContext(), "photo").show();
+                if ((ContextCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) ||
+                        (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) ||
+                        (ContextCompat.checkSelfPermission(mContext, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)) {
+
+                    ITosast.showShort(mContext, "请到管理中心去打开权限").show();
+                    return ;
+                }
+                Uri imageUri;
+                imageUri = getImageUri();
+                //启动程序
+                Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                mActivity.startActivityForResult(intent, ChatMsgActivity.RequestCode_PHOTO);
                 break;
 
             case R.id.tv_chatMsgPosition:
@@ -123,6 +145,47 @@ public class AddBoradFragment extends Fragment {
                 ITosast.showShort(getContext(), "file").show();
                 break;
         }
+    }
+
+
+    /**
+     * 获取图片Uri地址
+     */
+    public Uri getImageUri() {
+        Uri imageUri;
+
+        //创建文件
+        imageFileDir = new File(Environment.getExternalStorageDirectory(), "/mycat/img/" + System.currentTimeMillis() + ".jpg");
+        try {
+            //创建目录
+            imageFileDir.getParentFile().mkdirs();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            /**
+             * 如果图片已经存在
+             * 删除已存在的图片
+             */
+            if (imageFileDir.exists()) {
+                imageFileDir.delete();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (Build.VERSION.SDK_INT >= 24) {
+            imageUri = FileProvider.getUriForFile(mContext ,
+                    "com.example.xkfeng.mycat.fileprovider", imageFileDir);
+        } else {
+            imageUri = Uri.fromFile(imageFileDir);
+        }
+
+        return imageUri;
+    }
+
+    public File getImageFileDir(){
+        return imageFileDir ;
     }
 
     public void setOnBusinessItemClickListener(OnBusinessItemClickListener onBusinessItemClickListener) {

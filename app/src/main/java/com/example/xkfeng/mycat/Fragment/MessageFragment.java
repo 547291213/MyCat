@@ -63,6 +63,10 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.PromptContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ContentType;
+import cn.jpush.im.android.api.event.ConversationRefreshEvent;
+import cn.jpush.im.android.api.event.MessageReceiptStatusChangeEvent;
+import cn.jpush.im.android.api.event.MessageRetractEvent;
+import cn.jpush.im.android.api.event.OfflineMessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.reactivex.Observer;
@@ -177,9 +181,9 @@ public class MessageFragment extends Fragment {
         initRecyclerView();
         //下拉刷新
         initRefreshLayout();
-
+        //对打开侧滑消息数目的监听
         initRxBus();
-
+        //初始化网络监听的广播
         initReceiver() ;
 
     }
@@ -337,7 +341,6 @@ public class MessageFragment extends Fragment {
      * 定时从Jpush上拉取数据，同步更新
      */
     private void initData() {
-        Log.d(TAG, "initData: " );
         conversationList = JMessageClient.getConversationList();
 
         if (conversationList == null) {
@@ -933,6 +936,41 @@ public class MessageFragment extends Fragment {
         }
         System.gc();
         mContext.unregisterReceiver(mReceiver);
+
+    }
+
+
+    /**
+     * 接收离线消息
+     *
+     * @param event 离线消息事件
+     */
+    public void onEvent(OfflineMessageEvent event) {
+        Conversation conv = event.getConversation();
+    }
+
+    /**
+     * 消息撤回
+     */
+    public void onEvent(MessageRetractEvent event) {
+        Conversation conversation = event.getConversation();
+    }
+
+    /**
+     * 消息已读事件
+     */
+    public void onEventMainThread(MessageReceiptStatusChangeEvent event) {
+        Conversation conv = event.getConversation();
+
+    }
+
+    /**
+     * 消息漫游完成事件
+     *
+     * @param event 漫游完成后， 刷新会话事件
+     */
+    public void onEvent(ConversationRefreshEvent event) {
+        Conversation conv = event.getConversation();
 
     }
 
