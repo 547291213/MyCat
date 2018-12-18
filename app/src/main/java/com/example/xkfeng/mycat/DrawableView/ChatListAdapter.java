@@ -456,6 +456,7 @@ public class ChatListAdapter extends BaseAdapter {
             switch (msg.getContentType()) {
                 case text:
                     viewHolder.ll_businessCard = (LinearLayout) convertView.findViewById(R.id.ll_businessCard);
+
                     viewHolder.business_head = (ImageView) convertView.findViewById(R.id.business_head);
                     viewHolder.tv_nickUser = (TextView) convertView.findViewById(R.id.tv_nickUser);
                     viewHolder.tv_userName = (TextView) convertView.findViewById(R.id.tv_userName);
@@ -645,12 +646,15 @@ public class ChatListAdapter extends BaseAdapter {
                 if (extraBusiness != null) {
                     holder.txtContent.setVisibility(View.GONE);
                     holder.ll_businessCard.setVisibility(View.VISIBLE);
-                    //mController.handleBusinessCard(msg, holder, position);
+                    mController.handleBusinessCard(holder,msg, position);
                 } else {
                     /**
                      * BUG .
                      * 当前作为发送方，发送消息后，
                      * ll_businessCard为null，加载布局报nullPointerException
+                     *
+                     * 问题所在：
+                     *     xml布局文件错误：
                      */
                     if (holder.ll_businessCard != null) {
                         holder.ll_businessCard.setVisibility(View.GONE);

@@ -61,6 +61,7 @@
 
         <!-- business card -->
         <LinearLayout
+            android:id="@+id/ll_businessCard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="3dp"

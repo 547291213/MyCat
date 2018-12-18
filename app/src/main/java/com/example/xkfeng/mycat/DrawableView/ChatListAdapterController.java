@@ -15,18 +15,25 @@ import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.example.xkfeng.mycat.Activity.FriendInfoActivity;
 import com.example.xkfeng.mycat.Activity.PreviewPictureActivity;
+import com.example.xkfeng.mycat.Activity.UserInfoActivity;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.Util.HandleResponseCode;
 import com.example.xkfeng.mycat.Util.ITosast;
+import com.example.xkfeng.mycat.Util.StaticValueHelper;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.ImageContent;
@@ -56,6 +63,8 @@ public class ChatListAdapterController {
     private UserInfo mUserInfo;
     private Queue<Message> mMsgQueue = new LinkedList<Message>();
     private int mSendMsgId;
+    private Map<Integer, UserInfo> mUserInfoMap = new HashMap<>();
+
 
     public ChatListAdapterController(Context context,
                                      ChatListAdapter chatListAdapter,
@@ -67,8 +76,8 @@ public class ChatListAdapterController {
         mContext = context;
         mActivity = (Activity) context;
         mConversation = conversation;
-        mMsgList = messageList ;
-        this.chatListAdapter = chatListAdapter ;
+        mMsgList = messageList;
+        this.chatListAdapter = chatListAdapter;
         this.contentLongClickListener = contentLongClickListener;
 
         if (conversation.getType() == ConversationType.single) {
@@ -79,6 +88,144 @@ public class ChatListAdapterController {
         mSendingAnim.setInterpolator(lin);
 
 
+    }
+
+    public void handleBusinessCard(final ChatListAdapter.ViewHolder viewHolder, final Message msg, int position) {
+        final TextContent[] textContent = {(TextContent) msg.getContent()};
+        final String[] mUserName = {textContent[0].getStringExtra("userName")};
+        viewHolder.ll_businessCard.setTag(position);
+        int key = mUserName[0].hashCode();
+        UserInfo userInfo = mUserInfoMap.get(key);
+        if (userInfo == null) {
+            JMessageClient.getUserInfo(mUserName[0], "", new GetUserInfoCallback() {
+                @Override
+                public void gotResult(int i, String s, UserInfo userInfo) {
+                    switch (i) {
+                        case 0:
+                            mUserInfoMap.put((mUserName[0]).hashCode(), userInfo);
+                            String name = userInfo.getNickname();
+                            //如果没有昵称,名片上面的位置显示用户名
+                            //如果有昵称,上面显示昵称,下面显示用户名
+                            if (TextUtils.isEmpty(name)) {
+                                viewHolder.tv_userName.setText("");
+                                viewHolder.tv_nickUser.setText(mUserName[0]);
+                            } else {
+                                viewHolder.tv_nickUser.setText(name);
+                                viewHolder.tv_userName.setText("用户名: " + mUserName[0]);
+                            }
+                            if (userInfo.getAvatarFile() != null) {
+                                viewHolder.business_head.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().getAbsolutePath()));
+                            } else {
+                                viewHolder.business_head.setImageResource(R.mipmap.log);
+                            }
+                            break;
+
+                        default:
+                            HandleResponseCode.onHandle(mContext, i);
+                            break;
+                    }
+                }
+            });
+        } else {
+            String name = userInfo.getNickname();
+            //如果没有昵称,名片上面的位置显示用户名
+            //如果有昵称,上面显示昵称,下面显示用户名
+            if (TextUtils.isEmpty(name)) {
+                viewHolder.tv_userName.setText("");
+                viewHolder.tv_nickUser.setText(mUserName[0]);
+            } else {
+                viewHolder.tv_nickUser.setText(name);
+                viewHolder.tv_userName.setText("用户名: " + mUserName[0]);
+            }
+            if (userInfo.getAvatarFile() != null) {
+                viewHolder.business_head.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().getAbsolutePath()));
+            } else {
+                viewHolder.business_head.setImageResource(R.mipmap.log);
+            }
+        }
+
+
+        if (msg.getDirect() == MessageDirect.send) {
+            switch (msg.getStatus()) {
+                case created:
+                    if (null != mUserInfo) {
+                        viewHolder.sendingIv.setVisibility(View.GONE);
+                        viewHolder.resend.setVisibility(View.VISIBLE);
+                        viewHolder.text_receipt.setVisibility(View.GONE);
+                    }
+                    break;
+                case send_success:
+                    viewHolder.text_receipt.setVisibility(View.VISIBLE);
+                    viewHolder.sendingIv.clearAnimation();
+                    viewHolder.sendingIv.setVisibility(View.GONE);
+                    viewHolder.resend.setVisibility(View.GONE);
+                    break;
+                case send_fail:
+                    viewHolder.text_receipt.setVisibility(View.GONE);
+                    viewHolder.sendingIv.clearAnimation();
+                    viewHolder.sendingIv.setVisibility(View.GONE);
+                    viewHolder.resend.setVisibility(View.VISIBLE);
+                    break;
+                case send_going:
+                    sendingTextOrVoice(viewHolder, msg);
+                    break;
+            }
+        } else {
+            if (mConversation.getType() == ConversationType.group) {
+                if (msg.isAtMe()) {
+                    mConversation.updateMessageExtra(msg, "isRead", true);
+                }
+                if (msg.isAtAll()) {
+                    mConversation.updateMessageExtra(msg, "isReadAtAll", true);
+                }
+                viewHolder.displayName.setVisibility(View.VISIBLE);
+                if (TextUtils.isEmpty(msg.getFromUser().getNickname())) {
+                    viewHolder.displayName.setText(msg.getFromUser().getUserName());
+                } else {
+                    viewHolder.displayName.setText(msg.getFromUser().getNickname());
+                }
+            }
+        }
+        if (viewHolder.resend != null) {
+            viewHolder.resend.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    chatListAdapter.showReSendDialog(viewHolder, msg);
+                }
+            });
+        }
+
+        viewHolder.ll_businessCard.setOnClickListener(new BusinessCardClickListener(viewHolder , mUserName[0]));
+        viewHolder.ll_businessCard.setOnLongClickListener(contentLongClickListener);
+
+    }
+
+    private class BusinessCardClickListener implements View.OnClickListener{
+
+        private ChatListAdapter.ViewHolder holder ;
+        private String userName ;
+
+        public BusinessCardClickListener(ChatListAdapter.ViewHolder holder , String userName) {
+            this.holder = holder;
+            this.userName = userName;
+
+        }
+
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent() ;
+            if (JMessageClient.getMyInfo().getUserName().equals(userName)){
+
+                intent.setClass(mContext , UserInfoActivity.class) ;
+            }else {
+                intent.setClass(mContext , FriendInfoActivity.class) ;
+                intent.putExtra(StaticValueHelper.TARGET_ID , userName) ;
+                UserInfo userInfo = mUserInfoMap.get(userName.hashCode());
+                intent.putExtra(StaticValueHelper.IS_FRIEDN , userInfo.isFriend()) ;
+            }
+            mContext.startActivity(intent);
+
+        }
     }
 
     public void handleTextMessage(final ChatListAdapter.ViewHolder viewHolder, final Message msg, int position) {
@@ -275,7 +422,7 @@ public class ChatListAdapterController {
         }
         if (viewHolder.picture != null) {
             // 点击预览图片
-            viewHolder.picture.setOnClickListener(new OnItemClickListener(viewHolder , position)) ;
+            viewHolder.picture.setOnClickListener(new OnItemClickListener(viewHolder, position));
 
             viewHolder.picture.setTag(position);
             viewHolder.picture.setOnLongClickListener(contentLongClickListener);
@@ -403,12 +550,12 @@ public class ChatListAdapterController {
 
                 case image:
                     if (holder.picture != null && view.getId() == holder.picture.getId()) {
-                        if (TextUtils.isEmpty(((ImageContent)msg.getContent()).getLocalThumbnailPath())){
-                            ITosast.showShort(mContext , "获取图片数据失败").show();
-                            return ;
+                        if (TextUtils.isEmpty(((ImageContent) msg.getContent()).getLocalThumbnailPath())) {
+                            ITosast.showShort(mContext, "获取图片数据失败").show();
+                            return;
                         }
                         Intent intent = new Intent();
-                        intent.putExtra("imagePath", ((ImageContent)msg.getContent()).getLocalThumbnailPath());
+                        intent.putExtra("imagePath", ((ImageContent) msg.getContent()).getLocalThumbnailPath());
                         intent.setClass(mContext, PreviewPictureActivity.class);
                         mContext.startActivity(intent);
                     }

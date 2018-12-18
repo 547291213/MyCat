@@ -54,13 +54,14 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/ll_businessCard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="53dp"
             android:background="@drawable/mycat_msg_receive_bg"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:id="@+id/ll_businessCard"
+            >
 
             <LinearLayout
                 android:layout_width="wrap_content"

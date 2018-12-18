@@ -19,12 +19,19 @@ import com.example.xkfeng.mycat.Activity.ChatMsgActivity;
 import com.example.xkfeng.mycat.Activity.ViewImageActivity;
 import com.example.xkfeng.mycat.DrawableView.DrawableTopTextView;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.Util.HandleResponseCode;
 import com.example.xkfeng.mycat.Util.ITosast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.options.MessageSendingOptions;
+import cn.jpush.im.api.BasicCallback;
 
 public class AddBoradFragment extends Fragment {
 
@@ -44,7 +51,8 @@ public class AddBoradFragment extends Fragment {
     private View view;
     private Context mContext;
     private static final String TAG = "AddBoradFragment";
-    private Activity mActivity ;
+    private Activity mActivity;
+    private OnBusinessItemClickListener onBusinessItemClickListener;
 
 
     @Nullable
@@ -53,7 +61,7 @@ public class AddBoradFragment extends Fragment {
 
         view = inflater.inflate(R.layout.add_borad_fragment, container, false);
         unbinder = ButterKnife.bind(this, view);
-        mActivity = getActivity() ;
+        mActivity = getActivity();
         mContext = getContext();
 
         return view;
@@ -77,9 +85,9 @@ public class AddBoradFragment extends Fragment {
             case R.id.tv_chatMsgAlbum:
                 if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
-                    ITosast.showShort(mContext ,"请在应用管理中打开“读写存储”访问权限！" ).show();
+                    ITosast.showShort(mContext, "请在应用管理中打开“读写存储”访问权限！").show();
                 } else {
-                    mActivity.startActivityForResult(new Intent(mContext , ViewImageActivity.class) , ChatMsgActivity.REQUEST_CAMERA);
+                    mActivity.startActivityForResult(new Intent(mContext, ViewImageActivity.class), ChatMsgActivity.REQUEST_CAMERA);
 
                 }
                 break;
@@ -96,9 +104,11 @@ public class AddBoradFragment extends Fragment {
                 break;
 
             case R.id.tv_chatMsgBusiness:
-
-
-                ITosast.showShort(getContext(), "business").show();
+                if (onBusinessItemClickListener != null) {
+                    onBusinessItemClickListener.onBusinessItemClick();
+                } else {
+                    ITosast.showShort(mContext, "发送名片失败").show();
+                }
                 break;
 
             case R.id.tv_chatMsgGif:
@@ -113,5 +123,13 @@ public class AddBoradFragment extends Fragment {
                 ITosast.showShort(getContext(), "file").show();
                 break;
         }
+    }
+
+    public void setOnBusinessItemClickListener(OnBusinessItemClickListener onBusinessItemClickListener) {
+        this.onBusinessItemClickListener = onBusinessItemClickListener;
+    }
+
+    public interface OnBusinessItemClickListener {
+        public void onBusinessItemClick();
     }
 }

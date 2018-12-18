@@ -42,6 +42,7 @@ import com.example.xkfeng.mycat.Fragment.NullBoradFragment;
 import com.example.xkfeng.mycat.Fragment.VoiceBoradFragment;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
+import com.example.xkfeng.mycat.Util.HandleResponseCode;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.StaticValueHelper;
 
@@ -77,6 +78,7 @@ import top.zibin.luban.OnCompressListener;
 public class ChatMsgActivity extends BaseActivity implements
         EmojiconGridFragment.OnEmojiconClickedListener,
         EmojiconsFragment.OnEmojiconBackspaceClickedListener,
+        AddBoradFragment.OnBusinessItemClickListener,
         KeyBoradRelativeLayout.KeyBoradStateListener {
 
 
@@ -92,6 +94,7 @@ public class ChatMsgActivity extends BaseActivity implements
     LinearLayout llTitleLayout;
     @BindView(R.id.ll_chatBottomLayout)
     LinearLayout llChatBottomLayout;
+
 
     enum SendOrAdd {
         send, add
@@ -245,6 +248,9 @@ public class ChatMsgActivity extends BaseActivity implements
         setEditEmojionView();
 
         addBoradFragment = new AddBoradFragment();
+        //绑定名片点击事件
+        addBoradFragment.setOnBusinessItemClickListener(this);
+
         voiceFragment = new VoiceBoradFragment();
         nullBoradFragment = new NullBoradFragment();
         inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -729,8 +735,6 @@ public class ChatMsgActivity extends BaseActivity implements
                     UserInfo userInfo = (UserInfo) message.getTargetInfo();
                     String targetId = userInfo.getUserName();
                     String targetAppkey = userInfo.getAppKey();
-                    Log.d(TAG, "run: msg-single targetId :" + targetId + "  targetAppkey :" + targetAppkey);
-
                     if (targetAppkey.equals(mTargetAappkey) && targetId.equals(mTargetId)) {
                         Message lastMsg = chatListAdapter.getLastMsg();
                         if (lastMsg != null && lastMsg.getId() != message.getId()) {
@@ -1233,12 +1237,14 @@ public class ChatMsgActivity extends BaseActivity implements
     /**
      * 从相册返回后进行图片发送处理，
      * 这里进行数据收集
+     *
      * @param data
      */
     private ArrayList<String> imgPathList;
+
     private void onResultSendImg(Intent data) {
         imgPathList = data.getStringArrayListExtra("imagePath");
-        if (imgPathList == null || imgPathList.size()==0) {
+        if (imgPathList == null || imgPathList.size() == 0) {
             ITosast.showShort(ChatMsgActivity.this, "获取图片数据失败").show();
             return;
         }
@@ -1251,8 +1257,9 @@ public class ChatMsgActivity extends BaseActivity implements
     /**
      * 压缩图片
      * 三方框架Luban
+     *
      * @param path 图片路径
-     * 无法使用，原因未知
+     *             无法使用，原因未知
      */
     @Deprecated
     private void compressedImg(String path) {
@@ -1272,6 +1279,7 @@ public class ChatMsgActivity extends BaseActivity implements
                     public void onStart() {
                         Log.d(TAG, "onStart: ");
                     }
+
                     @Override
                     public void onSuccess(File file) {
 
@@ -1279,6 +1287,7 @@ public class ChatMsgActivity extends BaseActivity implements
                         encapsulateData(file);
 
                     }
+
                     @Override
                     public void onError(Throwable e) {
 
@@ -1290,6 +1299,7 @@ public class ChatMsgActivity extends BaseActivity implements
     /**
      * 封装数据
      * 将文件封装为图片数据，用于传输
+     *
      * @param file
      */
     private void encapsulateData(File file) {
@@ -1300,8 +1310,8 @@ public class ChatMsgActivity extends BaseActivity implements
                 if (responseCode == 0) {
                     Message msg = conversation.createSendMessage(imageContent);
                     handleSendMsg(msg.getId());
-                }else {
-                    ITosast.showShort(ChatMsgActivity.this , "封装图片数据失败").show();
+                } else {
+                    ITosast.showShort(ChatMsgActivity.this, "封装图片数据失败").show();
                 }
             }
         });
@@ -1310,12 +1320,46 @@ public class ChatMsgActivity extends BaseActivity implements
     /**
      * 处理发送图片，
      * 刷新界面
+     *
      * @param data intent
      */
     private void handleSendMsg(int data) {
         chatListAdapter.setSendImgMsg(data);
         rlRootLayoutView.setToBottom();
 
+
+    }
+
+    /**
+     * 发送名片处理逻辑
+     */
+    @Override
+    public void onBusinessItemClick() {
+
+        //把名片的userName和appKey通过extra发送给对方
+        TextContent content = new TextContent("推荐了一张名片");
+        content.setStringExtra("userName", JMessageClient.getMyInfo().getUserName());
+        content.setStringExtra("businessCard", "businessCard");
+        final Message textMessage = conversation.createSendMessage(content);
+        MessageSendingOptions options = new MessageSendingOptions();
+        options.setNeedReadReceipt(true);
+        JMessageClient.sendMessage(textMessage, options);
+        textMessage.setOnSendCompleteCallback(new BasicCallback() {
+            @Override
+            public void gotResult(int i, String s) {
+                if (i == 0) {
+                    /**
+                     * 发送消息显示的逻辑需要自己实现，
+                     * 所以这里需要手动将名片消息添加到队列
+                     */
+                    chatListAdapter.addMsgToList(textMessage);
+                    rlRootLayoutView.setToBottom();
+
+                } else {
+                    HandleResponseCode.onHandle(ChatMsgActivity.this, i);
+                }
+            }
+        });
 
     }
 
