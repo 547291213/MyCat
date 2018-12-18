@@ -1,9 +1,13 @@
 package com.example.xkfeng.mycat.Fragment;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,6 +36,7 @@ import com.example.xkfeng.mycat.Activity.IndexActivity;
 import com.example.xkfeng.mycat.Activity.SearchActivity;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.MessageListDrawable.MsgListSlideView;
+import com.example.xkfeng.mycat.DrawableView.MessageListDrawable.MsgQuickAdapter;
 import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
 import com.example.xkfeng.mycat.Model.HasMsgListOpen;
 import com.example.xkfeng.mycat.Model.JPushMessageInfo;
@@ -104,8 +109,9 @@ public class MessageFragment extends Fragment {
     private List<JPushMessageInfo> jPushMessageInfoList;
     private JPushMessageInfo jPushMessageInfo;
 
-    private QucikAdapterWrapter<JPushMessageInfo> jpushQuickAdapterWrapter;
+    private MsgQuickAdapter<JPushMessageInfo> msgQuickAdapter;
     private QuickAdapter<JPushMessageInfo> jpushQuickAdapter;
+    private View headerView ;
 
     public static final int REQUEST_CHATMESSAGE = 101;
 
@@ -114,6 +120,7 @@ public class MessageFragment extends Fragment {
 
     public  Map<String,Integer> sideSlideOpenCount = new HashMap<>();
 
+    private NetworkReceiver mReceiver;
 
 
     @Nullable
@@ -172,6 +179,8 @@ public class MessageFragment extends Fragment {
         initRefreshLayout();
 
         initRxBus();
+
+        initReceiver() ;
 
     }
 
@@ -353,8 +362,8 @@ public class MessageFragment extends Fragment {
             }
             //将数据添加到列表中
             jPushMessageInfoList.add(jPushMessageInfo);
-            if (jpushQuickAdapterWrapter != null)
-                jpushQuickAdapterWrapter.notifyDataSetChanged();
+            if (msgQuickAdapter != null)
+                msgQuickAdapter.notifyDataSetChanged();
         }
         /**
          * 关闭刷新器，表示数据同步成功
@@ -453,16 +462,18 @@ public class MessageFragment extends Fragment {
 
     private void initRecyclerView() {
 
-        jpushQuickAdapterWrapter = new QucikAdapterWrapter<JPushMessageInfo>(jpushQuickAdapter);
+        msgQuickAdapter = new MsgQuickAdapter<>(jpushQuickAdapter);
 
-        View addView = LayoutInflater.from(getContext()).inflate(R.layout.ad_item_layout, null);
-        jpushQuickAdapterWrapter.setAdView(addView);
+        headerView = LayoutInflater.from(getContext()).inflate(R.layout.message_list_netword_not_use_layout, null);
+        msgQuickAdapter.setHeaderView(headerView);
+        msgQuickAdapter.setHeaderViewHide();
 
         rvMessageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         rvMessageRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         rvMessageRecyclerView.setItemAnimator(new DefaultItemAnimator());
         rvMessageRecyclerView.setmEmptyView(tvMessageEmptyView);
-        rvMessageRecyclerView.setAdapter(jpushQuickAdapterWrapter);
+        rvMessageRecyclerView.setAdapter(msgQuickAdapter);
+
 
     }
 
@@ -518,7 +529,7 @@ public class MessageFragment extends Fragment {
             public void onRedPointerClickRealeaseOutRange() {
                 data.setUnReadCount(0 + "");
                 data.getConversation().setUnReadMessageCnt(0);
-                jpushQuickAdapterWrapter.notifyDataSetChanged();
+                msgQuickAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -686,7 +697,7 @@ public class MessageFragment extends Fragment {
             data.setUnReadCount(1 + "");
             data.getConversation().setUnReadMessageCnt(1);
         }
-        jpushQuickAdapterWrapter.notifyItemChanged(pos);
+        msgQuickAdapter.notifyItemChanged(pos);
 
     }
 
@@ -738,7 +749,7 @@ public class MessageFragment extends Fragment {
                 }
                 //实现点击消失
                 popupMenuLayout_CONTENT_MARK_UNREAD.dismiss();
-                jpushQuickAdapterWrapter.notifyItemChanged(pos);
+                msgQuickAdapter.notifyItemChanged(pos);
 
 
 
@@ -794,7 +805,7 @@ public class MessageFragment extends Fragment {
                 }
                 //实现点击消失
                 popupMenuLayout_CONTENT_MARK_READ.dismiss();
-                jpushQuickAdapterWrapter.notifyItemChanged(pos);
+                msgQuickAdapter.notifyItemChanged(pos);
 
             }
         });
@@ -811,7 +822,7 @@ public class MessageFragment extends Fragment {
     private void deleteConversion(@NonNull JPushMessageInfo data , boolean isSingle , int groupId ){
         if (isSingle){
             JMessageClient.deleteSingleConversation(data.getUserName());
-            jpushQuickAdapterWrapter.notifyDataSetChanged();
+            msgQuickAdapter.notifyDataSetChanged();
         }else {
             ITosast.showShort(mContext , "群组会话的删除，暂未处理").show();
         }
@@ -868,6 +879,28 @@ public class MessageFragment extends Fragment {
         }
     }
 
+    private void initReceiver(){
+        mReceiver = new NetworkReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        mContext.registerReceiver(mReceiver, filter);
+    }
+
+    private class NetworkReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null && intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE")){
+                ConnectivityManager manager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo activeInfo = manager.getActiveNetworkInfo();
+                if (null == activeInfo) {
+                    msgQuickAdapter.setHeaderViewShow();
+                } else {
+                    msgQuickAdapter.setHeaderViewHide();
+                }
+            }
+        }
+    }
+
     @Override
     public void onStop() {
         super.onStop();
@@ -899,6 +932,7 @@ public class MessageFragment extends Fragment {
             markUnReadList = null ;
         }
         System.gc();
+        mContext.unregisterReceiver(mReceiver);
 
     }
 

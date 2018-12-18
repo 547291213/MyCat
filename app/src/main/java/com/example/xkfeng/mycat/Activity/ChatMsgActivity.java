@@ -61,7 +61,10 @@ import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageDirect;
 import cn.jpush.im.android.api.event.MessageEvent;
+import cn.jpush.im.android.api.event.MessageRetractEvent;
+import cn.jpush.im.android.api.event.OfflineMessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
@@ -749,6 +752,33 @@ public class ChatMsgActivity extends BaseActivity implements
             }
         });
 
+    }
+
+
+    public void onEventMainThread(MessageRetractEvent event) {
+        Message retractedMessage = event.getRetractedMessage();
+        chatListAdapter.backOutMessage(retractedMessage);
+    }
+
+    /**
+     * 当在聊天界面断网再次连接时收离线事件刷新
+     */
+    public void onEvent(OfflineMessageEvent event) {
+        Conversation conv = event.getConversation();
+        if (conv.getType().equals(ConversationType.single)) {
+            UserInfo userInfo = (UserInfo) conv.getTargetInfo();
+            String targetId = userInfo.getUserName();
+            String appKey = userInfo.getAppKey();
+            if (targetId.equals(mTargetId) && appKey.equals(mTargetAappkey)) {
+                List<Message> singleOfflineMsgList = event.getOfflineMessageList();
+                if (singleOfflineMsgList != null && singleOfflineMsgList.size() > 0) {
+                    rlRootLayoutView.setToBottom();
+                    chatListAdapter.addMsgListToList(singleOfflineMsgList);
+                }
+            }
+        } else {
+            ITosast.showShort(ChatMsgActivity.this , "群聊消息暂无处理").show();
+        }
     }
 
     @OnClick({R.id.iv_sendImage, R.id.iv_chatVoiceImg,
