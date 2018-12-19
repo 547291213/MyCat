@@ -34,9 +34,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.api.options.MessageSendingOptions;
 
 public class ForwardingActivity extends BaseActivity {
 
@@ -57,6 +60,8 @@ public class ForwardingActivity extends BaseActivity {
     TextView tvMessageEmptyView ;
 
     private DisplayMetrics metrics;
+    private boolean isFriendSendBusinessCard ;
+    private String fromBusinessName ;
 
     private QuickAdapter<ForwardingFriendInfo> quickAdapter ;
     private QucikAdapterWrapter<ForwardingFriendInfo> qucikAdapterWrapter ;
@@ -71,6 +76,8 @@ public class ForwardingActivity extends BaseActivity {
         setContentView(R.layout.forwarding_layout);
         ButterKnife.bind(this);
 
+        isFriendSendBusinessCard =  getIntent().getBooleanExtra("businessCard" , false) ;
+        fromBusinessName = getIntent().getStringExtra("userName") ;
 
         metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -157,10 +164,20 @@ public class ForwardingActivity extends BaseActivity {
                     @Override
                     public void onClick(View view) {
 
-                        Dialog dialog  = DialogHelper.createForwardingDialog(ForwardingActivity.this ,ForwardingActivity.this,
-                                data.getUserName() , (UserInfo) conversationList.get(position).getTargetInfo()
-                                , true ) ;
-                        dialog.show();
+                        if (isFriendSendBusinessCard){
+
+                            Dialog dialog = DialogHelper.createSendFriendBusinessCardDialog(ForwardingActivity.this , ForwardingActivity.this, data.getUserName() , fromBusinessName ,
+                                    conversationList.get(position)) ;
+                            dialog.show();
+
+                        }else {
+                            Dialog dialog  = DialogHelper.createForwardingDialog(ForwardingActivity.this ,ForwardingActivity.this,
+                                    data.getUserName() , (UserInfo) conversationList.get(position).getTargetInfo()
+                                    , true ) ;
+                            dialog.show();
+                        }
+
+
                     }
                 } ;
                 ((ImageView)vh.getView(R.id.iv_headIcon)).setImageBitmap(data.getHeaderBitmap());

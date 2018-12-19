@@ -15,10 +15,12 @@ import android.widget.Toast;
 
 import com.bumptech.glide.signature.MediaStoreSignature;
 import com.example.xkfeng.mycat.Activity.BaseActivity;
+import com.example.xkfeng.mycat.Activity.IndexActivity;
 import com.example.xkfeng.mycat.Activity.LoginActivity;
 import com.example.xkfeng.mycat.R;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.RequestCallback;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
@@ -83,7 +85,16 @@ public class DialogHelper {
         return dialog;
     }
 
-    public static Dialog createForwardingDialog(final Context context, final Activity activity , String name, final UserInfo targetUserInfo , final boolean isSingle) {
+    /**
+     * 创建转发消息的对话框
+     * @param context
+     * @param activity
+     * @param name 接受消息的用户的名字
+     * @param targetUserInfo 目标用户
+     * @param isSingle  是否是单聊
+     * @return dialog
+     */
+    public static Dialog createForwardingDialog(final Context context, final Activity activity, String name, final UserInfo targetUserInfo, final boolean isSingle) {
         final Dialog dialog = new Dialog(context, context.getResources()
                 .getIdentifier("mycat_chat_forwarding_dialog", "style",
                         context.getApplicationContext().getPackageName()));
@@ -140,9 +151,9 @@ public class DialogHelper {
                     return;
                 }
 
-                final Dialog loadingDialog = DialogHelper.createLoadingDialog(context , "正在发送") ;
+                final Dialog loadingDialog = DialogHelper.createLoadingDialog(context, "正在发送");
                 loadingDialog.show();
-                Conversation conversation = null ;
+                Conversation conversation = null;
                 if (isSingle) {
                     conversation = JMessageClient.getSingleConversation(targetUserInfo.getUserName());
                     if (conversation == null) {
@@ -150,19 +161,20 @@ public class DialogHelper {
                     }
                     MessageSendingOptions options = new MessageSendingOptions();
                     options.setNeedReadReceipt(true);
-                    JMessageClient.forwardMessage(message, conversation, options, new BasicCallback() {
+                    JMessageClient.forwardMessage(message, conversation, options, new RequestCallback<Message>() {
                         @Override
-                        public void gotResult(int i, String s) {
+                        public void gotResult(int i, String s, Message message) {
                             loadingDialog.dismiss();
                             dialog.dismiss();
                             if (i == 0) {
-                                ITosast.showShort(context , "已发送").show();
+                                ITosast.showShort(context, "已发送").show();
                                 activity.finish();
 
                             } else {
                                 HandleResponseCode.onHandle(context, i);
                             }
                         }
+
                     });
                 }
 
@@ -173,6 +185,58 @@ public class DialogHelper {
         dialog.setContentView(view);
 
         return dialog;
+    }
+
+    /**
+     * 从朋友界面发送好友的明信片
+     *
+     * @param context
+     * @param actiity
+     * @param name 接受消息的好友名字
+     * @param targetName 明信片被转发的好友的名字
+     * @param conversation   会话
+     * @return dialog
+     */
+    public static Dialog createSendFriendBusinessCardDialog(final Context context, final Activity actiity, String name, final String targetName ,final Conversation conversation) {
+        final Dialog dialog = new Dialog(context, context.getResources()
+                .getIdentifier("mycat_chat_forwarding_dialog", "style",
+                        context.getApplicationContext().getPackageName()));
+
+        View view = LayoutInflater.from(context).inflate(R.layout.dialog_forwarding, null, false);
+        final TextView cancle = view.findViewById(R.id.tv_cancle);
+        TextView send = view.findViewById(R.id.tv_send);
+        TextView userName = view.findViewById(R.id.tv_targetUserName);
+        final TextView msgText = view.findViewById(R.id.tv_msgText);
+        msgText.setText(targetName + "的名片]");
+        userName.setText(name);
+        cancle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                TextContent content = new TextContent("推荐了一张名片");
+                content.setStringExtra("userName", targetName);
+                content.setStringExtra("businessCard", "businessCard");
+                Message msg = conversation.createSendMessage(content) ;
+//                BaseActivity.forwardMsg.clear();
+//                BaseActivity.forwardMsg.add(msg);
+                MessageSendingOptions options = new MessageSendingOptions();
+                options.setNeedReadReceipt(true);
+                JMessageClient.sendMessage(msg, options);
+                ITosast.showShort(context , "发送成功").show();
+                dialog.dismiss();
+                actiity.startActivity(new Intent(context , IndexActivity.class));
+            }
+        });
+        dialog.setContentView(view);
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(true);
+        return dialog ;
     }
 
 }

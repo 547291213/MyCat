@@ -1266,8 +1266,7 @@ public class ChatMsgActivity extends BaseActivity implements
                         ITosast.showShort(ChatMsgActivity.this, "获取照片失败").show();
                         return;
                     }
-                    ITosast.showShort(ChatMsgActivity.this, "获取照片成功").show();
-                    //压缩，上传
+                    //压缩（失败），封装，上传
                     encapsulateData(addBoradFragment.getImageFileDir());
                 }
                 break;

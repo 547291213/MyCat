@@ -35,7 +35,10 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -70,6 +73,7 @@ public class FriendSettingActivity extends BaseActivity {
     private CloseDialogHandler handler;
     private static final int CLOSE_LOADING_DIALOG = 0x123;
     private UserInfo mFriendInfo;
+    private Conversation conversation ;
 
     private static final int ACTIVITY_REQUEST_SET_NOTENAME = 1;
 
@@ -202,6 +206,10 @@ public class FriendSettingActivity extends BaseActivity {
     }
 
     private void delConvAndReturnMainActivity(){
+        JMessageClient.deleteSingleConversation(userName);
+        Intent intent = new Intent(this, IndexActivity.class);
+        startActivity(intent);
+        finish();
 
     }
 
@@ -294,7 +302,11 @@ public class FriendSettingActivity extends BaseActivity {
 
             case R.id.rl_sendBusinessLayout:
 
-                Toast.makeText(this, "发送明信片", Toast.LENGTH_SHORT).show();
+                Intent forwardIntent = new Intent() ;
+                forwardIntent.setClass(FriendSettingActivity.this , ForwardingActivity.class) ;
+                forwardIntent.putExtra( "businessCard",true) ;
+                forwardIntent.putExtra("userName" , userName) ;
+                startActivity(forwardIntent);
                 break;
 
             case R.id.rl_noteNameLayout:
