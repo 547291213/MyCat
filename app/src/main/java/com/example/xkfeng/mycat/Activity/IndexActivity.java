@@ -58,6 +58,7 @@ import com.example.xkfeng.mycat.Util.ActivityController;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.StringUtil;
+import com.hp.hpl.sparta.Document;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +67,12 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.event.ConversationRefreshEvent;
+import cn.jpush.im.android.api.event.MessageEvent;
+import cn.jpush.im.android.api.event.MessageReceiptStatusChangeEvent;
+import cn.jpush.im.android.api.event.MessageRetractEvent;
+import cn.jpush.im.android.api.event.OfflineMessageEvent;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.reactivex.Observer;
 import io.reactivex.Scheduler;
@@ -77,7 +84,7 @@ import io.reactivex.schedulers.Schedulers;
  * Created by initializing on 2018/10/7.
  */
 
-public class IndexActivity extends BaseActivity {
+public class IndexActivity extends BaseActivity implements MessageFragment.OnUnReadCountUpdateListener {
 
     @BindView(R.id.ib_indexBottomMessage)
     IndexBottomLayout ibIndexBottomMessage;
@@ -132,13 +139,13 @@ public class IndexActivity extends BaseActivity {
     //百度地图客户端api
     private LocationClient locationClient;
 
-
     public static boolean isFirst = true;
+
 
     /**
      *
      */
-    private HasMsgListOpen msgListOpen = new HasMsgListOpen() ;
+    private HasMsgListOpen msgListOpen = new HasMsgListOpen();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -148,6 +155,8 @@ public class IndexActivity extends BaseActivity {
         ButterKnife.bind(this);
         metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        JMessageClient.registerEventReceiver(this);
 
         //沉浸式View
         DensityUtil.fullScreen(this);
@@ -175,6 +184,7 @@ public class IndexActivity extends BaseActivity {
 
         fragmentList = new ArrayList<>();
         messageFragment = new MessageFragment();
+
         friendFragment = new FriendFragment();
         dynamicFragment = new DynamicFragment();
 
@@ -185,6 +195,7 @@ public class IndexActivity extends BaseActivity {
         fragmentManager = getSupportFragmentManager();
 
         pageAdapter = new BottomTabFragmentPageAdapter(fragmentManager, fragmentList);
+
         //设置适配器
         vpIndexFragmentPager.setAdapter(pageAdapter);
         //禁止左右滑动
@@ -239,6 +250,13 @@ public class IndexActivity extends BaseActivity {
     private void measureLocation() {
 
         locationClient.start();
+    }
+
+    @Override
+    public void onUnReadCountUpdate(int count) {
+        if (stickyViewHelper != null){
+            stickyViewHelper.setRedPointViewText(String.valueOf(count));
+        }
     }
 
 
@@ -560,7 +578,7 @@ public class IndexActivity extends BaseActivity {
             @Override
             public void onDrawerOpened(@NonNull View drawerView) {
 
-                if (MsgRecyclerView.itemOpenCount.size() > 0 ){
+                if (MsgRecyclerView.itemOpenCount.size() > 0) {
                     RxBus.getInstance().post(msgListOpen);
                 }
             }
@@ -611,10 +629,13 @@ public class IndexActivity extends BaseActivity {
          */
         redPointMessage = ibIndexBottomMessage.findViewById(R.id.redpoint_view);
         stickyViewHelper = new RedPointViewHelper(this, redPointMessage, R.layout.item_drag_view);
+        //默认设置为0，即不显示红点View
+        stickyViewHelper.setRedPointViewText("0");
+
         stickyViewHelper.setRedPointViewReleaseOutRangeListener(new RedPointViewHelper.RedPointViewReleaseOutRangeListener() {
             @Override
             public void onReleaseOutRange() {
-                Toast.makeText(IndexActivity.this, "redPointMessage", Toast.LENGTH_SHORT).show();
+                messageFragment.clearUnreadMsg();
             }
 
             @Override
@@ -627,8 +648,6 @@ public class IndexActivity extends BaseActivity {
 
             }
         });
-        stickyViewHelper.setRedPointViewText("8");
-
         redPointFriend = ibIndexBottomFriend.findViewById(R.id.redpoint_view);
         stickyViewHelper1 = new RedPointViewHelper(this, redPointFriend, R.layout.item_drag_view);
         stickyViewHelper1.setRedPointViewText("99");
@@ -740,7 +759,6 @@ public class IndexActivity extends BaseActivity {
             case R.id.ib_indexBottomMessage:
                 //如果Message fragment已经是当前选中的界面，
                 // 就不做任何处理
-                stickyViewHelper.setViewShow();
                 if (ibIndexBottomMessage.getmCheckSate() == IndexBottomLayout.CHECKED) {
                     return;
                 } else {
@@ -768,7 +786,7 @@ public class IndexActivity extends BaseActivity {
                     //页面切换
                     vpIndexFragmentPager.setCurrentItem(1);
                     // 当前有已经打开的侧滑菜单的时候需要关闭
-                    if (MsgRecyclerView.itemOpenCount.size() > 0 ){
+                    if (MsgRecyclerView.itemOpenCount.size() > 0) {
                         RxBus.getInstance().post(msgListOpen);
                     }
 
@@ -788,7 +806,7 @@ public class IndexActivity extends BaseActivity {
                     //页面切换
                     vpIndexFragmentPager.setCurrentItem(2);
                     // 当前有已经打开的侧滑菜单的时候需要关闭
-                    if (MsgRecyclerView.itemOpenCount.size() > 0 ){
+                    if (MsgRecyclerView.itemOpenCount.size() > 0) {
                         RxBus.getInstance().post(msgListOpen);
                     }
                 }
@@ -885,7 +903,6 @@ public class IndexActivity extends BaseActivity {
 
     }
 
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -900,8 +917,7 @@ public class IndexActivity extends BaseActivity {
     protected void onDestroy() {
 
         super.onDestroy();
-
-        System.gc();
+        JMessageClient.unRegisterEventReceiver(this);
 
     }
 }

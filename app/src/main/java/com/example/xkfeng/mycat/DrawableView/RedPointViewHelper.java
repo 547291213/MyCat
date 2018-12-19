@@ -64,6 +64,9 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
         mParams = new WindowManager.LayoutParams();
         mParams.format = PixelFormat.TRANSLUCENT;
 
+        mWm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+
+
     }
 
     @Override
@@ -105,7 +108,6 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
 //            文本内容复制
             copyText();
 
-            mWm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
 
             mRedPointView = new RedPointView(mContext, mDragView, mWm);
 //          初始化数据
@@ -144,7 +146,6 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
         int y = points[1] + mShowView.getHeight() / 2;
 //           需要外部设置，当StickyView还没有执行完dispatchAttachedToWindow()时是计算不出其高度的
         mRedPointView.setStatusBarHeight(mStatusBarHeight);
-        Log.d(TAG, "initStickyViewData: mStatusBarHeight :" + mStatusBarHeight);
 //          初始化做作画的圆和控制点坐标
         mRedPointView.setShowCanterPoint(x, y);
 

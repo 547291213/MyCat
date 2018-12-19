@@ -1,5 +1,7 @@
 package com.example.xkfeng.mycat.Fragment;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -26,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -35,6 +38,7 @@ import com.example.xkfeng.mycat.Activity.ChatMsgActivity;
 import com.example.xkfeng.mycat.Activity.CreateGroupChatActivity;
 import com.example.xkfeng.mycat.Activity.IndexActivity;
 import com.example.xkfeng.mycat.Activity.SearchActivity;
+import com.example.xkfeng.mycat.DrawableView.ImageAdapter;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.MessageListDrawable.MsgListSlideView;
 import com.example.xkfeng.mycat.DrawableView.MessageListDrawable.MsgQuickAdapter;
@@ -125,6 +129,12 @@ public class MessageFragment extends Fragment {
 
     public Map<String, Integer> sideSlideOpenCount = new HashMap<>();
 
+    /**
+     * 对会话列表中存在未读消息的数据进行记录
+     */
+    public static Map<QuickAdapter.VH, JPushMessageInfo> unReadCountRecord = new HashMap<>();
+
+
 
     @Nullable
     @Override
@@ -135,7 +145,7 @@ public class MessageFragment extends Fragment {
         metrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
         mContext = getContext();
-
+        JMessageClient.registerEventReceiver(this);
         /**
          * 注册事件接收
          */
@@ -344,6 +354,7 @@ public class MessageFragment extends Fragment {
      * 定时从Jpush上拉取数据，同步更新
      */
     private void initData() {
+        Log.d(TAG, "initData: ");
         conversationList = JMessageClient.getConversationList();
 
         if (conversationList == null) {
@@ -464,6 +475,21 @@ public class MessageFragment extends Fragment {
                 setSideSlipIsOpenListener(vh, data);
 
                 setSideSlipItemClickListener(vh, data, position);
+                /**
+                 * 当数据全部加载完成之后传递
+                 */
+                if (position == jPushMessageInfoList.size()-1){
+
+                    Handler handler = new Handler() ;
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (onUnReadCountUpdateListener != null){
+                                onUnReadCountUpdateListener.onUnReadCountUpdate(getSumOfUnReadCount());
+                            }
+                        }
+                    },1000) ;
+                }
             }
         };
 
@@ -548,6 +574,13 @@ public class MessageFragment extends Fragment {
             }
         });
 
+        //设置红点View显示数据
+        ((MsgListSlideView) vh.getView(R.id.listlide)).setStickyViewHelperText(data.getUnReadCount());
+        if (Integer.parseInt(data.getUnReadCount()) > 0) {
+            if (!unReadCountRecord.containsKey(vh)&&!unReadCountRecord.containsValue(data)) {
+                unReadCountRecord.put(vh, data);
+            }
+        }
     }
 
     /**
@@ -629,7 +662,6 @@ public class MessageFragment extends Fragment {
                 }
             }
         });
-        ((MsgListSlideView) vh.getView(R.id.listlide)).setStickyViewHelperText(data.getUnReadCount());
     }
 
     /**
@@ -696,6 +728,10 @@ public class MessageFragment extends Fragment {
                 /**
                  * 需要把与之会话的UserName传递过去
                  */
+                //将数据从已读数据项移除
+                if (unReadCountRecord.containsKey(vh)) {
+                    unReadCountRecord.remove(vh);
+                }
                 Intent intent = new Intent();
                 intent.setClass(getContext(), ChatMsgActivity.class);
                 intent.putExtra(StaticValueHelper.CHAT_MSG_TITLE, data.getTitle());
@@ -724,12 +760,20 @@ public class MessageFragment extends Fragment {
             //做标记已读的处理
             data.setUnReadCount(0 + "");
             data.getConversation().setUnReadMessageCnt(0);
+            //将已读数据项移除
+            if (unReadCountRecord.containsKey(vh)) {
+                unReadCountRecord.remove(vh);
+            }
         } else {
             //将显示的文本呢修改为标记已读
             ((TextView) vh.getView(R.id.tv_flagSlideView)).setText(getContext().getResources().getString(R.string.listSlideView_markRead));
             //做标记未读的处理
             data.setUnReadCount(1 + "");
             data.getConversation().setUnReadMessageCnt(1);
+            //添加未读数据项
+            if (!unReadCountRecord.containsKey(vh)) {
+                unReadCountRecord.put(vh, data);
+            }
         }
         /**
          * 很奇怪的BUG
@@ -744,7 +788,7 @@ public class MessageFragment extends Fragment {
          *          *  最后：
          *          *  用Handler延时200ms，差不多正好是侧滑菜单恢复原状，
          *          *  然后执行更新。
-         *          *  
+         *          *
          */
 
         Handler handler = new Handler();
@@ -752,6 +796,9 @@ public class MessageFragment extends Fragment {
             @Override
             public void run() {
                 msgQuickAdapter.notifyDataSetChanged();
+                if (onUnReadCountUpdateListener != null){
+                    onUnReadCountUpdateListener.onUnReadCountUpdate(getSumOfUnReadCount());
+                }
             }
         }, 200);
 
@@ -922,6 +969,78 @@ public class MessageFragment extends Fragment {
     }
 
 
+    /**
+     * 获取未读消息的总数
+     *
+     * @return
+     */
+    private int getSumOfUnReadCount() {
+        int count = 0;
+        for (JPushMessageInfo m : unReadCountRecord.values()) {
+            count += Integer.valueOf(m.getUnReadCount());
+        }
+        Log.d(TAG, "getSumOfUnReadCount:onUnReadCountUpdate  " + unReadCountRecord.size());
+        return count;
+    }
+
+    private void addDismissAnim(View view){
+        float[] vaules = new float[]{1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.3f, 0.0f, 0.1f, 0.2f, 0.25f, 0.2f, 0.15f, 0.1f, 0.0f};
+        AnimatorSet set = new AnimatorSet() ;
+        set.setDuration(500) ;
+        set.playTogether(ObjectAnimator.ofFloat(view, "scaleX", vaules),
+                ObjectAnimator.ofFloat(view, "scaleY", vaules));
+        set.setInterpolator(new LinearInterpolator());
+        set.start();
+
+    }
+
+    public void clearUnreadMsg() {
+        /* 移除定时更新 */
+        handler.removeCallbacks(runnable);
+        for (Map.Entry<QuickAdapter.VH, JPushMessageInfo> m : unReadCountRecord.entrySet()) {
+            View v = ((View) m.getKey().getView(R.id.redpoint_view_message));
+            addDismissAnim(v);
+            m.getValue().getConversation().setUnReadMessageCnt(0);
+        }
+        Handler handler1 = new Handler();
+        handler1.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //清空是哟有未读消息项
+                unReadCountRecord.clear();
+                //恢复定时加载
+                handler.postDelayed(runnable, 1000);
+            }
+        }, 500);
+
+    }
+
+
+    /**
+     * 未读消息的数目更新接口
+     */
+    private OnUnReadCountUpdateListener onUnReadCountUpdateListener ;
+    @Deprecated
+    public void setOnUnReadCountUpdateListener(OnUnReadCountUpdateListener unReadCountUpdateListener)
+    {
+        this.onUnReadCountUpdateListener = onUnReadCountUpdateListener;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnUnReadCountUpdateListener) {
+            onUnReadCountUpdateListener = (OnUnReadCountUpdateListener) context;
+        }
+        else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+    public interface OnUnReadCountUpdateListener{
+        public void onUnReadCountUpdate(int count) ;
+    }
+
     @OnClick(R.id.et_searchEdit)
     public void onItemClick(View view) {
         switch (view.getId()) {
@@ -998,6 +1117,7 @@ public class MessageFragment extends Fragment {
         }
         System.gc();
         mContext.unregisterReceiver(mReceiver);
+        JMessageClient.unRegisterEventReceiver(this);
 
     }
 
@@ -1016,6 +1136,15 @@ public class MessageFragment extends Fragment {
      */
     public void onEvent(MessageRetractEvent event) {
         Conversation conversation = event.getConversation();
+        //因为无法封装该撤回的消息，
+        //只能清空所有数据项
+        //重新装载
+        if (unReadCountRecord.size() > 0) {
+            unReadCountRecord.clear();
+            //更新数据
+            msgQuickAdapter.notifyDataSetChanged();
+
+        }
     }
 
     /**
@@ -1035,6 +1164,7 @@ public class MessageFragment extends Fragment {
         Conversation conv = event.getConversation();
 
     }
+
 
 
 }
