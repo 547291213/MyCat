@@ -20,7 +20,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MsgListSlideView extends HorizontalScrollView {
 
-
     //内容
     private RelativeLayout relativeLayout;
 
@@ -71,6 +70,10 @@ public class MsgListSlideView extends HorizontalScrollView {
     private Context mContext;
 
     private RedPointViewHelper stickyViewHelper;
+    private int x;
+    private int y;
+    private int oldx;
+    private int oldy;
 
     public MsgListSlideView(Context context) {
         this(context, null);
@@ -259,6 +262,7 @@ public class MsgListSlideView extends HorizontalScrollView {
 
     }
 
+
     //滑动监听，
     // 按滑动的距离大小控制菜单开关
     @Override
@@ -292,13 +296,7 @@ public class MsgListSlideView extends HorizontalScrollView {
         return true;
     }
 
-    @Override
-    protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        super.onScrollChanged(l, t, oldl, oldt);
 
-        //改变View在X轴方向上的位置
-        topView.setTranslationX(1);
-    }
 
     public void changeScrollX() {
 //        Log.d(TAG, "changeScrollX: ");
@@ -326,6 +324,7 @@ public class MsgListSlideView extends HorizontalScrollView {
         this.smoothScrollTo(0,0);
         if (slideViewIsOpenListener != null){
             slideViewIsOpenListener.isOpen(false);
+            isOpen = false ;
         }
     }
 
@@ -401,4 +400,29 @@ public class MsgListSlideView extends HorizontalScrollView {
 
         public void isOpen(boolean isOpen) ;
     }
+
+    //scroll view listener
+    private ScrollViewListener scrollViewListener = null;
+
+    public void setScrollViewListener(ScrollViewListener scrollViewListener) {
+        this.scrollViewListener = scrollViewListener;
+    }
+
+    @Override
+    protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+        super.onScrollChanged(l, t, oldl, oldt);
+
+        //改变View在X轴方向上的位置
+        topView.setTranslationX(1);
+        if (scrollViewListener != null) {
+            scrollViewListener.onScrollChanged(this, x, y, oldx, oldy);
+        }
+    }
+
+    public interface ScrollViewListener {
+        void onScrollChanged(MsgListSlideView slideView, int x, int y, int oldx, int oldy);
+
+    }
+
+
 }

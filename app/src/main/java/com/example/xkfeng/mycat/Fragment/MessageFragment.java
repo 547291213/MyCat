@@ -23,6 +23,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -115,16 +116,14 @@ public class MessageFragment extends Fragment {
 
     private MsgQuickAdapter<JPushMessageInfo> msgQuickAdapter;
     private QuickAdapter<JPushMessageInfo> jpushQuickAdapter;
-    private View headerView ;
+    private View headerView;
 
     public static final int REQUEST_CHATMESSAGE = 101;
 
     private Handler handler;
     private Runnable runnable;
 
-    public  Map<String,Integer> sideSlideOpenCount = new HashMap<>();
-
-    private NetworkReceiver mReceiver;
+    public Map<String, Integer> sideSlideOpenCount = new HashMap<>();
 
 
     @Nullable
@@ -154,9 +153,14 @@ public class MessageFragment extends Fragment {
          * 当从其他界面返回，但是该界面仍有缓存，
          * 且有已经打开的侧滑菜单，那么不能定时拉取数据
          */
-        if (sideSlideOpenCount.size() > 0){
-            return ;
+        if (sideSlideOpenCount.size() > 0) {
+            return;
         }
+
+        /**
+         * 先立即刷新一次数据
+         */
+        initData();
 
         /**
          * 定时拉取数据
@@ -184,7 +188,7 @@ public class MessageFragment extends Fragment {
         //对打开侧滑消息数目的监听
         initRxBus();
         //初始化网络监听的广播
-        initReceiver() ;
+        initReceiver();
 
     }
 
@@ -251,17 +255,17 @@ public class MessageFragment extends Fragment {
                             case 0:
 //                                mContext.startActivity(new Intent(mContext, CreateGroupChatActivity.class));
 
-                                ITosast.showShort(mContext , "进入创建群聊界面").show();
+                                ITosast.showShort(mContext, "进入创建群聊界面").show();
                                 popupMenuLayout_MENU.dismiss();
                                 break;
                             case 1:
 
-                                ITosast.showShort(mContext , "添加好友").show();
+                                ITosast.showShort(mContext, "添加好友").show();
                                 popupMenuLayout_MENU.dismiss();
                                 break;
                             case 2:
 
-                                ITosast.showShort(mContext , "扫一扫").show();
+                                ITosast.showShort(mContext, "扫一扫").show();
                                 popupMenuLayout_MENU.dismiss();
                                 break;
                         }
@@ -294,10 +298,9 @@ public class MessageFragment extends Fragment {
                  * 当前存在已经打开的侧滑菜单的时候，
                  * 主动下拉刷新也会失效
                  */
-                if (sideSlideOpenCount.size() > 0){
+                if (sideSlideOpenCount.size() > 0) {
                     srlMessageRefreshLayout.setRefreshing(false);
-                    Log.d(TAG, "onRefresh: sideSlideOpenCount : " + sideSlideOpenCount.size());
-                    return ;
+                    return;
                 }
                 if (handler == null) {
                     handler = new Handler();
@@ -318,19 +321,19 @@ public class MessageFragment extends Fragment {
      * 定时每两秒拉取一次数据
      */
     private void handlerForTimer() {
-        if (handler == null){
-            handler = new Handler() ;
+        if (handler == null) {
+            handler = new Handler();
         }
         if (runnable == null) {
             runnable = new Runnable() {
                 @Override
                 public void run() {
                     initData();
-                    handler.postDelayed(this, 3000);
+                    handler.postDelayed(this, 2000);
                 }
             };
         }
-        handler.postDelayed(runnable, 3000);
+        handler.postDelayed(runnable, 2000);
     }
 
     /**
@@ -354,7 +357,7 @@ public class MessageFragment extends Fragment {
         }
         for (Conversation conversation : conversationList) {
 
-            JPushMessageInfo jPushMessageInfo = setConversionData(conversation) ;
+            JPushMessageInfo jPushMessageInfo = setConversionData(conversation);
             //设置会话
             jPushMessageInfo.setConversation(conversation);
             //获取会话发送方的头像，没有则设置为默认头像
@@ -376,10 +379,11 @@ public class MessageFragment extends Fragment {
 
     /**
      * 设置消息列表中的显示内容
+     *
      * @param conversation 会话对象
      * @return 列表显示内容对象
      */
-    private JPushMessageInfo setConversionData(Conversation conversation ){
+    private JPushMessageInfo setConversionData(Conversation conversation) {
         jPushMessageInfo = new JPushMessageInfo();
         /**
          * 当删除的消息是最后一条消息的时候，
@@ -421,7 +425,7 @@ public class MessageFragment extends Fragment {
         jPushMessageInfo.setUnReadCount(conversation.getUnReadMsgCnt() + "");//当前会话未读消息数
         jPushMessageInfo.setTitle(conversation.getTitle()); //标题
 
-        return jPushMessageInfo ;
+        return jPushMessageInfo;
 
     }
 
@@ -429,12 +433,12 @@ public class MessageFragment extends Fragment {
 
         markUnReadList = new ArrayList<>();
         markUnReadList.add("标记未读");
-        markUnReadList.add("删除") ;
+        markUnReadList.add("删除");
         popupMenuLayout_CONTENT_MARK_UNREAD = new PopupMenuLayout(mContext, markUnReadList, PopupMenuLayout.CONTENT_POPUP);
 
         markReadList = new ArrayList<>();
         markReadList.add("标记已读");
-        markReadList.add("删除") ;
+        markReadList.add("删除");
         popupMenuLayout_CONTENT_MARK_READ = new PopupMenuLayout(mContext, markReadList, PopupMenuLayout.CONTENT_POPUP);
 
     }
@@ -455,7 +459,9 @@ public class MessageFragment extends Fragment {
 
                 setSideSlipMsgDisplay(vh, data);
 
-                setSideSlipIsOpenListener(vh , data);
+                setSideSlipIsTouchable(vh);
+
+                setSideSlipIsOpenListener(vh, data);
 
                 setSideSlipItemClickListener(vh, data, position);
             }
@@ -482,6 +488,7 @@ public class MessageFragment extends Fragment {
 
     /**
      * 设置适配器显示内容
+     *
      * @param vh
      * @param data
      */
@@ -502,10 +509,11 @@ public class MessageFragment extends Fragment {
 
     /**
      * 设置课可拖动红点View相关属性
+     *
      * @param vh
      * @param data
      */
-    private void setAdapterRedPointerView(QuickAdapter.VH vh, final JPushMessageInfo data) {
+    private void setAdapterRedPointerView(final QuickAdapter.VH vh, final JPushMessageInfo data) {
         /**
          * BUG
          * 在红点拖动期间，存在数据拉取的情况，
@@ -515,12 +523,9 @@ public class MessageFragment extends Fragment {
          * 表现为屏蔽拉取消息列表
          *
          */
-//        RedPointViewHelper stickyViewHelper = new RedPointViewHelper(mContext ,
-//                ((View) vh.getView(R.id.redpoint_view_message)), R.layout.item_drag_view);
-//        stickyViewHelper.setRedPointViewText(data.getUnReadCount());
 
-//        ((MsgListSlideView)vh.getView(R.id.listlide)).setStickyViewHelperText(data.getUnReadCount());
-        ((MsgListSlideView)vh.getView(R.id.listlide)).setRedPointerViewListner(new MsgListSlideView.RedPointerViewListner() {
+
+        ((MsgListSlideView) vh.getView(R.id.listlide)).setRedPointerViewListner(new MsgListSlideView.RedPointerViewListner() {
             @Override
             public void onRedPointerClickDown() {
                 if (handler != null) {
@@ -547,6 +552,7 @@ public class MessageFragment extends Fragment {
 
     /**
      * 设置侧滑菜单，侧滑部分显示的内容
+     *
      * @param vh
      * @param data
      */
@@ -567,11 +573,31 @@ public class MessageFragment extends Fragment {
         ((TextView) vh.getView(R.id.tv_topSlideView)).setVisibility(View.GONE);
     }
 
+
     /**
-     * 侧滑菜单是否打开的事件监听处理
+     * 控制侧滑菜单是否可滑动
+     *
      * @param vh
      */
-    private void setSideSlipIsOpenListener(final QuickAdapter.VH vh , final JPushMessageInfo data) {
+    private void setSideSlipIsTouchable(QuickAdapter.VH vh) {
+        ((MsgListSlideView) vh.getView(R.id.listlide)).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (itemOpenCount.size() > 0) {
+                    RxBus.getInstance().post(new HasMsgListOpen());
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    /**
+     * 侧滑菜单是否打开的事件监听处理
+     *
+     * @param vh
+     */
+    private void setSideSlipIsOpenListener(final QuickAdapter.VH vh, final JPushMessageInfo data) {
         /**
          * 滑动消息栏是否打开的接口回调
          * 使用原因：
@@ -586,28 +612,29 @@ public class MessageFragment extends Fragment {
                         handler.removeCallbacks(runnable);
                     }
 
-                    if (!sideSlideOpenCount.containsKey(data.getMsgID())){
-                        sideSlideOpenCount.put(data.getMsgID() , 1) ;
+                    if (!sideSlideOpenCount.containsKey(data.getMsgID())) {
+                        sideSlideOpenCount.put(data.getMsgID(), 1);
                     }
 
-                    if (((MsgListSlideView)vh.getView(R.id.listlide)).getIsOpen() == true){
+                    if (((MsgListSlideView) vh.getView(R.id.listlide)).getIsOpen() == true) {
                         rvMessageRecyclerView.addOpenItem(vh);
                     }
                 } else {
-                    if (sideSlideOpenCount.containsKey(data.getMsgID())){
-                        sideSlideOpenCount.remove(data.getMsgID()) ;
+                    if (sideSlideOpenCount.containsKey(data.getMsgID())) {
+                        sideSlideOpenCount.remove(data.getMsgID());
                     }
-                    if (sideSlideOpenCount.size() == 0){
-                        handler.postDelayed(runnable, 3000);
+                    if (sideSlideOpenCount.size() == 0) {
+                        handler.postDelayed(runnable, 1000);
                     }
                 }
             }
         });
-        ((MsgListSlideView)vh.getView(R.id.listlide)).setStickyViewHelperText(data.getUnReadCount());
+        ((MsgListSlideView) vh.getView(R.id.listlide)).setStickyViewHelperText(data.getUnReadCount());
     }
 
     /**
      * 侧滑列表点击事件的处理
+     *
      * @param vh
      * @param data
      * @param pos
@@ -620,30 +647,31 @@ public class MessageFragment extends Fragment {
             @Override
             public void topViewClick(View view) {
                 //no use
-                 //外部点击完成后，关闭侧滑菜单
-                ((MsgListSlideView)vh.getView(R.id.listlide)).closeSideSlide();
+                //外部点击完成后，关闭侧滑菜单
+                ((MsgListSlideView) vh.getView(R.id.listlide)).closeSideSlide();
             }
 
             @Override
             public void flagViewClick(View view) {
 
                 if (Integer.parseInt(data.getUnReadCount()) > 0) {
-                    markIsReadProcess(vh, data, pos , false);
-                }else {
-                    markIsReadProcess(vh, data, pos , true);
+                    markIsReadProcess(vh, data, pos, false);
+                } else {
+                    markIsReadProcess(vh, data, pos, true);
                 }
 
                 //外部点击完成后，关闭侧滑菜单
-                ((MsgListSlideView)vh.getView(R.id.listlide)).closeSideSlide();
+                ((MsgListSlideView) vh.getView(R.id.listlide)).closeSideSlide();
+
 
             }
 
             @Override
             public void deleteViewClick(View view) {
-                deleteConversion(data , true , 0);
+                deleteConversion(data, true, 0);
 
                 //外部点击完成后，关闭侧滑菜单
-                ((MsgListSlideView)vh.getView(R.id.listlide)).closeSideSlide();
+                ((MsgListSlideView) vh.getView(R.id.listlide)).closeSideSlide();
             }
 
             @Override
@@ -652,16 +680,19 @@ public class MessageFragment extends Fragment {
                 if (handler != null) {
                     handler.removeCallbacks(runnable);
                 }
-                if (Integer.parseInt(data.getUnReadCount()) > 0 ) {
-                    markReadPopupLayoutProcess(view , vh , data , pos);
-                }else if (Integer.parseInt(data.getUnReadCount()) <= 0 ){
-                    markUnReadPopupLayoutProcess(view , vh , data , pos);
+                if (Integer.parseInt(data.getUnReadCount()) > 0) {
+                    markReadPopupLayoutProcess(view, vh, data, pos);
+                } else if (Integer.parseInt(data.getUnReadCount()) <= 0) {
+                    markUnReadPopupLayoutProcess(view, vh, data, pos);
                 }
             }
 
             @Override
             public void contentViewClick(View view) {
 
+
+                //设置未读消息数目为0
+                data.getConversation().setUnReadMessageCnt(0);
                 /**
                  * 需要把与之会话的UserName传递过去
                  */
@@ -679,40 +710,64 @@ public class MessageFragment extends Fragment {
 
     /**
      * 标记是否已读的处理
+     *
      * @param vh
      * @param data
      * @param pos
      * @param isRead
      */
-    private void markIsReadProcess(QuickAdapter.VH vh, JPushMessageInfo data, int pos , boolean isRead) {
+    private void markIsReadProcess(QuickAdapter.VH vh, JPushMessageInfo data, final int pos, boolean isRead) {
 
         if (!isRead) {
             //将显示的文本修改为标记未读
-
-            ((TextView)vh.getView(R.id.tv_flagSlideView)).setText(getContext().getResources().getString(R.string.listSlideView_markUnread));
+            ((TextView) vh.getView(R.id.tv_flagSlideView)).setText(getContext().getResources().getString(R.string.listSlideView_markUnread));
             //做标记已读的处理
             data.setUnReadCount(0 + "");
             data.getConversation().setUnReadMessageCnt(0);
         } else {
             //将显示的文本呢修改为标记已读
-            ((TextView)vh.getView(R.id.tv_flagSlideView)).setText(getContext().getResources().getString(R.string.listSlideView_markRead));
+            ((TextView) vh.getView(R.id.tv_flagSlideView)).setText(getContext().getResources().getString(R.string.listSlideView_markRead));
             //做标记未读的处理
             data.setUnReadCount(1 + "");
             data.getConversation().setUnReadMessageCnt(1);
         }
-        msgQuickAdapter.notifyItemChanged(pos);
+        /**
+         * 很奇怪的BUG
+         *  如果直接用notifyDataSetChanged()
+         *  那么点击处于列表靠后位置的列表项的标记与否TEXT，会出现前面的列表项跟随“刷新”的情况。
+         *  表现为：前面的列表项侧滑菜单莫名其妙的打开，然后又关闭。
+         *
+         *  如果全部用notifyItemChanged(pos)；
+         *  会出现点击第零项异常退出,
+         *  而且数据更新有延迟，2000ms延迟，体验很差
+         *
+         *          *  最后：
+         *          *  用Handler延时200ms，差不多正好是侧滑菜单恢复原状，
+         *          *  然后执行更新。
+         *          *  
+         */
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                msgQuickAdapter.notifyDataSetChanged();
+            }
+        }, 200);
+
 
     }
 
     /**
      * 弹出式菜单，标记未读的处理
      * 当前状态为标记已读
+     *
      * @param view 点击事件的响应View
-     * @param vh ViewHolder
+     * @param vh   ViewHolder
      * @param data 当前数据项
      * @param pos  当前数据项所在位置
      */
-    private void markUnReadPopupLayoutProcess(final View view , final QuickAdapter.VH vh , final JPushMessageInfo data , final int pos) {
+    private void markUnReadPopupLayoutProcess(final View view, final QuickAdapter.VH vh, final JPushMessageInfo data, final int pos) {
         /**
          * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
          * 由于contentView还未绘制，这时候的width、height都是0。
@@ -729,7 +784,7 @@ public class MessageFragment extends Fragment {
         popupMenuLayout_CONTENT_MARK_UNREAD.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
-                handler.postDelayed(runnable, 1000) ;
+                handler.postDelayed(runnable, 1000);
             }
         });
 
@@ -738,13 +793,13 @@ public class MessageFragment extends Fragment {
             public void itemClick(View v, int position) {
                 switch (position) {
                     case 0:
-                        markIsReadProcess(vh , data , pos , true);
+                        markIsReadProcess(vh, data, pos, true);
                         break;
 
-                    case 1 :
-                        deleteConversion(data , true , 0);
+                    case 1:
+                        deleteConversion(data, true, 0);
 
-                        break ;
+                        break;
 
                     default:
                         ITosast.showShort(mContext, "未知参数类型").show();
@@ -755,7 +810,6 @@ public class MessageFragment extends Fragment {
                 msgQuickAdapter.notifyItemChanged(pos);
 
 
-
             }
         });
     }
@@ -763,18 +817,18 @@ public class MessageFragment extends Fragment {
     /**
      * 弹出式菜单，标记已读的处理
      * 当前状态为标记未读
+     *
      * @param view 点击事件的响应View
-     * @param vh ViewHolder
+     * @param vh   ViewHolder
      * @param data 当前数据项
      * @param pos  当前数据项所在位置
      */
-    private void markReadPopupLayoutProcess(final View view , final QuickAdapter.VH vh , final JPushMessageInfo data , final int pos) {
+    private void markReadPopupLayoutProcess(final View view, final QuickAdapter.VH vh, final JPushMessageInfo data, final int pos) {
         /**
          * 弹框前，需要得到PopupWindow的大小(也就是PopupWindow中contentView的大小)。
          * 由于contentView还未绘制，这时候的width、height都是0。
          * 因此需要通过measure测量出contentView的大小，才能进行计算。
          */
-
         popupMenuLayout_CONTENT_MARK_READ.getContentView().measure(DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT_MARK_READ.getWidth()),
                 DensityUtil.makeDropDownMeasureSpec(popupMenuLayout_CONTENT_MARK_READ.getHeight()));
 
@@ -785,7 +839,7 @@ public class MessageFragment extends Fragment {
         popupMenuLayout_CONTENT_MARK_READ.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
-                handler.postDelayed(runnable, 1000) ;
+                handler.postDelayed(runnable, 1000);
             }
         });
 
@@ -794,13 +848,13 @@ public class MessageFragment extends Fragment {
             public void itemClick(View v, int position) {
                 switch (position) {
                     case 0:
-                        markIsReadProcess(vh , data , pos , false);
+                        markIsReadProcess(vh, data, pos, false);
                         break;
 
-                    case 1 :
+                    case 1:
 
-                        deleteConversion(data , true , 0);
-                        break ;
+                        deleteConversion(data, true, 0);
+                        break;
 
                     default:
                         ITosast.showShort(mContext, "未知参数类型").show();
@@ -818,16 +872,17 @@ public class MessageFragment extends Fragment {
     /**
      * 删除现有会话
      * 其中包含单聊会话和群聊会话
+     *
      * @param data
      * @param isSingle
      * @param groupId
      */
-    private void deleteConversion(@NonNull JPushMessageInfo data , boolean isSingle , int groupId ){
-        if (isSingle){
+    private void deleteConversion(@NonNull JPushMessageInfo data, boolean isSingle, int groupId) {
+        if (isSingle) {
             JMessageClient.deleteSingleConversation(data.getUserName());
             msgQuickAdapter.notifyDataSetChanged();
-        }else {
-            ITosast.showShort(mContext , "群组会话的删除，暂未处理").show();
+        } else {
+            ITosast.showShort(mContext, "群组会话的删除，暂未处理").show();
         }
 
         initData();
@@ -835,7 +890,7 @@ public class MessageFragment extends Fragment {
     }
 
 
-    private void initRxBus(){
+    private void initRxBus() {
         RxBus.getInstance()
                 .toObservable(HasMsgListOpen.class)
                 .observeOn(Schedulers.io())
@@ -868,31 +923,38 @@ public class MessageFragment extends Fragment {
 
 
     @OnClick(R.id.et_searchEdit)
-    public void onItemClick(View view){
-        switch (view.getId()){
-            case R.id.et_searchEdit :
-                HasMsgListOpen msgListOpen = new HasMsgListOpen() ;
-                if (MsgRecyclerView.itemOpenCount.size() > 0 ){
+    public void onItemClick(View view) {
+        switch (view.getId()) {
+            case R.id.et_searchEdit:
+                HasMsgListOpen msgListOpen = new HasMsgListOpen();
+                if (MsgRecyclerView.itemOpenCount.size() > 0) {
                     RxBus.getInstance().post(msgListOpen);
                 }
                 startActivity(new Intent(mContext, SearchActivity.class));
-                break ;
+                break;
 
 
         }
     }
 
-    private void initReceiver(){
+
+    /**
+     * 网络状态监听
+     * 如果没有网络有响应的提示布局显示
+     */
+    private NetworkReceiver mReceiver;
+
+    private void initReceiver() {
         mReceiver = new NetworkReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         mContext.registerReceiver(mReceiver, filter);
     }
 
-    private class NetworkReceiver extends BroadcastReceiver{
+    private class NetworkReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent != null && intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE")){
+            if (intent != null && intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE")) {
                 ConnectivityManager manager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo activeInfo = manager.getActiveNetworkInfo();
                 if (null == activeInfo) {
@@ -928,11 +990,11 @@ public class MessageFragment extends Fragment {
         if (handler != null) {
             handler = null;
         }
-        if (markReadList != null){
-            markReadList = null ;
+        if (markReadList != null) {
+            markReadList = null;
         }
-        if (markUnReadList != null){
-            markUnReadList = null ;
+        if (markUnReadList != null) {
+            markUnReadList = null;
         }
         System.gc();
         mContext.unregisterReceiver(mReceiver);

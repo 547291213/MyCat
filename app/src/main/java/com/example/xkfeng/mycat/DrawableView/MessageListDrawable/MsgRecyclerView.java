@@ -28,6 +28,7 @@ public class MsgRecyclerView extends RecyclerView {
     public static Map<QuickAdapter.VH, Integer> itemOpenCount = new HashMap<>();
 
 
+
     private View mEmptyView;
 
 
