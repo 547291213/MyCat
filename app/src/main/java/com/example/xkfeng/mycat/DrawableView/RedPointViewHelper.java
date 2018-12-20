@@ -183,6 +183,9 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
              */
             if (Integer.parseInt(string) <= 0){
                 mShowView.setVisibility(View.GONE);
+
+                ((TextView) mShowView).setText("0");
+
                 return ;
             }else {
               mShowView.setVisibility(View.VISIBLE);
@@ -232,8 +235,6 @@ public class RedPointViewHelper implements View.OnTouchListener, RedPointView.Dr
     public void setViewShow(){
         if (mShowView != null){
             mShowView.setVisibility(View.VISIBLE);
-            //有待测试
-//            setRedPointViewText("0");
             mParams = new WindowManager.LayoutParams();
             mParams.format = PixelFormat.TRANSLUCENT;
 

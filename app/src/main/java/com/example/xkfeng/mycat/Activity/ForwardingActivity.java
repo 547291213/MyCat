@@ -57,16 +57,17 @@ public class ForwardingActivity extends BaseActivity {
     @BindView(R.id.erv_recentMsgList)
     EmptyRecyclerView ervRecentMsgList;
     @BindView(R.id.tv_messageEmptyView)
-    TextView tvMessageEmptyView ;
+    TextView tvMessageEmptyView;
 
     private DisplayMetrics metrics;
-    private boolean isFriendSendBusinessCard ;
-    private String fromBusinessName ;
+    private boolean isFriendSendBusinessCard;
+    private String fromBusinessName;
 
-    private QuickAdapter<ForwardingFriendInfo> quickAdapter ;
-    private QucikAdapterWrapter<ForwardingFriendInfo> qucikAdapterWrapter ;
-    private List<ForwardingFriendInfo> forwardingFriendInfoList ;
-    private List<Conversation> conversationList ;
+    private QuickAdapter<ForwardingFriendInfo> quickAdapter;
+    private QucikAdapterWrapter<ForwardingFriendInfo> qucikAdapterWrapter;
+    private List<ForwardingFriendInfo> forwardingFriendInfoList;
+    private List<Conversation> conversationList;
+    private static final int RequestCode_intoSearchContact  = 100 ;
 
 
     @Override
@@ -76,8 +77,8 @@ public class ForwardingActivity extends BaseActivity {
         setContentView(R.layout.forwarding_layout);
         ButterKnife.bind(this);
 
-        isFriendSendBusinessCard =  getIntent().getBooleanExtra("businessCard" , false) ;
-        fromBusinessName = getIntent().getStringExtra("userName") ;
+        isFriendSendBusinessCard = getIntent().getBooleanExtra("businessCard", false);
+        fromBusinessName = getIntent().getStringExtra("userName");
 
         metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -89,7 +90,7 @@ public class ForwardingActivity extends BaseActivity {
     private void initView() {
         initIndexTitleLayout();
         initSearchEdit();
-        initData() ;
+        initData();
         initQuickAdapter();
         initWrapterAndRecycler();
 
@@ -121,37 +122,37 @@ public class ForwardingActivity extends BaseActivity {
     }
 
 
-    private void initData(){
+    private void initData() {
 
-        forwardingFriendInfoList = new ArrayList<>() ;
-        conversationList = new ArrayList<>() ;
-        conversationList = JMessageClient.getConversationList() ;
-        for (Conversation conversation : conversationList){
-           UserInfo userInfo = (UserInfo) conversation.getTargetInfo();
-           ForwardingFriendInfo friendInfo = new ForwardingFriendInfo() ;
-           if (conversation.getType() == ConversationType.group){
-               friendInfo.setUserName(conversation.getTitle());
-           }else {
-               if (!TextUtils.isEmpty(userInfo.getNotename())){
-                   friendInfo.setUserName(userInfo.getNotename());
-               }else if (!TextUtils.isEmpty(userInfo.getNickname())){
-                   friendInfo.setUserName(userInfo.getNickname());
-               }else {
-                   friendInfo.setUserName(userInfo.getUserName());
-               }
+        forwardingFriendInfoList = new ArrayList<>();
+        conversationList = new ArrayList<>();
+        conversationList = JMessageClient.getConversationList();
+        for (Conversation conversation : conversationList) {
+            UserInfo userInfo = (UserInfo) conversation.getTargetInfo();
+            ForwardingFriendInfo friendInfo = new ForwardingFriendInfo();
+            if (conversation.getType() == ConversationType.group) {
+                friendInfo.setUserName(conversation.getTitle());
+            } else {
+                if (!TextUtils.isEmpty(userInfo.getNotename())) {
+                    friendInfo.setUserName(userInfo.getNotename());
+                } else if (!TextUtils.isEmpty(userInfo.getNickname())) {
+                    friendInfo.setUserName(userInfo.getNickname());
+                } else {
+                    friendInfo.setUserName(userInfo.getUserName());
+                }
 
-           }
-               if (userInfo.getAvatarFile()!= null && userInfo != null){
-               friendInfo.setHeaderBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().getAbsolutePath()));
-           }else {
-               friendInfo.setHeaderBitmap(BitmapFactory.decodeResource(getResources() , R.mipmap.log));
-           }
-           forwardingFriendInfoList.add(friendInfo) ;
+            }
+            if (userInfo.getAvatarFile() != null && userInfo != null) {
+                friendInfo.setHeaderBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().getAbsolutePath()));
+            } else {
+                friendInfo.setHeaderBitmap(BitmapFactory.decodeResource(getResources(), R.mipmap.log));
+            }
+            forwardingFriendInfoList.add(friendInfo);
         }
 
     }
 
-    private void initQuickAdapter(){
+    private void initQuickAdapter() {
         quickAdapter = new QuickAdapter<ForwardingFriendInfo>(forwardingFriendInfoList) {
             @Override
             public int getLayoutId(int viewType) {
@@ -164,24 +165,24 @@ public class ForwardingActivity extends BaseActivity {
                     @Override
                     public void onClick(View view) {
 
-                        if (isFriendSendBusinessCard){
+                        if (isFriendSendBusinessCard) {
 
-                            Dialog dialog = DialogHelper.createSendFriendBusinessCardDialog(ForwardingActivity.this , ForwardingActivity.this, data.getUserName() , fromBusinessName ,
-                                    conversationList.get(position)) ;
+                            Dialog dialog = DialogHelper.createSendFriendBusinessCardDialog(ForwardingActivity.this, ForwardingActivity.this, data.getUserName(), fromBusinessName,
+                                    conversationList.get(position));
                             dialog.show();
 
-                        }else {
-                            Dialog dialog  = DialogHelper.createForwardingDialog(ForwardingActivity.this ,ForwardingActivity.this,
-                                    data.getUserName() , (UserInfo) conversationList.get(position).getTargetInfo()
-                                    , true ) ;
+                        } else {
+                            Dialog dialog = DialogHelper.createForwardingDialog(ForwardingActivity.this, ForwardingActivity.this,
+                                    data.getUserName(), (UserInfo) conversationList.get(position).getTargetInfo()
+                                    , true);
                             dialog.show();
                         }
 
 
                     }
-                } ;
-                ((ImageView)vh.getView(R.id.iv_headIcon)).setImageBitmap(data.getHeaderBitmap());
-                ((TextView)vh.getView(R.id.tv_name)).setText(data.getUserName());
+                };
+                ((ImageView) vh.getView(R.id.iv_headIcon)).setImageBitmap(data.getHeaderBitmap());
+                ((TextView) vh.getView(R.id.tv_name)).setText(data.getUserName());
                 vh.getView(R.id.ll_contractLayout).setOnClickListener(listener);
 
             }
@@ -189,8 +190,8 @@ public class ForwardingActivity extends BaseActivity {
         };
     }
 
-    private void initWrapterAndRecycler(){
-        qucikAdapterWrapter = new QucikAdapterWrapter<>(quickAdapter) ;
+    private void initWrapterAndRecycler() {
+        qucikAdapterWrapter = new QucikAdapterWrapter<>(quickAdapter);
         View addView = LayoutInflater.from(this).inflate(R.layout.ad_item_layout, null);
         qucikAdapterWrapter.setAdView(addView);
 
@@ -211,14 +212,35 @@ public class ForwardingActivity extends BaseActivity {
 
             case R.id.et_searchEdit:
 
-                Toast.makeText(this, "Search", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent() ;
+                intent.setClass(ForwardingActivity.this , SearchContactActivity.class ) ;
+                startActivityForResult(intent , RequestCode_intoSearchContact);
+
+
                 break;
 
             case R.id.ll_groupLayout:
 
-                Intent intent = new Intent(ForwardingActivity.this, GroupListActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(ForwardingActivity.this, GroupListActivity.class));
                 break;
+        }
+    }
+
+    /**
+     * 当在其他界面已经完成了消息转发的时候，直接退回当前界面，
+     * 当前界面也立即关闭，回到之前的会话的界面。
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode){
+            case  RequestCode_intoSearchContact :
+                if (resultCode == RESULT_OK && data != null){
+
+                }
+                break ;
         }
     }
 
@@ -226,11 +248,11 @@ public class ForwardingActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        if (conversationList != null){
-            conversationList = null ;
+        if (conversationList != null) {
+            conversationList = null;
         }
-        if (forwardingFriendInfoList != null){
-            forwardingFriendInfoList = null ;
+        if (forwardingFriendInfoList != null) {
+            forwardingFriendInfoList = null;
         }
 
         System.gc();

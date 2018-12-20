@@ -263,6 +263,7 @@ public class IndexActivity extends BaseActivity implements MessageFragment.OnUnR
             stickyViewHelper.setRedPointViewText(String.valueOf(count));
 
         }
+
     }
 
 

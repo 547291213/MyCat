@@ -469,7 +469,7 @@ public class MessageFragment extends Fragment {
 
                 setAdapterDisplayContent(vh, data);
 
-                setAdapterRedPointerView(vh, data);
+                setAdapterRedPointerView(vh, data , position);
 
                 setSideSlipMsgDisplay(vh, data);
 
@@ -488,10 +488,10 @@ public class MessageFragment extends Fragment {
                         @Override
                         public void run() {
                             if (onUnReadCountUpdateListener != null) {
-                                onUnReadCountUpdateListener.onUnReadCountUpdate(getSumOfUnReadCount());
+                                onUnReadCountUpdateListener.onUnReadCountUpdate(getSumOfUnReadCount(false));
                             }
                         }
-                    }, 1000);
+                    }, 200);
                 }
             }
         };
@@ -542,7 +542,7 @@ public class MessageFragment extends Fragment {
      * @param vh
      * @param data
      */
-    private void setAdapterRedPointerView(final QuickAdapter.VH vh, final JPushMessageInfo data) {
+    private void setAdapterRedPointerView(final QuickAdapter.VH vh, final JPushMessageInfo data , final int pos) {
         /**
          * BUG
          * 在红点拖动期间，存在数据拉取的情况，
@@ -564,9 +564,10 @@ public class MessageFragment extends Fragment {
 
             @Override
             public void onRedPointerClickRealeaseOutRange() {
-                data.setUnReadCount(0 + "");
-                data.getConversation().setUnReadMessageCnt(0);
-                msgQuickAdapter.notifyDataSetChanged();
+//                data.setUnReadCount(0 + "");
+//                data.getConversation().setUnReadMessageCnt(0);
+//                msgQuickAdapter.notifyDataSetChanged();
+                markIsReadProcess(vh , data , pos , false);
             }
 
             @Override
@@ -748,9 +749,10 @@ public class MessageFragment extends Fragment {
      * @param vh
      * @param data
      * @param pos
-     * @param isRead
+     * @param isRead   false当前为已读状态，做标记未读的显示处理 ，true当前为未读状态，做标记已读的显示处理
      */
     private void markIsReadProcess(QuickAdapter.VH vh, JPushMessageInfo data, final int pos, boolean isRead) {
+        unReadCountRecord.clear();
 
         if (!isRead) {
             //将显示的文本修改为标记未读
@@ -785,15 +787,15 @@ public class MessageFragment extends Fragment {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
+                //清空现有数据
                 msgQuickAdapter.notifyDataSetChanged();
                 if (onUnReadCountUpdateListener != null) {
-                    onUnReadCountUpdateListener.onUnReadCountUpdate(getSumOfUnReadCount());
+                    onUnReadCountUpdateListener.onUnReadCountUpdate(getSumOfUnReadCount(true));
                 }
             }
-        }, 500);
-
-
+        }, 200);
     }
+
 
     /**
      * 弹出式菜单，标记未读的处理
@@ -964,8 +966,13 @@ public class MessageFragment extends Fragment {
      *
      * @return
      */
-    private int getSumOfUnReadCount() {
-        int count = 0;
+    private int count = 0;
+    private int getSumOfUnReadCount(boolean isClearInMark) {
+
+        if (isClearInMark ){
+            return count ;
+        }
+        count = 0 ;
         for (JPushMessageInfo m : unReadCountRecord.values()) {
             count += Integer.valueOf(m.getUnReadCount());
         }
@@ -998,7 +1005,7 @@ public class MessageFragment extends Fragment {
                 //清空是哟有未读消息项
                 unReadCountRecord.clear();
                 //恢复定时加载
-                handler.postDelayed(runnable, 1000);
+                handler.post(runnable);
             }
         }, 500);
 
@@ -1104,9 +1111,14 @@ public class MessageFragment extends Fragment {
         if (markUnReadList != null) {
             markUnReadList = null;
         }
-        System.gc();
-        mContext.unregisterReceiver(mReceiver);
+
+        if (mReceiver != null) {
+            mContext.unregisterReceiver(mReceiver);
+            mReceiver = null;
+        }
+
         JMessageClient.unRegisterEventReceiver(this);
+        System.gc();
 
     }
 
