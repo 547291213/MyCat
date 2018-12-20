@@ -10,6 +10,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -254,8 +255,13 @@ public class IndexActivity extends BaseActivity implements MessageFragment.OnUnR
 
     @Override
     public void onUnReadCountUpdate(int count) {
-        if (stickyViewHelper != null){
+        Log.d(TAG, "onUnReadCountUpdate: count : " + count );
+        if (stickyViewHelper != null && !String.valueOf(count).equals(stickyViewHelper.getRedPointViewText())){
+            //恢复拖拽红点View粘性
+            stickyViewHelper.setViewShow();
+            //设置拖拽红点View显示数据
             stickyViewHelper.setRedPointViewText(String.valueOf(count));
+
         }
     }
 
@@ -635,7 +641,10 @@ public class IndexActivity extends BaseActivity implements MessageFragment.OnUnR
         stickyViewHelper.setRedPointViewReleaseOutRangeListener(new RedPointViewHelper.RedPointViewReleaseOutRangeListener() {
             @Override
             public void onReleaseOutRange() {
+
+                stickyViewHelper.setRedPointViewText("0");
                 messageFragment.clearUnreadMsg();
+
             }
 
             @Override

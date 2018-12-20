@@ -132,8 +132,7 @@ public class MessageFragment extends Fragment {
     /**
      * 对会话列表中存在未读消息的数据进行记录
      */
-    public static Map<QuickAdapter.VH, JPushMessageInfo> unReadCountRecord = new HashMap<>();
-
+    public Map<QuickAdapter.VH, JPushMessageInfo> unReadCountRecord = new HashMap<>();
 
 
     @Nullable
@@ -355,6 +354,10 @@ public class MessageFragment extends Fragment {
      */
     private void initData() {
         Log.d(TAG, "initData: ");
+        /**
+         * 清空数据
+         */
+        unReadCountRecord.clear();
         conversationList = JMessageClient.getConversationList();
 
         if (conversationList == null) {
@@ -478,17 +481,17 @@ public class MessageFragment extends Fragment {
                 /**
                  * 当数据全部加载完成之后传递
                  */
-                if (position == jPushMessageInfoList.size()-1){
+                if (position == jPushMessageInfoList.size() - 1) {
 
-                    Handler handler = new Handler() ;
+                    Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            if (onUnReadCountUpdateListener != null){
+                            if (onUnReadCountUpdateListener != null) {
                                 onUnReadCountUpdateListener.onUnReadCountUpdate(getSumOfUnReadCount());
                             }
                         }
-                    },1000) ;
+                    }, 1000);
                 }
             }
         };
@@ -577,9 +580,7 @@ public class MessageFragment extends Fragment {
         //设置红点View显示数据
         ((MsgListSlideView) vh.getView(R.id.listlide)).setStickyViewHelperText(data.getUnReadCount());
         if (Integer.parseInt(data.getUnReadCount()) > 0) {
-            if (!unReadCountRecord.containsKey(vh)&&!unReadCountRecord.containsValue(data)) {
-                unReadCountRecord.put(vh, data);
-            }
+            unReadCountRecord.put(vh, data);
         }
     }
 
@@ -729,9 +730,6 @@ public class MessageFragment extends Fragment {
                  * 需要把与之会话的UserName传递过去
                  */
                 //将数据从已读数据项移除
-                if (unReadCountRecord.containsKey(vh)) {
-                    unReadCountRecord.remove(vh);
-                }
                 Intent intent = new Intent();
                 intent.setClass(getContext(), ChatMsgActivity.class);
                 intent.putExtra(StaticValueHelper.CHAT_MSG_TITLE, data.getTitle());
@@ -760,20 +758,12 @@ public class MessageFragment extends Fragment {
             //做标记已读的处理
             data.setUnReadCount(0 + "");
             data.getConversation().setUnReadMessageCnt(0);
-            //将已读数据项移除
-            if (unReadCountRecord.containsKey(vh)) {
-                unReadCountRecord.remove(vh);
-            }
         } else {
             //将显示的文本呢修改为标记已读
             ((TextView) vh.getView(R.id.tv_flagSlideView)).setText(getContext().getResources().getString(R.string.listSlideView_markRead));
             //做标记未读的处理
             data.setUnReadCount(1 + "");
             data.getConversation().setUnReadMessageCnt(1);
-            //添加未读数据项
-            if (!unReadCountRecord.containsKey(vh)) {
-                unReadCountRecord.put(vh, data);
-            }
         }
         /**
          * 很奇怪的BUG
@@ -796,11 +786,11 @@ public class MessageFragment extends Fragment {
             @Override
             public void run() {
                 msgQuickAdapter.notifyDataSetChanged();
-                if (onUnReadCountUpdateListener != null){
+                if (onUnReadCountUpdateListener != null) {
                     onUnReadCountUpdateListener.onUnReadCountUpdate(getSumOfUnReadCount());
                 }
             }
-        }, 200);
+        }, 500);
 
 
     }
@@ -979,14 +969,13 @@ public class MessageFragment extends Fragment {
         for (JPushMessageInfo m : unReadCountRecord.values()) {
             count += Integer.valueOf(m.getUnReadCount());
         }
-        Log.d(TAG, "getSumOfUnReadCount:onUnReadCountUpdate  " + unReadCountRecord.size());
         return count;
     }
 
-    private void addDismissAnim(View view){
+    private void addDismissAnim(View view) {
         float[] vaules = new float[]{1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.3f, 0.0f, 0.1f, 0.2f, 0.25f, 0.2f, 0.15f, 0.1f, 0.0f};
-        AnimatorSet set = new AnimatorSet() ;
-        set.setDuration(500) ;
+        AnimatorSet set = new AnimatorSet();
+        set.setDuration(800);
         set.playTogether(ObjectAnimator.ofFloat(view, "scaleX", vaules),
                 ObjectAnimator.ofFloat(view, "scaleY", vaules));
         set.setInterpolator(new LinearInterpolator());
@@ -1019,10 +1008,10 @@ public class MessageFragment extends Fragment {
     /**
      * 未读消息的数目更新接口
      */
-    private OnUnReadCountUpdateListener onUnReadCountUpdateListener ;
+    private OnUnReadCountUpdateListener onUnReadCountUpdateListener;
+
     @Deprecated
-    public void setOnUnReadCountUpdateListener(OnUnReadCountUpdateListener unReadCountUpdateListener)
-    {
+    public void setOnUnReadCountUpdateListener(OnUnReadCountUpdateListener unReadCountUpdateListener) {
         this.onUnReadCountUpdateListener = onUnReadCountUpdateListener;
     }
 
@@ -1031,14 +1020,14 @@ public class MessageFragment extends Fragment {
         super.onAttach(context);
         if (context instanceof OnUnReadCountUpdateListener) {
             onUnReadCountUpdateListener = (OnUnReadCountUpdateListener) context;
-        }
-        else {
+        } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }
-    public interface OnUnReadCountUpdateListener{
-        public void onUnReadCountUpdate(int count) ;
+
+    public interface OnUnReadCountUpdateListener {
+        public void onUnReadCountUpdate(int count);
     }
 
     @OnClick(R.id.et_searchEdit)
@@ -1164,7 +1153,6 @@ public class MessageFragment extends Fragment {
         Conversation conv = event.getConversation();
 
     }
-
 
 
 }
