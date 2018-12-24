@@ -121,8 +121,16 @@
 
         </activity>
 
-        <!--Activity : forwarding msg for search contact-->
+        <!--Activity : forwarding msg : search contact about  friedn , group , contact ..-->
         <activity android:name=".Activity.SearchContactActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            >
+
+        </activity>
+
+        <!--Activity : forwarding msg : get more infomation about your friend when
+        friend and contact count more than three-->
+        <activity android:name=".Activity.SearchMoreFriendActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             >
 

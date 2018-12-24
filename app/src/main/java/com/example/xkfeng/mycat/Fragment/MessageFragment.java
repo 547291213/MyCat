@@ -961,15 +961,17 @@ public class MessageFragment extends Fragment {
     }
 
 
+
     /**
-     * 获取未读消息的总数
+     * 获取当前未读消息总数
      *
-     * @return
+     * @param isMarkChanged   true：表示由于标记已读与否引起的调用， false：表示非标记已读与否引起的调用,可以查看 {@link MessageFragment#initData}
+     * @return 未读消息总数
      */
     private int count = 0;
-    private int getSumOfUnReadCount(boolean isClearInMark) {
+    private int getSumOfUnReadCount(boolean isMarkChanged) {
 
-        if (isClearInMark ){
+        if (isMarkChanged ){
             return count ;
         }
         count = 0 ;
@@ -979,6 +981,10 @@ public class MessageFragment extends Fragment {
         return count;
     }
 
+    /**
+     * 消失动画
+     * @param view
+     */
     private void addDismissAnim(View view) {
         float[] vaules = new float[]{1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.3f, 0.0f, 0.1f, 0.2f, 0.25f, 0.2f, 0.15f, 0.1f, 0.0f};
         AnimatorSet set = new AnimatorSet();
@@ -990,6 +996,11 @@ public class MessageFragment extends Fragment {
 
     }
 
+    /**
+     *  供外部调用
+     *  清空所有的未读消息
+     *  设定未读消息消失动画
+     */
     public void clearUnreadMsg() {
         /* 移除定时更新 */
         handler.removeCallbacks(runnable);

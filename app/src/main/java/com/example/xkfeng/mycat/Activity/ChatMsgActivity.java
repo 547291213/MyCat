@@ -40,6 +40,7 @@ import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
 import com.example.xkfeng.mycat.Fragment.AddBoradFragment;
 import com.example.xkfeng.mycat.Fragment.NullBoradFragment;
 import com.example.xkfeng.mycat.Fragment.VoiceBoradFragment;
+import com.example.xkfeng.mycat.MyApplication.MyApplication;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.HandleResponseCode;
@@ -56,7 +57,11 @@ import javax.security.auth.callback.CallbackHandler;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import cn.jpush.im.android.api.ContactManager;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetGroupIDListCallback;
+import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
+import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ContentType;
@@ -1405,6 +1410,65 @@ public class ChatMsgActivity extends BaseActivity implements
             }
         });
 
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+
+        //获取群组列表
+        //为搜索群组做准备
+        MyApplication.groupList.clear();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JMessageClient.getGroupIDList(new GetGroupIDListCallback() {
+                    @Override
+                    public void gotResult(int i, String s, List<Long> list) {
+                        switch (i) {
+                            case 0:
+                                for (final long id : list) {
+                                    JMessageClient.getGroupInfo(id, new GetGroupInfoCallback() {
+                                        @Override
+                                        public void gotResult(int i, String s, GroupInfo groupInfo) {
+                                            switch (i) {
+                                                case 0:
+                                                    MyApplication.groupList.add(groupInfo);
+                                                    break;
+                                            }
+                                        }
+                                    });
+                                }
+                                break;
+
+                            default:
+                                break;
+                        }
+
+                    }
+                });
+            }
+        }).start();
+        //获取好友列表
+        //为搜索好友做准备
+        MyApplication.friendList.clear();
+
+        ContactManager.getFriendList(new GetUserInfoListCallback() {
+            @Override
+            public void gotResult(int i, String s, List<UserInfo> list) {
+
+                switch (i) {
+                    case 0:
+                        MyApplication.friendList = list;
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        });
     }
 
     @Override

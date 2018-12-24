@@ -8,14 +8,22 @@ import com.example.xkfeng.mycat.NetWork.OkHttpProcesser;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.UserAutoLoginHelper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.GroupInfo;
+import cn.jpush.im.android.api.model.UserInfo;
 
 public class MyApplication extends Application {
     private UserAutoLoginHelper userAutoLoginHelper;
 
+
+    public static List<UserInfo> friendList = new ArrayList<>() ;
+
+    public static List<GroupInfo> groupList = new ArrayList<>() ;
     @Override
     public void onCreate() {
         super.onCreate();

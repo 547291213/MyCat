@@ -43,6 +43,7 @@ import com.example.xkfeng.mycat.DrawableView.RedPointViewHelper;
 import com.example.xkfeng.mycat.DrawableView.SideBar;
 import com.example.xkfeng.mycat.Model.FriendInfo;
 import com.example.xkfeng.mycat.Model.FriendInvitationModel;
+import com.example.xkfeng.mycat.MyApplication.MyApplication;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.RxBus.RxBus;
 import com.example.xkfeng.mycat.SqlHelper.FriendInvitationDao;
@@ -297,6 +298,7 @@ public class FriendFragment extends Fragment {
             public void gotResult(int i, String s, List<UserInfo> list) {
                 switch (i) {
                     case 0:
+
                         friendInfos = dataConversion(list);
                         Collections.sort(friendInfos, new PinyinComparator());
                         friendListAdapter.notifyData(friendInfos);
