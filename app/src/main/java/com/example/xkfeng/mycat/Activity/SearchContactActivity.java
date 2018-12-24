@@ -1,5 +1,6 @@
 package com.example.xkfeng.mycat.Activity;
 
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -31,9 +32,11 @@ import com.example.xkfeng.mycat.Model.FilterFriendInfo;
 import com.example.xkfeng.mycat.Model.FilterGroupInfo;
 import com.example.xkfeng.mycat.Model.Friend;
 import com.example.xkfeng.mycat.Model.SearchContact;
+import com.example.xkfeng.mycat.Model.User;
 import com.example.xkfeng.mycat.MyApplication.MyApplication;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
+import com.example.xkfeng.mycat.Util.DialogHelper;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.TimeUtil;
 
@@ -47,6 +50,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
@@ -88,6 +92,7 @@ public class SearchContactActivity extends BaseActivity {
     private List<UserInfo> allUser;
     private List<GroupInfo> allGroup;
     private String mFilterName;
+    private UserInfo friendInfo;
 
     private static final int RequestCode_GETMORECONTACT = 100;
 
@@ -304,7 +309,7 @@ public class SearchContactActivity extends BaseActivity {
         return filterFriendInfo;
     }
 
-    @OnClick({R.id.tv_setBackText, R.id.iv_intoAboutUs, R.id.tv_intoAboutUs ,R.id.ll_getMoreContact , R.id.ll_getMoreGroup})
+    @OnClick({R.id.tv_setBackText, R.id.iv_intoAboutUs, R.id.tv_intoAboutUs, R.id.ll_getMoreContact, R.id.ll_getMoreGroup})
     public void onItemClick(View view) {
         switch (view.getId()) {
             case R.id.tv_setBackText:
@@ -319,7 +324,7 @@ public class SearchContactActivity extends BaseActivity {
 
             case R.id.ll_getMoreContact:
 
-                ITosast.showShort(this , "GET MORE CONTACT").show();
+                ITosast.showShort(this, "GET MORE CONTACT").show();
                 Intent intent = new Intent();
                 intent.setClass(SearchContactActivity.this, SearchMoreFriendActivity.class);
                 startActivityForResult(intent, RequestCode_GETMORECONTACT);
@@ -339,7 +344,7 @@ public class SearchContactActivity extends BaseActivity {
         switch (requestCode) {
             case RequestCode_GETMORECONTACT:
                 //如果在获取更多好友信息界面完成了消息转发或者名片发送
-                if (resultCode == RESULT_OK  && data != null){
+                if (resultCode == RESULT_OK && data != null) {
 
                 }
                 break;
@@ -510,10 +515,14 @@ public class SearchContactActivity extends BaseActivity {
             if (isFrind) {
                 //发送好友名片
                 if (isSendFriendBusinessCard) {
+
                     ITosast.showShort(SearchContactActivity.this, "发送给好友，发送名片 " + friendName).show();
+
                 }
                 //转发消息
                 else {
+                    forwardingMsgToFriend(friendName);
+
                     ITosast.showShort(SearchContactActivity.this, "发送给好友，转发消息 " + friendName).show();
                 }
             }
@@ -531,6 +540,34 @@ public class SearchContactActivity extends BaseActivity {
             }
 
         }
+    }
+
+    private void forwardingMsgToFriend(final String userName) {
+
+
+        JMessageClient.getUserInfo(userName, new GetUserInfoCallback() {
+            @Override
+            public void gotResult(int i, String s, UserInfo userInfo) {
+                switch (i) {
+                    case 0:
+                        friendInfo = userInfo;
+                        Dialog dialog = DialogHelper.createForwardingDialog(SearchContactActivity.this, SearchContactActivity.this,
+                                userName, friendInfo, true);
+                        dialog.show();
+                        break;
+
+                    default:
+                        ITosast.showShort(SearchContactActivity.this, "获取好友数据失败").show();
+                        return;
+
+                }
+
+            }
+        });
+
+
+
+
     }
 
 

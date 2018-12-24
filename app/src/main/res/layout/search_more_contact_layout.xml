@@ -5,13 +5,44 @@
     android:orientation="vertical"
     >
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="search more contact"
-        android:textSize="30sp"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="所有好友"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textColor="@color/blue"
+            android:drawableLeft="@drawable/ic_back_blue_32"
+            android:drawablePadding="2dp"
+
+            />
+
+    </LinearLayout>
+    <android.support.v7.widget.SearchView
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+    </android.support.v7.widget.SearchView>
+
+    <TextView
+        android:id="@+id/tv_findNothing"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="3dp"
 
         />
 
+    <com.example.xkfeng.mycat.DrawableView.NestedListView
+        android:id="@+id/nlv_allFriendList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </com.example.xkfeng.mycat.DrawableView.NestedListView>
 </LinearLayout>

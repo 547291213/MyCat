@@ -238,7 +238,7 @@ public class ForwardingActivity extends BaseActivity {
         switch (requestCode){
             case  RequestCode_intoSearchContact :
                 if (resultCode == RESULT_OK && data != null){
-
+                    finish();
                 }
                 break ;
         }

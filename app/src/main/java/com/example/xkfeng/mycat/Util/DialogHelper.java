@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -168,6 +169,8 @@ public class DialogHelper {
                             dialog.dismiss();
                             if (i == 0) {
                                 ITosast.showShort(context, "已发送").show();
+                                Intent intent = new Intent() ;
+                                activity.setResult(Activity.RESULT_OK , intent);
                                 activity.finish();
 
                             } else {
