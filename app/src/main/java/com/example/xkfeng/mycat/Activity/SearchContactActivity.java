@@ -288,7 +288,7 @@ public class SearchContactActivity extends BaseActivity {
                 continue;
             }
             if (!TextUtils.isEmpty(userName) && userName.contains(mFilterName)) {
-                friendList.add(addData(noteName, userInfo));
+                friendList.add(addData(userName, userInfo));
                 continue;
             }
         }
@@ -327,6 +327,10 @@ public class SearchContactActivity extends BaseActivity {
                 ITosast.showShort(this, "GET MORE CONTACT").show();
                 Intent intent = new Intent();
                 intent.setClass(SearchContactActivity.this, SearchMoreFriendActivity.class);
+                if (isSendFriendBusinessCard){
+                    intent.putExtra("isSendFriendBusinessCard" , true)  ;
+                    intent.putExtra("businessCardName" , fromBusinessCardFriendName) ;
+                }
                 startActivityForResult(intent, RequestCode_GETMORECONTACT);
                 break;
 
@@ -346,6 +350,7 @@ public class SearchContactActivity extends BaseActivity {
                 //如果在获取更多好友信息界面完成了消息转发或者名片发送
                 if (resultCode == RESULT_OK && data != null) {
 
+                    finish();
                 }
                 break;
 
@@ -516,14 +521,18 @@ public class SearchContactActivity extends BaseActivity {
                 //发送好友名片
                 if (isSendFriendBusinessCard) {
 
-                    ITosast.showShort(SearchContactActivity.this, "发送给好友，发送名片 " + friendName).show();
+                    Conversation conversation = JMessageClient.getSingleConversation(friendName) ;
+                    if(conversation == null){
+                        conversation = Conversation.createSingleConversation(friendName) ;
+                    }
+                    Dialog dialog = DialogHelper.createSendFriendBusinessCardDialog(SearchContactActivity.this , SearchContactActivity.this ,
+                            friendName , fromBusinessCardFriendName , conversation) ;
+                    dialog.show();
 
                 }
                 //转发消息
                 else {
                     forwardingMsgToFriend(friendName);
-
-                    ITosast.showShort(SearchContactActivity.this, "发送给好友，转发消息 " + friendName).show();
                 }
             }
             //发送给群组
@@ -542,6 +551,10 @@ public class SearchContactActivity extends BaseActivity {
         }
     }
 
+    /**
+     * 转发消息给好友
+     * @param userName   好友id
+     */
     private void forwardingMsgToFriend(final String userName) {
 
 

@@ -214,6 +214,10 @@ public class ForwardingActivity extends BaseActivity {
 
                 Intent intent = new Intent() ;
                 intent.setClass(ForwardingActivity.this , SearchContactActivity.class ) ;
+                if(isFriendSendBusinessCard){
+                    intent.putExtra("isSendBusiness" , true) ;
+                    intent.putExtra("friendName" , fromBusinessName ) ;
+                }
                 startActivityForResult(intent , RequestCode_intoSearchContact);
 
 
