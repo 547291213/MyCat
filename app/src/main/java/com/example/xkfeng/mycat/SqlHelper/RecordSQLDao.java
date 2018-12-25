@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.xkfeng.mycat.Util.TimeUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +18,7 @@ public class RecordSQLDao {
     private RecordSQLiteOpenHelper helper;
     private Context mContext;
     private SQLiteDatabase db;
+    private static final int MAX_DATA_COUNT_FOR_ONE_USER = 9;
 
     public RecordSQLDao(Context context) {
         this.mContext = context;
@@ -40,7 +43,7 @@ public class RecordSQLDao {
         List<String> data = new ArrayList<>(); //模糊搜索
         Cursor cursor = helper.getReadableDatabase()
                 .rawQuery("select id as _id,name from records " +
-                        "where name like '%" + tempName + "%' and username = ? order by id desc ", new String[]{username});
+                        "where name like '%" + tempName + "%' and username = ? order by createtime desc ", new String[]{username});
 
         while (cursor.moveToNext()) {
             //注意这里的name跟建表的name统一
@@ -65,7 +68,10 @@ public class RecordSQLDao {
                 , new String[]{tempName, username});
 
         // 判断是否有下一个
-        return cursor.moveToNext();
+        boolean hasNext = cursor.moveToNext() ;
+        cursor.close();
+
+        return hasNext;
     }
 
     /**
@@ -76,23 +82,70 @@ public class RecordSQLDao {
      */
     public void insertData(String tempName, @NonNull String username) {
 
+        Log.d(TAG, "insertData: getDataCount :" + getDataCount(username));
+        if (getDataCount(username) >= MAX_DATA_COUNT_FOR_ONE_USER) {
+            deleteOrlestData() ;
+        }
+
         db = helper.getWritableDatabase();
-        db.execSQL("insert into records(name , username) values('" + tempName + "' , '" + username + "')");
+        String createTime = TimeUtil.ms2date("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis());
+        db.execSQL("insert into records(name , username ,createtime) values('" + tempName + "' , '" + username + "' , '" + createTime + "')");
+        db.close();
+
+    }
+
+    /**
+     * 查询指定用户的搜索数量，
+     * 默认最大存储九条数据，
+     * 超过九条数据需要特殊处理
+     *
+     * @param userName
+     * @return
+     */
+    public int getDataCount(@NonNull String userName) {
+        Cursor cursor = helper.getReadableDatabase().rawQuery("select id as _id,name from records where username=?"
+                , new String[]{userName});
+
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
+    }
+
+    private int getOldestDataId() {
+        //从Record这个表里找到name=tempName的id
+        Cursor cursor = helper.getWritableDatabase().query("records",null,null,null,null,null,"createtime");
+        int id = 0 ;
+        if (cursor != null){
+            cursor.moveToNext();
+            id = cursor.getInt(cursor.getColumnIndex("id"));
+        }
+        cursor.close();
+        return id;
+    }
+
+    public void deleteOrlestData() {
+        // 获取数据
+        SQLiteDatabase db = helper.getWritableDatabase();
+        // 执行SQL
+        Log.d(TAG, "deleteOrlestData: id:" + getOldestDataId());
+        int delete = db.delete("records", "id=?", new String[]{String.valueOf(getOldestDataId())});
+        // 关闭数据库连接
         db.close();
 
     }
 
     /**
      * 删除指定数据
+     *
      * @param name
      * @param username
      * @return 删除数据的数量
      */
-    public int delete(String name ,@NonNull String username) {
+    public int delete(String name, @NonNull String username) {
         // 获取数据
         SQLiteDatabase db = helper.getWritableDatabase();
         // 执行SQL
-        int delete = db.delete("records", " name=? and username=?", new String[]{name,username});
+        int delete = db.delete("records", " name=? and username=?", new String[]{name, username});
         // 关闭数据库连接
         db.close();
         return delete;
@@ -101,9 +154,9 @@ public class RecordSQLDao {
     /**
      * 删除所有数据
      */
-    public void deleteAllData(){
-        db = helper.getWritableDatabase() ;
-        db.delete("records" ,null ,null) ;
+    public void deleteAllData() {
+        db = helper.getWritableDatabase();
+        db.delete("records", null, null);
         db.close();
     }
 

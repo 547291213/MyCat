@@ -10,7 +10,7 @@ import static android.support.constraint.Constraints.TAG;
 
 public class RecordSQLiteOpenHelper extends SQLiteOpenHelper {
     private static String name = "record.db";
-    private static Integer version = 4;
+    private static Integer version = 5;
 
     public RecordSQLiteOpenHelper(@Nullable Context context) {
         super(context, name, null, version);
@@ -19,8 +19,7 @@ public class RecordSQLiteOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         //打开数据库，建立了一个叫records的表，里面有一列name来存储历史记录,id 指定用户Id：
-        db.execSQL("create table records(id integer primary key autoincrement,name varchar(200),username text )");
-        Log.d(TAG, "onCreate: db ");
+        db.execSQL("create table records(id integer primary key autoincrement,name varchar(200),username text ,createtime text )");
     }
 
     @Override
@@ -28,7 +27,6 @@ public class RecordSQLiteOpenHelper extends SQLiteOpenHelper {
         if (newVersion > oldVersion){
             db.execSQL("drop table if exists records ");
             onCreate(db);
-            Log.d(TAG, "onUpgrade: db ");
         }
     }
 }

@@ -2,14 +2,63 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
+    android:orientation="vertical"
     >
 
-    <TextView
+
+
+    <LinearLayout
+        android:id="@+id/ll_titleLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:textSize="30sp"
-        android:text="GROUP LIST"
-        />
+        android:layout_height="wrap_content"
+        android:background="@color/light_red"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp">
+
+        <TextView
+            android:id="@+id/tv_setBackText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="2"
+            android:drawableLeft="@drawable/ic_back_white_16"
+            android:gravity="left|center_vertical"
+            android:text="群组"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tv_intoAboutUs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:gravity="center_vertical"
+            android:text="MyCat"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/iv_intoAboutUs"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_gravity="right|center_vertical"
+            android:layout_marginRight="8dp"
+            android:scaleType="fitXY"
+            android:src="@mipmap/log" />
+
+    </LinearLayout>
+
+    <com.example.xkfeng.mycat.DrawableView.NestedListView
+        android:id="@+id/nlv_groupList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+    </com.example.xkfeng.mycat.DrawableView.NestedListView>
+
+
+
+
 </LinearLayout>
