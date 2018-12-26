@@ -1,5 +1,6 @@
 package com.example.xkfeng.mycat.Activity;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -349,7 +350,8 @@ public class SearchContactActivity extends BaseActivity {
             case RequestCode_GETMORECONTACT:
                 //如果在获取更多好友信息界面完成了消息转发或者名片发送
                 if (resultCode == RESULT_OK && data != null) {
-
+                    Intent intent = new Intent() ;
+                    setResult(Activity.RESULT_OK , intent);
                     finish();
                 }
                 break;
