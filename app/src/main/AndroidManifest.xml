@@ -139,6 +139,7 @@
         <!--Activity : search data for user-->
         <activity android:name=".Activity.SearchActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:launchMode="singleTask"
 
             >
 
