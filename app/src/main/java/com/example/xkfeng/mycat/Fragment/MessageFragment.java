@@ -7,6 +7,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -43,6 +45,7 @@ import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.MessageListDrawable.MsgListSlideView;
 import com.example.xkfeng.mycat.DrawableView.MessageListDrawable.MsgQuickAdapter;
 import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
+import com.example.xkfeng.mycat.Model.DraftMsg;
 import com.example.xkfeng.mycat.Model.HasMsgListOpen;
 import com.example.xkfeng.mycat.Model.JPushMessageInfo;
 import com.example.xkfeng.mycat.R;
@@ -127,7 +130,10 @@ public class MessageFragment extends Fragment {
     private Handler handler;
     private Runnable runnable;
 
+    //记录打开的菜单项
     public Map<String, Integer> sideSlideOpenCount = new HashMap<>();
+    //记录留有草稿的会话项
+    public Map<String  , String> draftMsgIntegerMap = new HashMap<>() ;
 
     /**
      * 对会话列表中存在未读消息的数据进行记录
@@ -195,7 +201,11 @@ public class MessageFragment extends Fragment {
         //下拉刷新
         initRefreshLayout();
         //对打开侧滑消息数目的监听
-        initRxBus();
+        initSlideOpenCountRxBus();
+        //对当前是否留有草稿内容的监听
+        initDraftRxbus() ;
+
+
         //初始化网络监听的广播
         initReceiver();
 
@@ -406,11 +416,12 @@ public class MessageFragment extends Fragment {
          *
          */
         if (conversation.getLatestMessage() != null) {
-//            Log.d(TAG, "initData: message size " + conversation.getAllMessage().size() + " id" + conversation.getId() + " targetId :" + ((UserInfo) conversation.getTargetInfo()).getUserName());
             if (conversation.getLatestMessage().getContent().getContentType() == ContentType.prompt) {
                 jPushMessageInfo.setContent(((PromptContent) conversation.getLatestMessage().getContent()).getPromptText());
             } else {
-                if (conversation.getLatestMessage().getContentType() == ContentType.text) {
+                if (draftMsgIntegerMap.containsKey(((UserInfo)conversation.getTargetInfo()).getUserName())) {
+                    jPushMessageInfo.setContent("[草稿] " + draftMsgIntegerMap.get(((UserInfo)conversation.getTargetInfo()).getUserName())) ;
+                } else if (conversation.getLatestMessage().getContentType() == ContentType.text) {
                     jPushMessageInfo.setContent(((TextContent) conversation.getLatestMessage().getContent()).getText());
                 } else if (conversation.getLatestMessage().getContentType() == ContentType.image) {
                     jPushMessageInfo.setContent(mContext.getResources().getString(R.string.last_msg_image));
@@ -526,6 +537,14 @@ public class MessageFragment extends Fragment {
         ((TextView) vh.getView(R.id.tv_meessageTitle)).setText(data.getTitle());
         //设置内容
         ((TextView) vh.getView(R.id.tv_messageContent)).setText(data.getContent());
+        /**
+         * 草稿信息特殊显示
+         */
+        if (draftMsgIntegerMap.containsKey(data.getUserName())){
+            ((TextView) vh.getView(R.id.tv_messageContent)).setTextColor(Color.RED);
+        }else {
+            ((TextView) vh.getView(R.id.tv_messageContent)).setTextColor(getResources().getColor(R.color.text_default_color));
+        }
         //设置时间
         ((TextView) vh.getView(R.id.tv_meessageTime)).setText(data.getTime());
         //设置头像
@@ -726,14 +745,25 @@ public class MessageFragment extends Fragment {
 
 
                 //设置未读消息数目为0
-                data.getConversation().setUnReadMessageCnt(0);
-                /**
-                 * 需要把与之会话的UserName传递过去
-                 */
                 //将数据从已读数据项移除
+                data.getConversation().setUnReadMessageCnt(0);
+
+
+
+                // 需要把与之会话的UserName传递过去
                 Intent intent = new Intent();
                 intent.setClass(getContext(), ChatMsgActivity.class);
+
+                //如果与当前用户的会话中存有草稿，
+                // 1 将草稿内容传递过去
+                // 2 消除该草稿记录。
+                if (draftMsgIntegerMap.containsKey(data.getUserName())){
+
+                    intent.putExtra(StaticValueHelper.DRAFT_MSG , draftMsgIntegerMap.get(data.getUserName())) ;
+                    draftMsgIntegerMap.remove(data.getUserName()) ;
+                }
                 intent.putExtra(StaticValueHelper.CHAT_MSG_TITLE, data.getTitle());
+
                 intent.putExtra(StaticValueHelper.USER_NAME, data.getUserName());
                 intent.putExtra(StaticValueHelper.TARGET_ID, data.getUserName()); //data.getConversation().getTargetId()
                 intent.putExtra(StaticValueHelper.TARGET_APP_KEY, data.getConversation().getTargetAppKey()); //data.getConversation().getTargetAppKey()
@@ -929,7 +959,7 @@ public class MessageFragment extends Fragment {
     }
 
 
-    private void initRxBus() {
+    private void initSlideOpenCountRxBus() {
         RxBus.getInstance()
                 .toObservable(HasMsgListOpen.class)
                 .observeOn(Schedulers.io())
@@ -946,6 +976,31 @@ public class MessageFragment extends Fragment {
                             ((MsgListSlideView) vo.getKey().getView(R.id.listlide)).closeSideSlide();
                         }
                         rvMessageRecyclerView.clearOpenItem();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private void initDraftRxbus(){
+        RxBus.getInstance().toObservable(DraftMsg.class)
+                .subscribe(new Observer<DraftMsg>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(DraftMsg draftMsg) {
+                        draftMsgIntegerMap.put(draftMsg.getUserName() , draftMsg.getMsg()) ;
                     }
 
                     @Override

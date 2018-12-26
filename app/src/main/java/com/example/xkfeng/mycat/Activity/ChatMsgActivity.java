@@ -40,8 +40,10 @@ import com.example.xkfeng.mycat.DrawableView.PopupMenuLayout;
 import com.example.xkfeng.mycat.Fragment.AddBoradFragment;
 import com.example.xkfeng.mycat.Fragment.NullBoradFragment;
 import com.example.xkfeng.mycat.Fragment.VoiceBoradFragment;
+import com.example.xkfeng.mycat.Model.DraftMsg;
 import com.example.xkfeng.mycat.MyApplication.MyApplication;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.RxBus.RxBus;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.HandleResponseCode;
 import com.example.xkfeng.mycat.Util.ITosast;
@@ -173,6 +175,7 @@ public class ChatMsgActivity extends BaseActivity implements
     private String mTargetId;
     private String mTargetAappkey;
     private String chatMsgTitle;
+    private String dragMsg ;
 
     /**
      * 针对消息的类型定制多种长按的弹出式菜单
@@ -217,6 +220,13 @@ public class ChatMsgActivity extends BaseActivity implements
         mTargetId = getIntent().getStringExtra(StaticValueHelper.TARGET_ID);
         mTargetAappkey = getIntent().getStringExtra(StaticValueHelper.TARGET_APP_KEY);
         chatMsgTitle = getIntent().getStringExtra(StaticValueHelper.CHAT_MSG_TITLE);
+        dragMsg =  getIntent().getStringExtra(StaticValueHelper.DRAFT_MSG)  ;
+        //如果存在草稿记录，输入栏设置文本为草稿内容
+        if(!TextUtils.isEmpty(dragMsg)){
+            sendOrAdd = SendOrAdd.send.ordinal() ;
+            ivSendImage.setImageResource(R.drawable.ic_send_blue);
+            editEmojicon.setText(dragMsg);
+        }
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN |
                 WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
@@ -1193,6 +1203,10 @@ public class ChatMsgActivity extends BaseActivity implements
     /**
      * 键盘点击监听处理
      *
+     * 当存在自定义“键盘”处于显示状态的时候，关闭自定义“键盘”，而不是直接退出当前Activity
+     * 当不存在自定义“键盘”处于显示状态的时候，退出当前Activity
+     * 如果退出的时候，当前输入栏的数据不为空，需要留存草稿。
+     *
      * @param keyCode 键盘按键
      * @param event   点击事件
      * @return true or false
@@ -1212,6 +1226,14 @@ public class ChatMsgActivity extends BaseActivity implements
                 }
                 return false;
             }
+        }
+
+        /**
+         * 当前输入栏有内容
+         * 将输入栏的内容作为消息发送给会话栏
+         */
+        if (sendOrAdd == SendOrAdd.send.ordinal()){
+            RxBus.getInstance().post(new DraftMsg(editEmojicon.getText().toString(), mTargetId ));
         }
         return super.onKeyDown(keyCode, event);
     }
