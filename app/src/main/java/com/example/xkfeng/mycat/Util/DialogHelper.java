@@ -31,6 +31,13 @@ import cn.jpush.im.api.BasicCallback;
 
 public class DialogHelper {
 
+    /**
+     * 消息重发窗口
+     *
+     * @param context
+     * @param listener
+     * @return
+     */
     public static Dialog createResendDialog(Context context, View.OnClickListener listener) {
         Dialog dialog = new Dialog(context, context.getResources().
                 getIdentifier("mycat_default_dialog_style",
@@ -48,6 +55,14 @@ public class DialogHelper {
         return dialog;
     }
 
+
+    /**
+     * 等待加载的窗口
+     *
+     * @param context
+     * @param msg     显示内容
+     * @return
+     */
     public static Dialog createLoadingDialog(Context context, String msg) {
         Dialog dialog = new Dialog(context, context.getResources().
                 getIdentifier("mycat_loading_dialog_style",
@@ -65,6 +80,13 @@ public class DialogHelper {
         return dialog;
     }
 
+    /**
+     * 强制下线的窗口
+     *
+     * @param context
+     * @param listener
+     * @return
+     */
     public static Dialog createForceOfflineDailog(final Context context, View.OnClickListener listener) {
         String fonts = "fonts/zhangcao.ttf";
         Typeface typeface = Typeface.createFromAsset(context.getAssets(), fonts);
@@ -88,11 +110,12 @@ public class DialogHelper {
 
     /**
      * 创建转发消息的对话框
+     *
      * @param context
      * @param activity
-     * @param name 接受消息的用户的名字
+     * @param name           接受消息的用户的名字
      * @param targetUserInfo 目标用户
-     * @param isSingle  是否是单聊
+     * @param isSingle       是否是单聊
      * @return dialog
      */
     public static Dialog createForwardingDialog(final Context context, final Activity activity, String name, final UserInfo targetUserInfo, final boolean isSingle) {
@@ -169,8 +192,8 @@ public class DialogHelper {
                             dialog.dismiss();
                             if (i == 0) {
                                 ITosast.showShort(context, "已发送").show();
-                                Intent intent = new Intent() ;
-                                activity.setResult(Activity.RESULT_OK , intent);
+                                Intent intent = new Intent();
+                                activity.setResult(Activity.RESULT_OK, intent);
                                 activity.finish();
 
                             } else {
@@ -195,12 +218,12 @@ public class DialogHelper {
      *
      * @param context
      * @param actiity
-     * @param name 接受消息的好友名字
-     * @param targetName 明信片被转发的好友的名字
-     * @param conversation   会话
+     * @param name         接受消息的好友名字
+     * @param targetName   明信片被转发的好友的名字
+     * @param conversation 会话
      * @return dialog
      */
-    public static Dialog createSendFriendBusinessCardDialog(final Context context, final Activity actiity, String name, final String targetName ,final Conversation conversation) {
+    public static Dialog createSendFriendBusinessCardDialog(final Context context, final Activity actiity, String name, final String targetName, final Conversation conversation) {
         final Dialog dialog = new Dialog(context, context.getResources()
                 .getIdentifier("mycat_chat_forwarding_dialog", "style",
                         context.getApplicationContext().getPackageName()));
@@ -225,21 +248,53 @@ public class DialogHelper {
                 TextContent content = new TextContent("推荐了一张名片");
                 content.setStringExtra("userName", targetName);
                 content.setStringExtra("businessCard", "businessCard");
-                Message msg = conversation.createSendMessage(content) ;
+                Message msg = conversation.createSendMessage(content);
 //                BaseActivity.forwardMsg.clear();
 //                BaseActivity.forwardMsg.add(msg);
                 MessageSendingOptions options = new MessageSendingOptions();
                 options.setNeedReadReceipt(true);
                 JMessageClient.sendMessage(msg, options);
-                ITosast.showShort(context , "发送成功").show();
+                ITosast.showShort(context, "发送成功").show();
                 dialog.dismiss();
-                actiity.startActivity(new Intent(context , IndexActivity.class));
+                actiity.startActivity(new Intent(context, IndexActivity.class));
             }
         });
         dialog.setContentView(view);
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
+        return dialog;
+    }
+
+    public static Dialog createClearCacheDialog(final Context context) {
+        final Dialog dialog = new Dialog(context, context.getResources()
+                .getIdentifier("mycat_clear_cache_dialog", "style",
+                        context.getApplicationContext().getPackageName()));
+        View view  = LayoutInflater.from(context).inflate(R.layout.dialog_clear_cache , null ,false) ;
+        TextView tv_cancle = view.findViewById(R.id.tv_cancle) ;
+        TextView tv_ok = view.findViewById(R.id.tv_ok) ;
+
+        tv_cancle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                ITosast.showShort(context , "取消").show();
+                dialog.dismiss();
+            }
+        });
+
+        tv_ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ITosast.showShort(context ,  "确定").show();
+                dialog.dismiss();
+            }
+        });
+        dialog.setContentView(view);
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.setCancelable(true);
+
         return dialog ;
     }
+
 
 }

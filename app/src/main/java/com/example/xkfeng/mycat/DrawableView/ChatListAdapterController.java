@@ -5,26 +5,40 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.AnimationDrawable;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.Activity.FriendInfoActivity;
 import com.example.xkfeng.mycat.Activity.PreviewPictureActivity;
 import com.example.xkfeng.mycat.Activity.UserInfoActivity;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.Util.FileHelper;
 import com.example.xkfeng.mycat.Util.HandleResponseCode;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.StaticValueHelper;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,7 +51,9 @@ import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.ImageContent;
+import cn.jpush.im.android.api.content.MessageContent;
 import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.content.VoiceContent;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageDirect;
 import cn.jpush.im.android.api.model.Conversation;
@@ -59,11 +75,23 @@ public class ChatListAdapterController {
     public Animation mSendingAnim;
     private ChatListAdapter.ContentLongClickListener contentLongClickListener;
     private List<Message> mMsgList;
-    private int del;
+    private float del;
     private UserInfo mUserInfo;
     private Queue<Message> mMsgQueue = new LinkedList<Message>();
     private int mSendMsgId;
     private Map<Integer, UserInfo> mUserInfoMap = new HashMap<>();
+
+
+    /**
+     * 录音相关参数
+     */
+    private List<Integer> mIndexList = new ArrayList<>();
+    private int mPosition;
+    private MediaPlayer mediaPlayer = new MediaPlayer();
+    private FileInputStream mFIS;
+    private FileDescriptor mFD;
+    private AnimationDrawable mVoiceAnimationDrawable;
+    private boolean isPause = false;   //
 
 
     public ChatListAdapterController(Context context,
@@ -77,6 +105,7 @@ public class ChatListAdapterController {
         mActivity = (Activity) context;
         mConversation = conversation;
         mMsgList = messageList;
+        del = density;
         this.chatListAdapter = chatListAdapter;
         this.contentLongClickListener = contentLongClickListener;
 
@@ -87,6 +116,15 @@ public class ChatListAdapterController {
         LinearInterpolator lin = new LinearInterpolator();
         mSendingAnim.setInterpolator(lin);
 
+
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_RING);
+        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                return false;
+            }
+        });
 
     }
 
@@ -195,17 +233,17 @@ public class ChatListAdapterController {
             });
         }
 
-        viewHolder.ll_businessCard.setOnClickListener(new BusinessCardClickListener(viewHolder , mUserName[0]));
+        viewHolder.ll_businessCard.setOnClickListener(new BusinessCardClickListener(viewHolder, mUserName[0]));
         viewHolder.ll_businessCard.setOnLongClickListener(contentLongClickListener);
 
     }
 
-    private class BusinessCardClickListener implements View.OnClickListener{
+    private class BusinessCardClickListener implements View.OnClickListener {
 
-        private ChatListAdapter.ViewHolder holder ;
-        private String userName ;
+        private ChatListAdapter.ViewHolder holder;
+        private String userName;
 
-        public BusinessCardClickListener(ChatListAdapter.ViewHolder holder , String userName) {
+        public BusinessCardClickListener(ChatListAdapter.ViewHolder holder, String userName) {
             this.holder = holder;
             this.userName = userName;
 
@@ -213,19 +251,183 @@ public class ChatListAdapterController {
 
         @Override
         public void onClick(View view) {
-            Intent intent = new Intent() ;
-            if (JMessageClient.getMyInfo().getUserName().equals(userName)){
+            Intent intent = new Intent();
+            if (JMessageClient.getMyInfo().getUserName().equals(userName)) {
 
-                intent.setClass(mContext , UserInfoActivity.class) ;
-            }else {
-                intent.setClass(mContext , FriendInfoActivity.class) ;
-                intent.putExtra(StaticValueHelper.TARGET_ID , userName) ;
+                intent.setClass(mContext, UserInfoActivity.class);
+            } else {
+                intent.setClass(mContext, FriendInfoActivity.class);
+                intent.putExtra(StaticValueHelper.TARGET_ID, userName);
                 UserInfo userInfo = mUserInfoMap.get(userName.hashCode());
-                intent.putExtra(StaticValueHelper.IS_FRIEDN , userInfo.isFriend()) ;
+                intent.putExtra(StaticValueHelper.IS_FRIEDN, userInfo.isFriend());
             }
             mContext.startActivity(intent);
 
         }
+    }
+
+    public void handleVoiceMmessage(final ChatListAdapter.ViewHolder viewHolder, final Message msg, int position) {
+        final MessageContent voiceContent = (VoiceContent) msg.getContent();
+        final MessageDirect direct = msg.getDirect();
+        int voiceLength = ((VoiceContent) voiceContent).getDuration();
+        viewHolder.voiceLength.setText(voiceLength + "'");
+        //控制语音消息的显示长度，随语音本身的长度变动
+        int width = (int) (-0.04 * voiceLength * voiceLength + 4.526 * voiceLength + 75.214);
+        viewHolder.txtContent.setWidth((int) (width * del));
+        viewHolder.txtContent.setTag(position);
+        viewHolder.txtContent.setOnLongClickListener(contentLongClickListener);
+
+
+        if (direct == MessageDirect.send) {
+
+            viewHolder.voice.setImageResource(R.drawable.send_3);
+            switch (msg.getStatus()) {
+                case created:
+                    viewHolder.sendingIv.setVisibility(View.VISIBLE);
+                    viewHolder.resend.setVisibility(View.GONE);
+                    viewHolder.text_receipt.setVisibility(View.GONE);
+                    break;
+
+                case send_success:
+                    viewHolder.sendingIv.clearAnimation();
+                    viewHolder.sendingIv.setVisibility(View.GONE);
+                    viewHolder.text_receipt.setVisibility(View.VISIBLE);
+                    viewHolder.resend.setVisibility(View.GONE);
+                    break;
+
+                case send_fail:
+                    viewHolder.sendingIv.clearAnimation();
+                    viewHolder.sendingIv.setVisibility(View.GONE);
+                    viewHolder.resend.setVisibility(View.VISIBLE);
+                    viewHolder.text_receipt.setVisibility(View.GONE);
+                    break;
+
+                case send_going:
+                    sendingTextOrVoice(viewHolder, msg);
+                    break;
+            }
+        } else {
+            switch (msg.getStatus()) {
+                case receive_success:
+                    viewHolder.voice.setImageResource(R.drawable.send_3);
+                    // 收到语音，设置未读
+                    if (msg.getContent().getBooleanExtra("isRead") == null
+                            || !msg.getContent().getBooleanExtra("isRead")) {
+                        mConversation.updateMessageExtra(msg, "isRead", false);
+                        viewHolder.readStatus.setVisibility(View.VISIBLE);
+                        if (mIndexList.size() > 0) {
+                            if (!mIndexList.contains(position)) {
+                                addToListAndSort(position);
+                            }
+                        } else {
+                            addToListAndSort(position);
+                        }
+                    } else if (msg.getContent().getBooleanExtra("isRead")) {
+                        viewHolder.readStatus.setVisibility(View.GONE);
+                    }
+                    break;
+
+
+                case receive_fail:
+
+                    viewHolder.voice.setImageResource(R.drawable.send_3);
+                    //接受失败，从服务器上重新下载
+                    ((VoiceContent) voiceContent).downloadVoiceFile(msg, new DownloadCompletionCallback() {
+                        @Override
+                        public void onComplete(int i, String s, File file) {
+
+                        }
+                    });
+                    break;
+
+                case receive_going:
+                default:
+                    break;
+            }
+        }
+
+        if (viewHolder.resend != null) {
+            viewHolder.resend.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (msg.getContent() != null) {
+                        chatListAdapter.showReSendDialog(viewHolder, msg);
+                    } else {
+                        Toast.makeText(mContext, "暂无外部存储", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+            });
+        }
+
+        viewHolder.txtContent.setOnClickListener(new OnItemClickListener(viewHolder, position));
+
+
+    }
+
+    private void addToListAndSort(int mPosition) {
+        mIndexList.add(mPosition);
+        Collections.sort(mIndexList);
+    }
+
+    public void playVoice(final ChatListAdapter.ViewHolder viewHolder, Message msg, int position, final boolean isSender) {
+
+        //记录当前位置
+        mPosition = position;
+        mediaPlayer.reset();
+        VoiceContent vc = (VoiceContent) msg.getContent();
+        try {
+            mFIS = new FileInputStream(vc.getLocalPath());
+            mFD = mFIS.getFD();
+            mediaPlayer.setDataSource(mFD);
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.prepare();
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mediaPlayer) {
+                    mVoiceAnimationDrawable = (AnimationDrawable) viewHolder.voice.getDrawable();
+                    mVoiceAnimationDrawable.start();
+                    mediaPlayer.start();
+                }
+            });
+
+
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    mVoiceAnimationDrawable.stop();
+                    mediaPlayer.reset();
+                    if (isSender) {
+                        viewHolder.voice.setImageResource(R.drawable.send_3);
+                    } else {
+                        viewHolder.voice.setImageResource(R.drawable.mycat_voice_receive_3);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(mContext, "文件丢失 ，请尝试重新获取",
+                    Toast.LENGTH_SHORT).show();
+            VoiceContent vc1 = (VoiceContent) msg.getContent();
+            vc1.downloadVoiceFile(msg, new DownloadCompletionCallback() {
+                @Override
+                public void onComplete(int status, String desc, File file) {
+                    if (status == 0) {
+                        ITosast.showShort(mContext, "下载完成").show();
+                    } else {
+                        ITosast.showShort(mContext, "下载失败").show();
+                    }
+                }
+            });
+        } finally {
+            try {
+                if (mFIS != null) {
+                    mFIS.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public void handleTextMessage(final ChatListAdapter.ViewHolder viewHolder, final Message msg, int position) {
@@ -534,10 +736,12 @@ public class ChatListAdapterController {
 
         private ChatListAdapter.ViewHolder holder;
         private Message msg;
+        private int position;
 
         public OnItemClickListener(ChatListAdapter.ViewHolder viewHolder, int pos) {
             msg = mMsgList.get(pos);
             this.holder = viewHolder;
+            this.position = pos;
         }
 
         @Override
@@ -567,6 +771,32 @@ public class ChatListAdapterController {
 
                 case voice:
 
+                    //判断有无SD卡
+                    if (!FileHelper.isSdCardExist()) {
+                        ITosast.showShort(mContext, "暂无外部存储").show();
+                        return;
+                    }
+                    //如果存在正在播放的录音动画，关闭
+                    if (mVoiceAnimationDrawable != null) {
+                        mVoiceAnimationDrawable.stop();
+                    }
+                    //点击了正在播放的录音，暂停处理
+                    if (mediaPlayer.isPlaying() && mPosition == position) {
+                        holder.voice.setImageResource(R.drawable.mycat_chat_item_voice_anim);
+                        mVoiceAnimationDrawable = (AnimationDrawable) holder.voice.getDrawable();
+                        pauseVoice(msg.getDirect() , holder.voice) ;
+                        break ;
+                    }
+                    holder.voice.setImageResource(R.drawable.mycat_chat_item_voice_anim);
+                    mVoiceAnimationDrawable = (AnimationDrawable) holder.voice.getDrawable();
+
+                    //播放录音（分为继续播放暂停的录音，重新播放新的录音）
+                    if (isPause == true && mPosition == position){
+                        mediaPlayer.start();
+                        mVoiceAnimationDrawable.start();
+                    }else {
+                        playVoice(holder , msg , position ,msg.getDirect() == MessageDirect.send ? true : false);
+                    }
                     break;
 
                 case location:
@@ -578,6 +808,16 @@ public class ChatListAdapterController {
                     break;
             }
         }
+    }
+
+    private void pauseVoice(MessageDirect messageDirect , ImageView voice ){
+        if (messageDirect == MessageDirect.send){
+            voice.setImageResource(R.drawable.send_3);
+        }else {
+            voice.setImageResource(R.drawable.mycat_voice_receive_3);
+        }
+        mediaPlayer.pause();
+        isPause = true ;
     }
 
 

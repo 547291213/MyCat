@@ -126,8 +126,6 @@ public class RecordVoiceButton extends android.support.v7.widget.AppCompatButton
         mIvContinuePause.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                Toast.makeText(mContext, "Cancler", Toast.LENGTH_SHORT).show();
                 if(voiceManager!=null){
                     //cancler
                     voiceManager.canclerRecordSatte();
@@ -139,7 +137,6 @@ public class RecordVoiceButton extends android.support.v7.widget.AppCompatButton
         mIvComplete.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext, "Complete", Toast.LENGTH_SHORT).show();
                 if(voiceManager!=null){
                     voiceManager.finishRecordVoice();
                 }

@@ -6,6 +6,7 @@
     >
 
     <com.example.xkfeng.mycat.DrawableView.VoiceUtil.RecordVoiceButton
+        android:id="@+id/rvb_recordVoice"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0.1"

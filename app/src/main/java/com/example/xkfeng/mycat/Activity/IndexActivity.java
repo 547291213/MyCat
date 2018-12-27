@@ -2,6 +2,7 @@ package com.example.xkfeng.mycat.Activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -57,6 +58,7 @@ import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.RxBus.RxBus;
 import com.example.xkfeng.mycat.Util.ActivityController;
 import com.example.xkfeng.mycat.Util.DensityUtil;
+import com.example.xkfeng.mycat.Util.DialogHelper;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.StringUtil;
 import com.hp.hpl.sparta.Document;
@@ -540,6 +542,8 @@ public class IndexActivity extends BaseActivity implements MessageFragment.OnUnR
 
                     case R.id.nav_clear:
 
+                        Dialog clearDialog = DialogHelper.createClearCacheDialog(IndexActivity.this);
+                        clearDialog.show();
                         break;
 
                     case R.id.nav_about:

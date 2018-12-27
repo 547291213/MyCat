@@ -116,7 +116,6 @@ public class ChatListAdapter extends BaseAdapter {
     private ChatListAdapterController mController;
 
 
-
     private Bitmap myHeaderBitmap = null;
 
     public ChatListAdapter(Activity activity, Conversation conversation, ContentLongClickListener contentLongClickListener) {
@@ -489,7 +488,7 @@ public class ChatListAdapter extends BaseAdapter {
                     break;
                 case voice:
                     viewHolder.voice = (ImageView) convertView.findViewById(R.id.mycat_voice_iv);
-                    viewHolder.voiceLength = (TextView) convertView.findViewById(R.id.mycat_msg_content);
+                    viewHolder.voiceLength = (TextView) convertView.findViewById(R.id.mycat_voice_length_tv);
                     viewHolder.readStatus = (ImageView) convertView.findViewById(R.id.mycat_read_status_iv);
                     break;
                 case location:
@@ -513,12 +512,8 @@ public class ChatListAdapter extends BaseAdapter {
         if (viewHolder != null) {
 
             dealWithTime(viewHolder, msg, position);
-            /**
-             * TODO :
-             *       测试暂无问题
-             */
             showHeadImage(viewHolder, msg);
-            headImgClick(viewHolder , msg , position);
+            headImgClick(viewHolder, msg, position);
             processVariousMsg(viewHolder, msg, position);
             msgReceiptionSituation(viewHolder, msg);
 
@@ -646,7 +641,7 @@ public class ChatListAdapter extends BaseAdapter {
                 if (extraBusiness != null) {
                     holder.txtContent.setVisibility(View.GONE);
                     holder.ll_businessCard.setVisibility(View.VISIBLE);
-                    mController.handleBusinessCard(holder,msg, position);
+                    mController.handleBusinessCard(holder, msg, position);
                 } else {
                     /**
                      * BUG .
@@ -677,7 +672,7 @@ public class ChatListAdapter extends BaseAdapter {
                 }
                 break;
             case voice:
-                //mController.handleVoiceMsg(msg, holder, position);
+                mController.handleVoiceMmessage(holder, msg, position);
                 break;
             case location:
                 //mController.handleLocationMsg(msg, holder, position);

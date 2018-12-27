@@ -329,6 +329,11 @@ public class ChatMsgActivity extends BaseActivity implements
 
             messageList = conversation.getAllMessage();
 
+            /**
+             * 绑定录音fragment需要的两个参数
+             */
+            voiceFragment.setmConv(conversation);
+            voiceFragment.setmMsgListAdapter(chatListAdapter);
         }
 
     }

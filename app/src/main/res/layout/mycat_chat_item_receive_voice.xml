@@ -52,14 +52,19 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:background="@drawable/mycat_chat_item_voice_anim"/>
+                    android:background="@drawable/mycat_chat_item_voice_anim"
+                    android:layout_marginBottom="7dp"
+                    android:layout_marginTop="7dp"
+
+
+                    />
 
             </RelativeLayout>
 
             <TextView
                 android:layout_marginRight="14dp"
                 android:layout_gravity="center_vertical|end"
-                android:id="@+id/jmui_voice_length_tv"
+                android:id="@+id/mycat_voice_length_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/mycat_display_name_tv"

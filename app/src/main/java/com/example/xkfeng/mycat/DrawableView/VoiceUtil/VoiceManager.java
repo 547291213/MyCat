@@ -258,7 +258,7 @@ public class VoiceManager {
             canclerRecordSatte() ;
         } else {
             if (voiceRecordCallback != null) {
-                voiceRecordCallback.recStop(getContinueTime(), recordFilePath);
+                voiceRecordCallback.recStop(String.valueOf(mlCount), recordFilePath);
 
                 Log.d(TAG, "finishRecordVoice: mLcount :" + mlCount);
             }

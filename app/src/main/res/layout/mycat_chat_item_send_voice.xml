@@ -41,15 +41,18 @@
                 android:id="@+id/mycat_voice_iv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="7dp"
+                android:layout_marginTop="7dp"
                 android:layout_gravity="center_vertical|right"
                 android:layout_marginRight="20dp"
-                android:background="@drawable/mycat_chat_item_voice_anim"/>
+                android:background="@drawable/mycat_chat_item_voice_anim"
+                />
 
 
             <TextView
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="14dp"
-                android:id="@+id/jmui_voice_length_tv"
+                android:id="@+id/mycat_voice_length_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
