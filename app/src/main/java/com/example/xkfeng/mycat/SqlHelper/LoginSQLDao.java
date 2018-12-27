@@ -34,7 +34,7 @@ public class LoginSQLDao {
     private void init() {
 
         //实例化数据库
-        loginhistorySql = new LoginhistorySql(mContext, "login.db", null, 5);
+        loginhistorySql = new LoginhistorySql(mContext, "login.db", null, 1);
         //第一次进入的时候初始化数据库操作对象
         db = loginhistorySql.getReadableDatabase();
 

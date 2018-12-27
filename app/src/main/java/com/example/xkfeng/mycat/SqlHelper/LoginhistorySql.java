@@ -41,7 +41,7 @@ public class LoginhistorySql extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (newVersion > oldVersion){
+        if (newVersion != oldVersion){
             db.execSQL("drop table if exists login_history ");
             onCreate(db);
             Log.d(TAG, "onUpgrade: db ");

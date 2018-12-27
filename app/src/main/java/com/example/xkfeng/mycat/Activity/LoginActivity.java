@@ -157,8 +157,7 @@ public class LoginActivity extends BaseActivity {
         //加载背景图片
         Glide.with(LoginActivity.this).load(getResources().getDrawable(R.drawable.background)).into(iv_backImage);
 
-        //sql和RecyclerView的数据初始化
-        sqlRecyclerViewDataInit();
+
 
         //用户drawabkeTextEdit的功能实现
         userEditInit();
@@ -747,27 +746,21 @@ public class LoginActivity extends BaseActivity {
      */
     private void checkPermission() {
         //检查权限（NEED_PERMISSION）是否被授权 PackageManager.PERMISSION_GRANTED表示同意授权
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED ) {
             //用户已经拒绝过一次，再次弹出权限申请对话框需要给用户一个解释
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission
-                    .WRITE_EXTERNAL_STORAGE)) {
-                Toast.makeText(this, "请开通相关权限，否则无法正常使用本应用！", Toast.LENGTH_SHORT).show();
-            }
+//            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission
+//                    .WRITE_EXTERNAL_STORAGE)) {
+//                Toast.makeText(this, "请开通相关权限，否则无法正常使用本应用！", Toast.LENGTH_SHORT).show();
+//            }
             //申请权限
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
-
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE }, 0);
         } else {
+            //sql和RecyclerView的数据初始化
+            sqlRecyclerViewDataInit();
             Toast.makeText(this, "授权成功！", Toast.LENGTH_SHORT).show();
         }
 
-        int permissionCheck = ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.WRITE_APN_SETTINGS);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            //requesting permission
-            ActivityCompat.requestPermissions(LoginActivity.this, new String[]{Manifest.permission.WRITE_APN_SETTINGS}, 1);
-        } else {
-            //permission is granted and you can change APN settings
-        }
 
 
     }
@@ -776,10 +769,10 @@ public class LoginActivity extends BaseActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
-            case 1: {
+            case 0: {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //premission granted by user
-
+                    //sql和RecyclerView的数据初始化
+                    sqlRecyclerViewDataInit();
                     Toast.makeText(this, "已有权限", Toast.LENGTH_SHORT).show();
                 } else {
                     //permission denied by user
