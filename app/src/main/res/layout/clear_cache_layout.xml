@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_clearCacheLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+
+    <FrameLayout
+        android:id="@+id/fl_framelayout"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:background="@drawable/wave_default"
+        >
+
+        <ImageView
+            android:id="@+id/iv_rotateImage"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:src="@drawable/wave_1"
+            />
+
+        <TextView
+            android:id="@+id/tv_loadingTip"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="正在清理"
+            android:textSize="20sp"
+            android:textColor="@color/lightGreen"
+            android:drawableTop="@drawable/mycat_clear_anim"
+            />
+
+        <com.example.xkfeng.mycat.DrawableView.WaterView
+            android:id="@+id/wv_waterView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            />
+
+        <com.example.xkfeng.mycat.DrawableView.WaveRaiseView
+            android:id="@+id/wrv_waveRaiseView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+
+            />
+
+    </FrameLayout>
+
+</LinearLayout>

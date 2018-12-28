@@ -18,6 +18,7 @@ import com.bumptech.glide.signature.MediaStoreSignature;
 import com.example.xkfeng.mycat.Activity.BaseActivity;
 import com.example.xkfeng.mycat.Activity.IndexActivity;
 import com.example.xkfeng.mycat.Activity.LoginActivity;
+import com.example.xkfeng.mycat.DrawableView.ClearCacheView;
 import com.example.xkfeng.mycat.R;
 
 import cn.jpush.im.android.api.JMessageClient;
@@ -286,7 +287,10 @@ public class DialogHelper {
             @Override
             public void onClick(View view) {
                 ITosast.showShort(context ,  "确定").show();
-                dialog.dismiss();
+//                ClearCacheView view1 = (ClearCacheView) LayoutInflater.from(context).inflate(R.layout.clear_cache_layout , null , false);
+                ClearCacheView view1 = new ClearCacheView(context) ;
+                dialog.setContentView(view1);
+//                dialog.dismiss();
             }
         });
         dialog.setContentView(view);
