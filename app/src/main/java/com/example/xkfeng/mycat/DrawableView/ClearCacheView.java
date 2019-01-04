@@ -51,6 +51,7 @@ public class ClearCacheView extends LinearLayout {
         iv_rotateImage.startAnimation(rotateAnimation);
 
         wv_waterView = convertView.findViewById(R.id.wv_waterView) ;
+        wv_waterView.startWaveAnim();
         wrv_waveRaiseView = convertView.findViewById(R.id.wrv_waveRaiseView); ;
 
         tv_loadingTip = convertView.findViewById(R.id.tv_loadingTip) ;
