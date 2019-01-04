@@ -34,4 +34,11 @@
     <color name="scan_bg">#7f000000</color>
     <color name="message_already_receipt">#999999</color>
     <color name="message_no_receipt">#2DD0CF</color>
+
+
+    <color name="send_file_title_color">#545454</color>
+    <color name="send_file_divider_color">#dcdcdc</color>
+    <color name="chat_item_file_size">#989898</color>
+
+
 </resources>

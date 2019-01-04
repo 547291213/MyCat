@@ -363,7 +363,7 @@ public class MessageFragment extends Fragment {
      * 定时从Jpush上拉取数据，同步更新
      */
     private void initData() {
-        Log.d(TAG, "initData: ");
+        Log.d(TAG, "initData: unReadCount :" + unReadCountRecord.size());
         /**
          * 清空数据
          */
@@ -399,6 +399,16 @@ public class MessageFragment extends Fragment {
          * 关闭刷新器，表示数据同步成功
          */
         srlMessageRefreshLayout.setRefreshing(false);
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (onUnReadCountUpdateListener != null) {
+                    onUnReadCountUpdateListener.onUnReadCountUpdate(getSumOfUnReadCount(false));
+                }
+            }
+        }, 200);
     }
 
     /**
@@ -492,18 +502,8 @@ public class MessageFragment extends Fragment {
                 /**
                  * 当数据全部加载完成之后传递
                  */
-                if (position == jPushMessageInfoList.size() - 1) {
+//                if (position == jPushMessageInfoList.size() - 1)
 
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (onUnReadCountUpdateListener != null) {
-                                onUnReadCountUpdateListener.onUnReadCountUpdate(getSumOfUnReadCount(false));
-                            }
-                        }
-                    }, 200);
-                }
             }
         };
 
@@ -813,15 +813,15 @@ public class MessageFragment extends Fragment {
          *          *
          */
 
+
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                //清空现有数据
-                msgQuickAdapter.notifyDataSetChanged();
                 if (onUnReadCountUpdateListener != null) {
                     onUnReadCountUpdateListener.onUnReadCountUpdate(getSumOfUnReadCount(true));
                 }
+                msgQuickAdapter.notifyDataSetChanged();
             }
         }, 200);
     }

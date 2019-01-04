@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/mycat_chat_item_sent_layout"
+    style="@style/mycat_chat_item_receive_layout"
     >
 
     <TextView

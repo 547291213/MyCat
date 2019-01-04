@@ -266,7 +266,7 @@ public class ChatListAdapterController {
         }
     }
 
-    public void handleVoiceMmessage(final ChatListAdapter.ViewHolder viewHolder, final Message msg, int position) {
+    public void handleVoiceMsg(final ChatListAdapter.ViewHolder viewHolder, final Message msg, int position) {
         final MessageContent voiceContent = (VoiceContent) msg.getContent();
         final MessageDirect direct = msg.getDirect();
         int voiceLength = ((VoiceContent) voiceContent).getDuration();

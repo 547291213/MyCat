@@ -450,7 +450,7 @@ public class ChatListAdapter extends BaseAdapter {
             viewHolder.displayName = (TextView) convertView.findViewById(R.id.mycat_display_name_tv);
             viewHolder.sendingIv = (ImageView) convertView.findViewById(R.id.mycat_sending_iv);
             viewHolder.resend = (ImageButton) convertView.findViewById(R.id.mycat_fail_resend_ib);
-//            viewHolder.ivDocument = (ImageView) convertView.findViewById(R.id.iv_document);
+            viewHolder.ivDocument = (ImageView) convertView.findViewById(R.id.iv_document);
             viewHolder.text_receipt = (TextView) convertView.findViewById(R.id.text_receipt);
             switch (msg.getContentType()) {
                 case text:
@@ -477,13 +477,13 @@ public class ChatListAdapter extends BaseAdapter {
 //                        viewHolder.progressTv = (TextView) convertView.findViewById(R.id.jmui_progress_tv);
 //                        viewHolder.videoPlay = (LinearLayout) convertView.findViewById(R.id.message_item_video_play);
                     } else {
-//                        viewHolder.progressTv = (TextView) convertView.findViewById(R.id.jmui_progress_tv);
-//                        viewHolder.contentLl = (LinearLayout) convertView.findViewById(R.id.jmui_send_file_ll);
-//                        viewHolder.sizeTv = (TextView) convertView.findViewById(R.id.jmui_send_file_size);
-//                        viewHolder.alreadySend = (TextView) convertView.findViewById(R.id.file_already_send);
+                        viewHolder.progressTv = (TextView) convertView.findViewById(R.id.mycat_progress_tv);
+                        viewHolder.contentLl = (LinearLayout) convertView.findViewById(R.id.mycat_send_file_ll);
+                        viewHolder.sizeTv = (TextView) convertView.findViewById(R.id.mycat_send_file_size);
+                        viewHolder.alreadySend = (TextView) convertView.findViewById(R.id.file_already_send);
                     }
                     if (msg.getDirect().equals(MessageDirect.receive)) {
-//                        viewHolder.fileLoad = (TextView) convertView.findViewById(R.id.mycat_send_file_load);
+                        viewHolder.fileLoad = (TextView) convertView.findViewById(R.id.mycat_send_file_load);
                     }
                     break;
                 case voice:
@@ -492,9 +492,9 @@ public class ChatListAdapter extends BaseAdapter {
                     viewHolder.readStatus = (ImageView) convertView.findViewById(R.id.mycat_read_status_iv);
                     break;
                 case location:
-//                    viewHolder.location = (TextView) convertView.findViewById(R.id.mycat_loc_desc);
+                    viewHolder.location = (TextView) convertView.findViewById(R.id.mycat_loc_desc);
                     viewHolder.picture = (ImageView) convertView.findViewById(R.id.mycat_picture_iv);
-//                    viewHolder.locationView = convertView.findViewById(R.id.location_view);
+                    viewHolder.locationView = convertView.findViewById(R.id.location_view);
                     break;
                 case custom:
                 case prompt:
@@ -672,7 +672,7 @@ public class ChatListAdapter extends BaseAdapter {
                 }
                 break;
             case voice:
-                mController.handleVoiceMmessage(holder, msg, position);
+                mController.handleVoiceMsg(holder, msg, position);
                 break;
             case location:
                 //mController.handleLocationMsg(msg, holder, position);

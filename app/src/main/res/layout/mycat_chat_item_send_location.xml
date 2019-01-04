@@ -1,6 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    style="@style/mycat_chat_item_sent_layout">
+
+    <TextView
+        android:id="@+id/mycat_send_time_txt"
+        style="@style/mycat_chat_item_date_style"
+        />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+
+            android:id="@+id/mycat_avatar_iv"
+            style="@style/mycat_chat_item_send_avatar" />
+
+
+        <FrameLayout
+            android:id="@+id/mycat_layout_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="3dp"
+            android:layout_toLeftOf="@id/mycat_avatar_iv"
+            android:background="@drawable/mycat_msg_send_bg"
+            android:orientation="vertical"
+            android:paddingLeft="3dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp">
+
+            <ImageView
+                android:id="@+id/mycat_picture_iv"
+                android:layout_width="163dp"
+                android:layout_height="90dp"
+                android:gravity="center|bottom"
+                android:scaleType="fitXY"
+                android:src="@drawable/mycat_location_default" />
+
+            <View
+                android:layout_width="163dp"
+                android:layout_height="30dp"
+                android:layout_gravity="bottom"
+                android:alpha="0.6"
+                android:background="#000000" />
+
+            <TextView
+                android:id="@+id/mycat_loc_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center"
+                android:layout_marginBottom="6dp"
+                android:ellipsize="end"
+                android:ems="10"
+                android:gravity="center"
+                android:maxLines="2"
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+
+        </FrameLayout>
+
+
+        <TextView
+            android:id="@+id/text_receipt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="7dp"
+            android:layout_toLeftOf="@id/mycat_layout_location"
+            android:text="未读消息"
+            android:textSize="12sp"/>
+
+        <TextView
+            android:id="@+id/mycat_send_status_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@id/mycat_layout_location"
+            android:textSize="12sp"
+            android:visibility="gone"
+            android:textColor="#818181"
+            android:gravity="center"
+            />
+
+        <ImageView
+            android:id="@+id/mycat_sending_iv"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="3dp"
+            android:layout_toLeftOf="@id/mycat_layout_location"
+            android:src="@drawable/mycat_sending_img"
+            android:visibility="gone"/>
+    </RelativeLayout>
 
 </LinearLayout>
