@@ -3,6 +3,7 @@ package com.example.xkfeng.mycat.MyApplication;
 import android.app.Application;
 import android.os.Environment;
 
+import com.baidu.mapapi.SDKInitializer;
 import com.example.xkfeng.mycat.NetWork.HttpHelper;
 import com.example.xkfeng.mycat.NetWork.OkHttpProcesser;
 import com.example.xkfeng.mycat.R;
@@ -39,5 +40,9 @@ public class MyApplication extends Application {
         HttpHelper.initHttpProcesser(new OkHttpProcesser());
 
 
+        /**
+         * 百度地图api
+         */
+        SDKInitializer.initialize(this);
     }
 }

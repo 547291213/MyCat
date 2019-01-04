@@ -30,12 +30,16 @@ import com.example.xkfeng.mycat.Util.HandleResponseCode;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.StaticValueHelper;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.PicassoProvider;
 
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +55,7 @@ import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.ImageContent;
+import cn.jpush.im.android.api.content.LocationContent;
 import cn.jpush.im.android.api.content.MessageContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.content.VoiceContent;
@@ -85,13 +90,19 @@ public class ChatListAdapterController {
     /**
      * 录音相关参数
      */
+    // mIndexList用于自动播放录音，未实现
     private List<Integer> mIndexList = new ArrayList<>();
+    //当前录音所处位置
     private int mPosition;
+    //音频播放器
     private MediaPlayer mediaPlayer = new MediaPlayer();
+    //音频文件相关
     private FileInputStream mFIS;
     private FileDescriptor mFD;
+    //音频播放动画
     private AnimationDrawable mVoiceAnimationDrawable;
-    private boolean isPause = false;   //
+    //音频是否处于暂停状态
+    private boolean isPause = false;
 
 
     public ChatListAdapterController(Context context,
@@ -128,6 +139,13 @@ public class ChatListAdapterController {
 
     }
 
+    /**
+     * 处理名片消息
+     *
+     * @param viewHolder
+     * @param msg
+     * @param position
+     */
     public void handleBusinessCard(final ChatListAdapter.ViewHolder viewHolder, final Message msg, int position) {
         final TextContent[] textContent = {(TextContent) msg.getContent()};
         final String[] mUserName = {textContent[0].getStringExtra("userName")};
@@ -205,7 +223,7 @@ public class ChatListAdapterController {
                     viewHolder.resend.setVisibility(View.VISIBLE);
                     break;
                 case send_going:
-                    sendingTextOrVoice(viewHolder, msg);
+                    sendingTextVoiceOrLocation(viewHolder, msg);
                     break;
             }
         } else {
@@ -238,6 +256,7 @@ public class ChatListAdapterController {
 
     }
 
+    //名片点击事件
     private class BusinessCardClickListener implements View.OnClickListener {
 
         private ChatListAdapter.ViewHolder holder;
@@ -266,6 +285,13 @@ public class ChatListAdapterController {
         }
     }
 
+    /**
+     * 处理录音消息
+     *
+     * @param viewHolder
+     * @param msg
+     * @param position
+     */
     public void handleVoiceMsg(final ChatListAdapter.ViewHolder viewHolder, final Message msg, int position) {
         final MessageContent voiceContent = (VoiceContent) msg.getContent();
         final MessageDirect direct = msg.getDirect();
@@ -303,7 +329,7 @@ public class ChatListAdapterController {
                     break;
 
                 case send_going:
-                    sendingTextOrVoice(viewHolder, msg);
+                    sendingTextVoiceOrLocation(viewHolder, msg);
                     break;
             }
         } else {
@@ -403,7 +429,7 @@ public class ChatListAdapterController {
                         viewHolder.voice.setImageResource(R.drawable.mycat_voice_receive_3);
                     }
                     //当前音乐不为暂停状态
-                    isPause = false ;
+                    isPause = false;
                 }
             });
         } catch (Exception e) {
@@ -466,7 +492,7 @@ public class ChatListAdapterController {
                     break;
 
                 case send_going:
-                    sendingTextOrVoice(viewHolder, msg);
+                    sendingTextVoiceOrLocation(viewHolder, msg);
                     break;
             }
         } else {
@@ -496,6 +522,122 @@ public class ChatListAdapterController {
                 }
             });
         }
+    }
+
+    public void handleLocationMsg(final ChatListAdapter.ViewHolder viewHolder, final Message msg, final int position) {
+        final LocationContent locationContent = (LocationContent) msg.getContent();
+        String path = locationContent.getStringExtra("path");
+        viewHolder.location.setText(locationContent.getAddress());
+        if (msg.getDirect() == MessageDirect.receive) {
+            switch (msg.getStatus()) {
+                case send_fail:
+                case receive_going:
+                    break;
+
+                case receive_success:
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            final Bitmap locationBitmap = createLocationBitmap(locationContent.getLongitude(), locationContent.getLatitude());
+                            if (locationBitmap != null) {
+                                mActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        viewHolder.locationView.setVisibility(View.VISIBLE);
+                                        viewHolder.picture.setImageBitmap(locationBitmap);
+                                    }
+                                });
+                            }
+                        }
+                    }).start();
+                    break;
+            }
+        } else {
+            if (path != null && viewHolder.picture != null) {
+                try {
+                    File file = new File(path);
+                    if (file.exists() && file.isFile()) {
+                        Picasso.get().load(file).into(viewHolder.picture);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            switch (msg.getStatus()){
+                case created:
+
+                    viewHolder.text_receipt.setVisibility(View.GONE);
+                    viewHolder.resend.setVisibility(View.GONE);
+                    viewHolder.sendingIv.setVisibility(View.VISIBLE);
+                    break ;
+
+                case send_going:
+
+                    sendingTextVoiceOrLocation(viewHolder , msg);
+                    break;
+
+                case send_success:
+
+                    viewHolder.text_receipt.setVisibility(View.VISIBLE);
+                    viewHolder.sendingIv.clearAnimation();
+                    viewHolder.sendingIv.setVisibility(View.GONE);
+                    viewHolder.resend.setVisibility(View.GONE);
+                    break;
+
+                case send_fail:
+                    viewHolder.sendingIv.clearAnimation();
+                    viewHolder.text_receipt.setVisibility(View.GONE);
+                    viewHolder.sendingIv.setVisibility(View.GONE);
+                    viewHolder.resend.setVisibility(View.VISIBLE);
+                    break ;
+            }
+
+            if (viewHolder.picture != null){
+                viewHolder.picture.setTag(position);
+                viewHolder.picture.setOnLongClickListener(contentLongClickListener);
+                viewHolder.picture.setOnClickListener(new OnItemClickListener(viewHolder , position));
+
+            }
+
+            if (viewHolder.resend != null){
+                viewHolder.resend.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (msg.getContent() != null){
+                            chatListAdapter.showReSendDialog(viewHolder , msg);
+                        }else {
+                            ITosast.showShort(mContext , "暂无外部存储").show();
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    private Bitmap createLocationBitmap(Number longitude, Number latitude) {
+//        String mapUrl = "http://api.map.baidu.com/staticimage?width=160&height=90&center="
+//                + longitude + "," + latitude + "&zoom=18";
+        String mapUrl = "http://api.map.baidu.com/staticimage/v2?ak=NIMmHgy2KDKAvBmZkN7rAHG2z7kaMuYa" +
+                "&mcode=666666&center=" + longitude + "," + latitude + "&width=300&height=200&zoom=11";
+
+        try {
+
+            URL url = new URL(mapUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setDoOutput(false);
+            conn.setDoInput(true);
+            conn.setConnectTimeout(5000);
+            conn.connect();
+            if (conn.getResponseCode() == 200) {
+                InputStream inputStream = conn.getInputStream();
+                return BitmapFactory.decodeStream(inputStream);
+            }
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void handleImgMessage(final ChatListAdapter.ViewHolder viewHolder, final Message msg, final int position) {
@@ -697,7 +839,7 @@ public class ChatListAdapterController {
         }
     }
 
-    private void sendingTextOrVoice(final ChatListAdapter.ViewHolder viewHolder, final Message msg) {
+    private void sendingTextVoiceOrLocation(final ChatListAdapter.ViewHolder viewHolder, final Message msg) {
 
         viewHolder.text_receipt.setVisibility(View.GONE);
         viewHolder.resend.setVisibility(View.GONE);
@@ -803,6 +945,7 @@ public class ChatListAdapterController {
 
                 case location:
 
+                    ITosast.showShort(mContext , "暂无处理位置消息").show();
                     break;
 
                 default:

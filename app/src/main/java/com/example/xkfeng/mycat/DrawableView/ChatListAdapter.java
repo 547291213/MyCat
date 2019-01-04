@@ -649,7 +649,8 @@ public class ChatListAdapter extends BaseAdapter {
                      * ll_businessCard为null，加载布局报nullPointerException
                      *
                      * 问题所在：
-                     *     xml布局文件错误：
+                     *     xml布局文件错误：已修复
+                     *     理论上该行代码可以删除
                      */
                     if (holder.ll_businessCard != null) {
                         holder.ll_businessCard.setVisibility(View.GONE);
@@ -675,7 +676,7 @@ public class ChatListAdapter extends BaseAdapter {
                 mController.handleVoiceMsg(holder, msg, position);
                 break;
             case location:
-                //mController.handleLocationMsg(msg, holder, position);
+                mController.handleLocationMsg(holder, msg, position);
                 break;
             case eventNotification:
                 //mController.handleGroupChangeMsg(msg, holder);
@@ -865,7 +866,7 @@ public class ChatListAdapter extends BaseAdapter {
 
     }
 
-    public ChatListAdapterController getmController(){
-        return mController ;
+    public ChatListAdapterController getmController() {
+        return mController;
     }
 }

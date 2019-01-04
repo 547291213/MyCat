@@ -21,6 +21,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.xkfeng.mycat.Activity.ChatMsgActivity;
+import com.example.xkfeng.mycat.Activity.IndexActivity;
+import com.example.xkfeng.mycat.Activity.MapViewActivity;
 import com.example.xkfeng.mycat.Activity.ModifyUserInfoActivity;
 import com.example.xkfeng.mycat.Activity.ViewImageActivity;
 import com.example.xkfeng.mycat.DrawableView.DrawableTopTextView;
@@ -35,6 +37,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.LocationContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
@@ -61,6 +64,7 @@ public class AddBoradFragment extends Fragment {
     private static final String TAG = "AddBoradFragment";
     private Activity mActivity;
     private OnBusinessItemClickListener onBusinessItemClickListener;
+    private OnLocationClickListener onLocationClickListener ;
     private  File imageFileDir;
 
 
@@ -121,7 +125,10 @@ public class AddBoradFragment extends Fragment {
 
             case R.id.tv_chatMsgPosition:
 
-
+//                if (onLocationClickListener != null){
+//                    onLocationClickListener.onLocationItemClick();
+//                }
+                startActivity(new Intent(mContext ,  MapViewActivity.class));
                 ITosast.showShort(getContext(), "position").show();
                 break;
 
@@ -192,7 +199,16 @@ public class AddBoradFragment extends Fragment {
         this.onBusinessItemClickListener = onBusinessItemClickListener;
     }
 
+    public void setOnLocationClickListener(OnLocationClickListener onLocationClickListener){
+        this.onLocationClickListener = onLocationClickListener ;
+    }
+
     public interface OnBusinessItemClickListener {
         public void onBusinessItemClick();
     }
+
+    public interface OnLocationClickListener{
+        public void onLocationItemClick() ;
+    }
+
 }

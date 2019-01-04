@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+    <com.baidu.mapapi.map.MapView
+        android:id="@+id/mv_mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        />
+
+    <LinearLayout
+        android:id="@+id/ll_titleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alpha="0.8"
+        android:background="@color/transparent_nocolor"
+        android:orientation="horizontal"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp">
+
+        <TextView
+            android:id="@+id/tv_setBackText"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_back_white_16"
+            android:gravity="center|left"
+            android:padding="5dp"
+            android:text="位置"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tv_sendText"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="发送"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:padding="5dp"
+            android:gravity="center|right"
+            android:layout_marginRight="5dp"
+            android:drawableRight="@drawable/ic_send_white_16"
+            android:drawablePadding="2dp"
+            />
+    </LinearLayout>
+</RelativeLayout>

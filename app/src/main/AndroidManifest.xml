@@ -116,6 +116,18 @@
 
         </activity>
 
+
+        <!--Activity : map view , power by baidu-map-->
+        <activity android:name=".Activity.MapViewActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:launchMode="singleTask"
+            >
+
+        </activity>
+
+
+
+
         <!--Activity : forwarding msg -->
         <activity android:name=".Activity.ForwardingActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"

@@ -4,8 +4,7 @@
 
     <TextView
         android:id="@+id/mycat_send_time_txt"
-        style="@style/mycat_chat_item_date_style"
-        />
+        style="@style/mycat_chat_item_date_style" />
 
 
     <RelativeLayout
@@ -70,7 +69,18 @@
             android:layout_marginRight="7dp"
             android:layout_toLeftOf="@id/mycat_layout_location"
             android:text="未读消息"
-            android:textSize="12sp"/>
+            android:textSize="12sp" />
+
+        <ImageButton
+            android:id="@+id/mycat_fail_resend_ib"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dp"
+            android:layout_toLeftOf="@id/mycat_layout_location"
+            android:background="@drawable/send_message_failed"
+            android:clickable="true"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/mycat_send_status_tv"
@@ -79,11 +89,10 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="10dp"
             android:layout_toLeftOf="@id/mycat_layout_location"
-            android:textSize="12sp"
-            android:visibility="gone"
-            android:textColor="#818181"
             android:gravity="center"
-            />
+            android:textColor="#818181"
+            android:textSize="12sp"
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/mycat_sending_iv"
@@ -93,7 +102,7 @@
             android:layout_marginRight="3dp"
             android:layout_toLeftOf="@id/mycat_layout_location"
             android:src="@drawable/mycat_sending_img"
-            android:visibility="gone"/>
+            android:visibility="gone" />
     </RelativeLayout>
 
 </LinearLayout>

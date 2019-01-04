@@ -144,6 +144,9 @@ public class IndexActivity extends BaseActivity implements MessageFragment.OnUnR
 
     public static boolean isFirst = true;
 
+    public static Number CURRENT_LONGITUDE ;
+    public static Number CURRENT_LATITUDE ;
+
 
     /**
      *
@@ -274,6 +277,8 @@ public class IndexActivity extends BaseActivity implements MessageFragment.OnUnR
         public void onReceiveLocation(BDLocation bdLocation) {
 
             String str = bdLocation.getLongitude() + "," + bdLocation.getLatitude();
+            CURRENT_LONGITUDE = bdLocation.getLongitude() ;
+            CURRENT_LATITUDE = bdLocation.getLatitude() ;
             BaiduLocation baiduLocation = new BaiduLocation(str);
             RxBus.getInstance().post(baiduLocation);
         }

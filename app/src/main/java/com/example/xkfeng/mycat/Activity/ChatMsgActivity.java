@@ -67,6 +67,7 @@ import cn.jpush.im.android.api.callback.GetGroupIDListCallback;
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
 import cn.jpush.im.android.api.content.ImageContent;
+import cn.jpush.im.android.api.content.LocationContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
@@ -93,6 +94,7 @@ public class ChatMsgActivity extends BaseActivity implements
         EmojiconGridFragment.OnEmojiconClickedListener,
         EmojiconsFragment.OnEmojiconBackspaceClickedListener,
         AddBoradFragment.OnBusinessItemClickListener,
+        AddBoradFragment.OnLocationClickListener,
         KeyBoradRelativeLayout.KeyBoradStateListener {
 
 
@@ -108,6 +110,28 @@ public class ChatMsgActivity extends BaseActivity implements
     LinearLayout llTitleLayout;
     @BindView(R.id.ll_chatBottomLayout)
     LinearLayout llChatBottomLayout;
+
+    @Override
+    public void onLocationItemClick() {
+        //之前是在地图选择那边做的发送逻辑,这里是通过msgID拿到的message放到ui上.但是发现问题,message的status始终是send_going状态
+        //因为那边发送的是自己创建的对象,这里通过id取出来的不是同一个对象.尽管内容都是一样的.所以为了保证发送的对象个ui上拿出来的
+        //对象是同一个,就地图那边传过来数据,在这边进行创建message
+        double latitude = (double) IndexActivity.CURRENT_LATITUDE;
+        double longitude = (double) IndexActivity.CURRENT_LONGITUDE;
+        int mapview = 0;
+        String street = "street";
+        String path = latitude + "";
+        LocationContent locationContent = new LocationContent(latitude,
+                longitude, mapview, street);
+        locationContent.setStringExtra("path", path);
+        Message message = conversation.createSendMessage(locationContent);
+        MessageSendingOptions options = new MessageSendingOptions();
+        options.setNeedReadReceipt(true);
+        JMessageClient.sendMessage(message, options);
+        chatListAdapter.addMsgFromReceiveToList(message);
+
+
+    }
 
 
     enum SendOrAdd {
@@ -284,6 +308,8 @@ public class ChatMsgActivity extends BaseActivity implements
         addBoradFragment = new AddBoradFragment();
         //绑定名片点击事件
         addBoradFragment.setOnBusinessItemClickListener(this);
+        //绑定位置点击事件
+        addBoradFragment.setOnLocationClickListener(this);
 
         voiceFragment = new VoiceBoradFragment();
         nullBoradFragment = new NullBoradFragment();
@@ -885,7 +911,7 @@ public class ChatMsgActivity extends BaseActivity implements
                     mController.pauseVoice();
                 }
                 Intent intent = new Intent(ChatMsgActivity.this, AboutActivity.class);
-                startActivityForResult(intent , RequestCode_ABOUTUS);
+                startActivityForResult(intent, RequestCode_ABOUTUS);
                 break;
 
 
@@ -1315,7 +1341,7 @@ public class ChatMsgActivity extends BaseActivity implements
                 break;
 
             default:
-                if (mController != null){
+                if (mController != null) {
                     mController.resumePalyVoice();
                 }
                 ITosast.showShort(ChatMsgActivity.this, "其他参数返回").show();
