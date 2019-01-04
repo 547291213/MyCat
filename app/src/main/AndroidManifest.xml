@@ -110,6 +110,7 @@
         <activity android:name=".Activity.ChatMsgActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:launchMode="singleTask"
+            android:windowSoftInputMode="stateHidden|adjustPan"
 
             >
 

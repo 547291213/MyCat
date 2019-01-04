@@ -100,7 +100,7 @@ public class TimeUtil {
         int newD = Integer.parseInt(newTime.substring(8, 10));
 
         if (!oldY.equals(newY)) {
-            result = oldY + "" + oldM + "" + oldD;
+            result = oldY + "-" + oldM + "-" + oldD + " " + oldHour + ":" + oldMinutes;
             return result;
         } else {
             if (oldM == newM) {

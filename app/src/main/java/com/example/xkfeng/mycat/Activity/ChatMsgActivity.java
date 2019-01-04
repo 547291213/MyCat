@@ -28,6 +28,7 @@ import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -142,7 +143,7 @@ public class ChatMsgActivity extends BaseActivity implements
     //控制系统软键盘的显示和隐藏
     private InputMethodManager inputMethodManager;
     //系统软键盘高度
-    private static int KEY_BROAD_HEIGHT = 770;
+    private static int KEY_BROAD_HEIGHT = 825; //770
     //默认最小的软键盘高度阈值
     private static int MIN_KEYBROAD_HITGHT = 100;
     //emoji表情键盘是否打开
@@ -198,6 +199,8 @@ public class ChatMsgActivity extends BaseActivity implements
     public static final int RequestCode_CAMERA = 100;
     public static final int RequestCode_PHOTO = 101;
 
+    private boolean isFirst = true ;
+
 
     //    【A】stateUnspecified：软键盘的状态并没有指定，系统将选择一个合适的状态或依赖于主题的设置
 //　　【B】stateUnchanged：当这个activity出现时，软键盘将一直保持在上一个activity里的状态，无论是隐藏还是显示
@@ -227,9 +230,9 @@ public class ChatMsgActivity extends BaseActivity implements
             ivSendImage.setImageResource(R.drawable.ic_send_blue);
             editEmojicon.setText(dragMsg);
         }
-
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN |
-                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+//        WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN |
+//        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN|
+//                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         uiHandler = new UIHandler(this);
         clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
@@ -244,16 +247,24 @@ public class ChatMsgActivity extends BaseActivity implements
      * 设置顶部标题栏相关属性
      */
     private void initIndexTitleLayout() {
-        //沉浸式状态栏
-        DensityUtil.fullScreen(this);
+
 //        设置内边距
 //        其中left right bottom都用现有的
 //        top设置为现在的topPadding+状态栏的高度
 //        表现为将indexTitleLayout显示的数据放到状态栏下面
-        llTitleLayout.setPadding(llTitleLayout.getPaddingLeft(), llTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(this),
-                llTitleLayout.getPaddingRight(), llTitleLayout.getPaddingBottom());
+        if (isFirst){
+            //沉浸式状态栏
+            DensityUtil.fullScreen(this);
+            llTitleLayout.setPadding(llTitleLayout.getPaddingLeft(), llTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(this),
+                    llTitleLayout.getPaddingRight(), llTitleLayout.getPaddingBottom());
+            tvTargetUserNameText.setText(chatMsgTitle);
+            isFirst = false ;
+        }else{
+            llTitleLayout.setPadding(llTitleLayout.getPaddingLeft(), llTitleLayout.getPaddingTop() ,
+                    llTitleLayout.getPaddingRight(), llTitleLayout.getPaddingBottom());
+        }
 
-        tvTargetUserNameText.setText(chatMsgTitle);
+
 
     }
 
@@ -645,6 +656,7 @@ public class ChatMsgActivity extends BaseActivity implements
             public void onGlobalLayout() {
                 if (getSupportSoftInputHeight() > MIN_KEYBROAD_HITGHT) {
                     systemSoftKeyBoradIsOpen = true;
+                    Log.d(TAG, "onGlobalLayout: height is :" + getSupportSoftInputHeight());
                 } else {
                     /**
                      * 源代码
@@ -1028,6 +1040,8 @@ public class ChatMsgActivity extends BaseActivity implements
      */
     private void showSoftInput(View view) {
         inputMethodManager.showSoftInput(view, 0);
+//        initIndexTitleLayout();
+
     }
 
     /**
@@ -1114,17 +1128,7 @@ public class ChatMsgActivity extends BaseActivity implements
         int heightDifference = screenHeight - r.bottom;
 
         return heightDifference;
-//        //获取屏幕可见高度
-//        Rect rect = new Rect();
-//        getWindow().getDecorView().getWindowVisibleDisplayFrame(rect);
-//        //获取屏幕高度
-//        int screeenHeight = getWindow().getDecorView().getRootView().getHeight();
-//        Log.d(TAG, "getSupportSoftInputHeight: screenHeight : " + screeenHeight + "  rect : " + rect);
-//        int softInputHeight = screeenHeight - rect.bottom;
-//        if (Build.VERSION.SDK_INT >= 18) {
-//            softInputHeight = screeenHeight - getSoftBottomBarHeight();
-//        }
-//        return softInputHeight;
+
     }
 
     /**
