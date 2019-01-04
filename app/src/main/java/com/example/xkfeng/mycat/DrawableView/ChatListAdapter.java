@@ -864,4 +864,8 @@ public class ChatListAdapter extends BaseAdapter {
         public abstract void onContentLoingClick(int pos, View view);
 
     }
+
+    public ChatListAdapterController getmController(){
+        return mController ;
+    }
 }

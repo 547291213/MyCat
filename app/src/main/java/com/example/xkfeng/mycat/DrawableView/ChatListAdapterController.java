@@ -402,6 +402,8 @@ public class ChatListAdapterController {
                     } else {
                         viewHolder.voice.setImageResource(R.drawable.mycat_voice_receive_3);
                     }
+                    //当前音乐不为暂停状态
+                    isPause = false ;
                 }
             });
         } catch (Exception e) {
@@ -784,18 +786,18 @@ public class ChatListAdapterController {
                     if (mediaPlayer.isPlaying() && mPosition == position) {
                         holder.voice.setImageResource(R.drawable.mycat_chat_item_voice_anim);
                         mVoiceAnimationDrawable = (AnimationDrawable) holder.voice.getDrawable();
-                        pauseVoice(msg.getDirect() , holder.voice) ;
-                        break ;
+                        pauseVoice(msg.getDirect(), holder.voice);
+                        break;
                     }
                     holder.voice.setImageResource(R.drawable.mycat_chat_item_voice_anim);
                     mVoiceAnimationDrawable = (AnimationDrawable) holder.voice.getDrawable();
 
                     //播放录音（分为继续播放暂停的录音，重新播放新的录音）
-                    if (isPause == true && mPosition == position){
+                    if (isPause == true && mPosition == position) {
                         mediaPlayer.start();
                         mVoiceAnimationDrawable.start();
-                    }else {
-                        playVoice(holder , msg , position ,msg.getDirect() == MessageDirect.send ? true : false);
+                    } else {
+                        playVoice(holder, msg, position, msg.getDirect() == MessageDirect.send ? true : false);
                     }
                     break;
 
@@ -810,16 +812,30 @@ public class ChatListAdapterController {
         }
     }
 
-    private void pauseVoice(MessageDirect messageDirect , ImageView voice ){
-        if (messageDirect == MessageDirect.send){
+    private void pauseVoice(MessageDirect messageDirect, ImageView voice) {
+        if (messageDirect == MessageDirect.send) {
             voice.setImageResource(R.drawable.send_3);
-        }else {
+        } else {
             voice.setImageResource(R.drawable.mycat_voice_receive_3);
         }
         mediaPlayer.pause();
-        isPause = true ;
+        isPause = true;
     }
 
+    public void resumePalyVoice() {
+        if (isPause == true) {
+            mediaPlayer.start();
+            mVoiceAnimationDrawable.start();
+        }
+
+    }
+
+    public void pauseVoice() {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            isPause = true;
+        }
+    }
 
     /**
      * 设置图片最小宽高

@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import com.example.xkfeng.mycat.DrawableView.ChatListAdapter;
 import com.example.xkfeng.mycat.DrawableView.ChatListAdapter.ContentLongClickListener;
+import com.example.xkfeng.mycat.DrawableView.ChatListAdapterController;
 import com.example.xkfeng.mycat.DrawableView.ChatListView;
 import com.example.xkfeng.mycat.DrawableView.IndexTitleLayout;
 import com.example.xkfeng.mycat.DrawableView.KeyBoradRelativeLayout;
@@ -117,7 +118,9 @@ public class ChatMsgActivity extends BaseActivity implements
 
     @BindView(R.id.clv_messageListView)
     ChatListView clvMessageListView;
+
     private ChatListAdapter chatListAdapter;
+    private ChatListAdapterController mController;
 
     private static final String TAG = "ChatMsgActivity";
     @BindView(R.id.rl_rootLayoutView)
@@ -176,7 +179,7 @@ public class ChatMsgActivity extends BaseActivity implements
     private String mTargetId;
     private String mTargetAappkey;
     private String chatMsgTitle;
-    private String dragMsg ;
+    private String dragMsg;
 
     /**
      * 针对消息的类型定制多种长按的弹出式菜单
@@ -196,10 +199,16 @@ public class ChatMsgActivity extends BaseActivity implements
     private ClipboardManager clipboardManager;
     private ClipData clipData;
 
+    //请求相机
     public static final int RequestCode_CAMERA = 100;
+    //请求相册
     public static final int RequestCode_PHOTO = 101;
-
-    private boolean isFirst = true ;
+    //关于我们界面
+    public static final int RequestCode_ABOUTUS = 102;
+    //查看自己信息
+    public static final int RequestCode_VIEWOWNINFO = 103;
+    //查看他人信息
+    public static final int RequestCode_VIEWOTHERINFO = 104;
 
 
     //    【A】stateUnspecified：软键盘的状态并没有指定，系统将选择一个合适的状态或依赖于主题的设置
@@ -223,10 +232,10 @@ public class ChatMsgActivity extends BaseActivity implements
         mTargetId = getIntent().getStringExtra(StaticValueHelper.TARGET_ID);
         mTargetAappkey = getIntent().getStringExtra(StaticValueHelper.TARGET_APP_KEY);
         chatMsgTitle = getIntent().getStringExtra(StaticValueHelper.CHAT_MSG_TITLE);
-        dragMsg =  getIntent().getStringExtra(StaticValueHelper.DRAFT_MSG)  ;
+        dragMsg = getIntent().getStringExtra(StaticValueHelper.DRAFT_MSG);
         //如果存在草稿记录，输入栏设置文本为草稿内容
-        if(!TextUtils.isEmpty(dragMsg)){
-            sendOrAdd = SendOrAdd.send.ordinal() ;
+        if (!TextUtils.isEmpty(dragMsg)) {
+            sendOrAdd = SendOrAdd.send.ordinal();
             ivSendImage.setImageResource(R.drawable.ic_send_blue);
             editEmojicon.setText(dragMsg);
         }
@@ -252,18 +261,11 @@ public class ChatMsgActivity extends BaseActivity implements
 //        其中left right bottom都用现有的
 //        top设置为现在的topPadding+状态栏的高度
 //        表现为将indexTitleLayout显示的数据放到状态栏下面
-        if (isFirst){
-            //沉浸式状态栏
-            DensityUtil.fullScreen(this);
-            llTitleLayout.setPadding(llTitleLayout.getPaddingLeft(), llTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(this),
-                    llTitleLayout.getPaddingRight(), llTitleLayout.getPaddingBottom());
-            tvTargetUserNameText.setText(chatMsgTitle);
-            isFirst = false ;
-        }else{
-            llTitleLayout.setPadding(llTitleLayout.getPaddingLeft(), llTitleLayout.getPaddingTop() ,
-                    llTitleLayout.getPaddingRight(), llTitleLayout.getPaddingBottom());
-        }
-
+        //沉浸式状态栏
+        DensityUtil.fullScreen(this);
+        llTitleLayout.setPadding(llTitleLayout.getPaddingLeft(), llTitleLayout.getPaddingTop() + DensityUtil.getStatusHeight(this),
+                llTitleLayout.getPaddingRight(), llTitleLayout.getPaddingBottom());
+        tvTargetUserNameText.setText(chatMsgTitle);
 
 
     }
@@ -300,6 +302,7 @@ public class ChatMsgActivity extends BaseActivity implements
         if (conversation != null) {
             chatListAdapter = new ChatListAdapter(ChatMsgActivity.this, conversation, longClickListener);
 
+            mController = chatListAdapter.getmController();
             rlRootLayoutView.init();
             rlRootLayoutView.setChatListAadapter(chatListAdapter);
             rlRootLayoutView.getmChatListView().setSecondPositionVisible();
@@ -877,8 +880,12 @@ public class ChatMsgActivity extends BaseActivity implements
             case R.id.iv_intoAboutUs:
             case R.id.tv_intoAboutUs:
 
+
+                if (mController != null) {
+                    mController.pauseVoice();
+                }
                 Intent intent = new Intent(ChatMsgActivity.this, AboutActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent , RequestCode_ABOUTUS);
                 break;
 
 
@@ -1211,7 +1218,7 @@ public class ChatMsgActivity extends BaseActivity implements
 
     /**
      * 键盘点击监听处理
-     *
+     * <p>
      * 当存在自定义“键盘”处于显示状态的时候，关闭自定义“键盘”，而不是直接退出当前Activity
      * 当不存在自定义“键盘”处于显示状态的时候，退出当前Activity
      * 如果退出的时候，当前输入栏的数据不为空，需要留存草稿。
@@ -1241,8 +1248,8 @@ public class ChatMsgActivity extends BaseActivity implements
          * 当前输入栏有内容
          * 将输入栏的内容作为消息发送给会话栏
          */
-        if (sendOrAdd == SendOrAdd.send.ordinal()){
-            RxBus.getInstance().post(new DraftMsg(editEmojicon.getText().toString(), mTargetId ));
+        if (sendOrAdd == SendOrAdd.send.ordinal()) {
+            RxBus.getInstance().post(new DraftMsg(editEmojicon.getText().toString(), mTargetId));
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -1278,7 +1285,7 @@ public class ChatMsgActivity extends BaseActivity implements
                     break;
 
                 default:
-                    ITosast.showShort(chatMsgActivity, "尚未知道的类型").show();
+                    ITosast.showShort(ChatMsgActivity.this, "未知参数类型").show();
                     break;
             }
         }
@@ -1308,7 +1315,10 @@ public class ChatMsgActivity extends BaseActivity implements
                 break;
 
             default:
-                ITosast.showShort(ChatMsgActivity.this, "未知请求类型").show();
+                if (mController != null){
+                    mController.resumePalyVoice();
+                }
+                ITosast.showShort(ChatMsgActivity.this, "其他参数返回").show();
                 break;
         }
     }
