@@ -5,9 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -59,6 +64,7 @@ import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
 import cn.jpush.im.android.api.content.CustomContent;
+import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.LocationContent;
 import cn.jpush.im.android.api.content.MessageContent;
@@ -531,6 +537,202 @@ public class ChatListAdapterController {
         }
     }
 
+    public void handleFileMsg(final ChatListAdapter.ViewHolder viewHolder , final Message msg , final int position){
+        final FileContent fileContent = (FileContent) msg.getContent();
+        if(viewHolder.txtContent != null){
+            viewHolder.txtContent.setText(fileContent.getFileName());
+        }
+        Number fileSize = fileContent.getNumberExtra("fileSize");
+        if (fileSize != null && viewHolder.sizeTv != null) {
+            String size = FileHelper.getFileSize(fileSize);
+            viewHolder.sizeTv.setText(size);
+        }
+        String fileType = fileContent.getStringExtra("fileType") ;
+        Drawable drawable ;
+        if (fileType != null && (fileType.equals("mp4") || fileType.equals("mov") || fileType.equals("rm") ||
+                fileType.equals("rmvb") || fileType.equals("wmv") || fileType.equals("avi") ||
+                fileType.equals("3gp") || fileType.equals("mkv"))) {
+            drawable = mContext.getResources().getDrawable(R.drawable.mycat_video);
+        } else if (fileType != null && (fileType.equals("wav") || fileType.equals("mp3") || fileType.equals("wma") || fileType.equals("midi"))) {
+            drawable = mContext.getResources().getDrawable(R.drawable.mycat_audio);
+        } else if (fileType != null && (fileType.equals("ppt") || fileType.equals("pptx") || fileType.equals("doc") ||
+                fileType.equals("docx") || fileType.equals("pdf") || fileType.equals("xls") ||
+                fileType.equals("xlsx") || fileType.equals("txt") || fileType.equals("wps"))) {
+            drawable = mContext.getResources().getDrawable(R.drawable.mycat_document);
+            //.jpeg .jpg .png .bmp .gif
+        } else if (fileType != null && (fileType.equals("jpeg") || fileType.equals("jpg") || fileType.equals("png") ||
+                fileType.equals("bmp") || fileType.equals("gif"))) {
+            drawable = mContext.getResources().getDrawable(R.drawable.mycat_other);
+        } else {
+            drawable = mContext.getResources().getDrawable(R.drawable.mycat_other);
+        }
+        BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+        if (viewHolder.ivDocument != null)
+            viewHolder.ivDocument.setImageBitmap(bitmapDrawable.getBitmap());
+
+        if (msg.getDirect() == MessageDirect.send){
+            switch (msg.getStatus()){
+                case created:
+                    viewHolder.progressTv.setVisibility(View.VISIBLE);
+                    viewHolder.progressTv.setText("0%");
+                    viewHolder.resend.setVisibility(View.GONE);
+                    viewHolder.text_receipt.setVisibility(View.GONE);
+                    if (null != mUserInfo) {
+                        viewHolder.progressTv.setVisibility(View.GONE);
+                        viewHolder.resend.setVisibility(View.VISIBLE);
+                    } else {
+                        viewHolder.progressTv.setVisibility(View.VISIBLE);
+                        viewHolder.progressTv.setText("0%");
+                        viewHolder.resend.setVisibility(View.GONE);
+                    }
+                    break;
+
+                case send_going:
+                    viewHolder.text_receipt.setVisibility(View.GONE);
+                    viewHolder.progressTv.setVisibility(View.VISIBLE);
+                    viewHolder.resend.setVisibility(View.GONE);
+                    if (!msg.isContentUploadProgressCallbackExists()) {
+                        msg.setOnContentUploadProgressCallback(new ProgressUpdateCallback() {
+                            @Override
+                            public void onProgressUpdate(double v) {
+                                String progressStr = (int) (v * 100) + "%";
+                                viewHolder.progressTv.setText(progressStr);
+                            }
+                        });
+                    }
+                    if (!msg.isSendCompleteCallbackExists()) {
+                        msg.setOnSendCompleteCallback(new BasicCallback() {
+                            @android.support.annotation.RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                            @Override
+                            public void gotResult(int status, String desc) {
+                                viewHolder.contentLl.setBackground(mContext.getDrawable(R.drawable.mycat_msg_send_bg));
+                                viewHolder.progressTv.setVisibility(View.GONE);
+                                if (status == 803008) {
+                                    CustomContent customContent = new CustomContent();
+                                    customContent.setBooleanValue("blackList", true);
+                                    Message customMsg = mConversation.createSendMessage(customContent);
+                                    chatListAdapter.addMsgToList(customMsg);
+                                } else if (status != 0) {
+                                    viewHolder.resend.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        });
+                    }
+                    break ;
+
+                case send_success:
+                    viewHolder.text_receipt.setVisibility(View.VISIBLE);
+                    viewHolder.contentLl.setBackground(mContext.getResources().getDrawable(R.drawable.mycat_msg_send_bg));
+                    viewHolder.alreadySend.setVisibility(View.VISIBLE);
+                    viewHolder.progressTv.setVisibility(View.GONE);
+                    viewHolder.resend.setVisibility(View.GONE);
+                    break;
+
+                case send_fail:
+                    viewHolder.alreadySend.setVisibility(View.VISIBLE);
+                    viewHolder.alreadySend.setText("发送失败");
+                    viewHolder.text_receipt.setVisibility(View.GONE);
+                    viewHolder.contentLl.setBackground(mContext.getResources().getDrawable(R.drawable.mycat_msg_send_bg));
+                    viewHolder.progressTv.setVisibility(View.GONE);
+                    viewHolder.resend.setVisibility(View.VISIBLE);
+                    break ;
+            }
+        }else{
+            switch (msg.getStatus()){
+                case receive_going:
+                    viewHolder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
+                    viewHolder.progressTv.setVisibility(View.VISIBLE);
+                    viewHolder.fileLoad.setText("");
+                    if (!msg.isContentDownloadProgressCallbackExists()) {
+                        msg.setOnContentDownloadProgressCallback(new ProgressUpdateCallback() {
+                            @Override
+                            public void onProgressUpdate(double v) {
+                                if (v < 1) {
+                                    String progressStr = (int) (v * 100) + "%";
+                                    viewHolder.progressTv.setText(progressStr);
+                                } else {
+                                    viewHolder.progressTv.setVisibility(View.GONE);
+                                    viewHolder.contentLl.setBackground(mContext.getResources().getDrawable(R.drawable.mycat_msg_receive_bg));
+                                }
+
+                            }
+                        });
+                    }
+                    break ;
+
+                case receive_fail:
+                    ///收到文件没下载也是这个状态
+                    viewHolder.progressTv.setVisibility(View.GONE);
+                    //开始是用的下面这行设置但是部分手机会崩溃
+                    //mContext.getDrawable(R.drawable.jmui_msg_receive_bg)
+                    //如果用上面的报错 NoSuchMethodError 就把setBackground后面参数换成下面的
+                    //ContextCompat.getDrawable(mContext, R.drawable.jmui_msg_receive_bg)
+                    viewHolder.contentLl.setBackground(ContextCompat.getDrawable(mContext, R.drawable.mycat_msg_receive_bg));
+                    viewHolder.fileLoad.setText("未下载");
+                    break ;
+
+                case receive_success:
+                    viewHolder.progressTv.setVisibility(View.GONE);
+                    viewHolder.contentLl.setBackground(mContext.getResources().getDrawable(R.drawable.mycat_msg_receive_bg));
+                    viewHolder.fileLoad.setText("已下载");
+                    break;
+            }
+        }
+        if (viewHolder.fileLoad != null) {
+            viewHolder.fileLoad.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (msg.getDirect() == MessageDirect.send) {
+                        ///？？？  很莫名其妙
+                        // fileLoad只在接收文件布局中存在，也就是发送文件方，理论上不存在该控件
+                        chatListAdapter.showReSendDialog(viewHolder, msg);
+                    } else {
+                        viewHolder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
+                        viewHolder.progressTv.setText("0%");
+                        viewHolder.progressTv.setVisibility(View.VISIBLE);
+                        if (!msg.isContentDownloadProgressCallbackExists()) {
+                            msg.setOnContentDownloadProgressCallback(new ProgressUpdateCallback() {
+                                @Override
+                                public void onProgressUpdate(double v) {
+                                    String progressStr = (int) (v * 100) + "%";
+                                    viewHolder.progressTv.setText(progressStr);
+                                }
+                            });
+                        }
+                        fileContent.downloadFile(msg, new DownloadCompletionCallback() {
+                            @Override
+                            public void onComplete(int status, String desc, File file) {
+                                viewHolder.progressTv.setVisibility(View.GONE);
+                                viewHolder.contentLl.setBackground(mContext.getResources().getDrawable(R.drawable.mycat_msg_receive_bg));
+                                if (status != 0) {
+                                    viewHolder.fileLoad.setText("未下载");
+                                    ITosast.showShort(mContext , "文件下载失败").show();
+                                } else {
+                                    ITosast.showShort(mContext ,  "文件下载完成").show();
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        if (viewHolder.resend != null) {
+            viewHolder.resend.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (msg.getContent() != null) {
+                        chatListAdapter.showReSendDialog(viewHolder, msg);
+                    } else {
+                        ITosast.showShort(mContext, "暂无外部存储").show();
+                    }
+                }
+            });
+        }
+        viewHolder.contentLl.setTag(position);
+        viewHolder.contentLl.setOnLongClickListener(contentLongClickListener);
+        viewHolder.contentLl.setOnClickListener(new OnItemClickListener(viewHolder , position));
+    }
+
     public void handleLocationMsg(final ChatListAdapter.ViewHolder viewHolder, final Message msg, final int position) {
         final LocationContent locationContent = (LocationContent) msg.getContent();
         String path = locationContent.getStringExtra("path");
@@ -625,6 +827,9 @@ public class ChatListAdapterController {
 
         }
 
+        /**
+         * 尚未实际实现位置消息重发
+         */
         if (viewHolder.resend != null) {
             viewHolder.resend.setOnClickListener(new View.OnClickListener() {
                 @Override

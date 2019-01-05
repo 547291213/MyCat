@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.media.MediaExtractor;
 import android.os.Handler;
@@ -502,7 +503,6 @@ public class ChatListAdapter extends BaseAdapter {
 //                    viewHolder.groupChange = (TextView) convertView.findViewById(R.id.mycat_group_content);
                     break;
             }
-
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -669,7 +669,7 @@ public class ChatListAdapter extends BaseAdapter {
                 if (!TextUtils.isEmpty(extra)) {
                     //mController.handleVideo(msg, holder, position);
                 } else {
-                    //mController.handleFileMsg(msg, holder, position);
+                    mController.handleFileMsg(holder, msg, position);
                 }
                 break;
             case voice:
@@ -773,7 +773,7 @@ public class ChatListAdapter extends BaseAdapter {
                                 break;
 
                             default:
-                                ITosast.showShort(mContext, "未知类型").show();
+                                ITosast.showShort(mContext, msg.getContentType().toString() + "类型尚未实现消息重发").show();
                                 break;
                         }
                         break;
@@ -846,10 +846,44 @@ public class ChatListAdapter extends BaseAdapter {
     }
 
 
-    private void resendFile(ViewHolder holder, Message msg) {
+    private void resendFile(final ViewHolder holder, Message msg) {
+        if (holder.contentLl != null)
+            holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
+        holder.resend.setVisibility(View.GONE);
+        holder.progressTv.setVisibility(View.VISIBLE);
+        try {
+            msg.setOnContentUploadProgressCallback(new ProgressUpdateCallback() {
+                @Override
+                public void onProgressUpdate(final double progress) {
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String progressStr = (int) (progress * 100) + "%";
+                            holder.progressTv.setText(progressStr);
+                        }
+                    });
+                }
+            });
+            if (!msg.isSendCompleteCallbackExists()) {
+                msg.setOnSendCompleteCallback(new BasicCallback() {
+                    @Override
+                    public void gotResult(final int status, String desc) {
+                        holder.progressTv.setVisibility(View.GONE);
+                        //此方法是api21才添加的如果低版本会报错找不到此方法.升级api或者使用ContextCompat.getDrawable
+                        holder.contentLl.setBackground(mContext.getResources().getDrawable(R.drawable.mycat_msg_send_bg));
+                        if (status != 0) {
 
-        if (holder.contentLl != null) {
-
+                            HandleResponseCode.onHandle(mContext , status);
+                            holder.resend.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+            }
+            MessageSendingOptions options = new MessageSendingOptions();
+            options.setNeedReadReceipt(true);
+            JMessageClient.sendMessage(msg, options);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
