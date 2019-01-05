@@ -46,6 +46,8 @@ import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
+import com.baidu.mapapi.search.poi.PoiDetailSearchOption;
+import com.baidu.mapapi.search.poi.PoiSearch;
 import com.example.xkfeng.mycat.DrawableView.NestedListView;
 import com.example.xkfeng.mycat.Model.NearLocationModel;
 import com.example.xkfeng.mycat.R;
@@ -88,8 +90,6 @@ public class MapViewActivity extends BaseActivity {
     private LatLng latLng;
     private GeoCoder coder = null;
 
-    private Dialog loadingDialog;
-
     //地图缩放比例
     private static final int ZOOM = 18;
 
@@ -102,17 +102,36 @@ public class MapViewActivity extends BaseActivity {
     //当前选中的列表项
     private NearLocationModel currenSelectedModel = new NearLocationModel();
 
+
+    //用户点击位置后实现位置显示
+
+    private boolean isShowLoc = false;
+    private double showLongitude;
+    private double showLatitude;
+    private String showAddress;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map_view_layout);
         ButterKnife.bind(this);
 
-        lastSelectedItemPos = 0;
+        isShowLoc = getIntent().getBooleanExtra("isShowLoc", false);
+        showLongitude = getIntent().getDoubleExtra("longitude", 0);
+        showLatitude = getIntent().getDoubleExtra("latitude", 0);
+        showAddress = getIntent().getStringExtra("address");
+
+
         mvMapView = findViewById(R.id.mv_mapView);
+        lastSelectedItemPos = 0;
         initTitle();
         checkPermission();
         setTextClick();
+
+        if (isShowLoc) {
+            tvSendText.setVisibility(View.GONE);
+        }
+
 
     }
 
@@ -143,12 +162,18 @@ public class MapViewActivity extends BaseActivity {
             String[] permissions = permissionList.toArray(new String[permissionList.size()]); /*使用ActivityCompat 统一申请权限 */
             ActivityCompat.requestPermissions(MapViewActivity.this, permissions, 1);
         } else {
-            //初始化地图
-            initMap();
-            //地址数据解析
-            addressDataParsing();
-            /*开始定位*/
-            startLocate();
+            if (!isShowLoc) {
+                //初始化地图
+                initMap();
+                //地址数据解析
+                addressDataParsing();
+                /*开始定位*/
+                startLocate();
+            } else {
+                initMap();
+                onlyUseInUserClickLocation();
+            }
+
         }
 
     }
@@ -165,9 +190,17 @@ public class MapViewActivity extends BaseActivity {
                             return;
                         }
                     }
-                    initMap();
-                    addressDataParsing();
-                    startLocate();
+                    if (!isShowLoc) {
+                        //初始化地图
+                        initMap();
+                        //地址数据解析
+                        addressDataParsing();
+                        /*开始定位*/
+                        startLocate();
+                    } else {
+                        initMap();
+                        onlyUseInUserClickLocation();
+                    }
 
                 } else {
                     Toast.makeText(this, "发生未知错误", Toast.LENGTH_SHORT).show();
@@ -181,15 +214,14 @@ public class MapViewActivity extends BaseActivity {
 
     private void initMap() {
 
+        coder = GeoCoder.newInstance();
+
+
         mBaiduMap = mvMapView.getMap();
         mBaiduMap.setMyLocationEnabled(true);
         mBaiduMap.setOnMapClickListener(new BaiduMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                if (loadingDialog == null) {
-                    loadingDialog = DialogHelper.createLoadingDialog(MapViewActivity.this, "正在加载");
-                }
-                loadingDialog.show();
                 coder.reverseGeoCode(new ReverseGeoCodeOption().location(latLng));
                 mapMoveCenter(latLng);
 
@@ -205,13 +237,30 @@ public class MapViewActivity extends BaseActivity {
         mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
 
 
+
     }
+
+    /**
+     * 用户点击位置信息的时候，同样调用该Activity，此时，
+     * 该Activity的布局需要进行特殊处理
+     */
+    private void onlyUseInUserClickLocation(){
+        if (isShowLoc){
+            /**
+             * 地图定位在用户点击的位置的地方
+             */
+            coder.reverseGeoCode(new ReverseGeoCodeOption().location(new LatLng(showLatitude , showLongitude))) ;
+            mapMoveCenter(new LatLng(showLatitude , showLongitude));
+            //不显示底部附近位置列表
+            nlvNearLocation.setVisibility(View.GONE);
+        }
+    }
+
 
     private void addressDataParsing() {
         /**
          * 解析点击处附近的地址信息
          */
-        coder = GeoCoder.newInstance();
         coder.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
             @Override
             public void onGetGeoCodeResult(GeoCodeResult geoCodeResult) {
@@ -275,8 +324,6 @@ public class MapViewActivity extends BaseActivity {
         //改变地图状态
         mBaiduMap.animateMapStatus(mMapStatusUpdate);
 
-        //关闭加自窗口
-        loadingDialog.dismiss();
     }
 
     private void setTextClick() {
@@ -292,15 +339,15 @@ public class MapViewActivity extends BaseActivity {
             public void onClick(View view) {
                 ITosast.showShort(MapViewActivity.this, "发送").show();
 
-                if (TextUtils.isEmpty(currenSelectedModel.getName())){
+                if (TextUtils.isEmpty(currenSelectedModel.getName())) {
                     //数据为空不做任何处理
-                }else {
+                } else {
                     Intent intent = new Intent();
                     intent.putExtra("latitude", currenSelectedModel.getLatitude());
                     intent.putExtra("longitude", currenSelectedModel.getLongitude());
                     intent.putExtra("name", currenSelectedModel.getName());
                     intent.putExtra("scale", currenSelectedModel.getScale());
-                    intent.putExtra("street" , currenSelectedModel.getAddress()) ;
+                    intent.putExtra("street", currenSelectedModel.getAddress());
                     MapViewActivity.this.setResult(RESULT_OK, intent);
                 }
 
@@ -575,8 +622,11 @@ public class MapViewActivity extends BaseActivity {
         lastSelectedItemPos = 0;
         //在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
         // 退出时销毁定位
-        mLocationClient.unRegisterLocationListener(myListener);
-        mLocationClient.stop();
+        if (mLocationClient != null){
+            mLocationClient.unRegisterLocationListener(myListener);
+            mLocationClient.stop();
+        }
+
         // 关闭定位图层
         mBaiduMap.setMyLocationEnabled(false);
         //在activity执行onDestroy时必须调用mvMapView.onDestroy()

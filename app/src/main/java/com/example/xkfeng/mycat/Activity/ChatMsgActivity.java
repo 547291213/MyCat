@@ -1303,7 +1303,7 @@ public class ChatMsgActivity extends BaseActivity implements
                 if (data != null && resultCode == RESULT_OK) {
                     onResultSendImg(data);
                 } else {
-                    ITosast.showShort(ChatMsgActivity.this, "获取图片数据失败").show();
+//                    ITosast.showShort(ChatMsgActivity.this, "获取图片数据失败").show();
                 }
                 break;
 
@@ -1326,7 +1326,7 @@ public class ChatMsgActivity extends BaseActivity implements
                             data.getStringExtra("street") ,
                             data.getStringExtra("name")) ;
                 }else {
-                    ITosast.showShort(ChatMsgActivity.this , "获取位置信息失败").show();
+//                    ITosast.showShort(ChatMsgActivity.this , "获取位置信息失败").show();
                 }
                 break ;
 
@@ -1339,6 +1339,14 @@ public class ChatMsgActivity extends BaseActivity implements
         }
     }
 
+    /**
+     * 发送位置信息
+     * @param latitude 纬度
+     * @param longitude 经度
+     * @param scale 缩放比例
+     * @param street 街道
+     * @param name 地址全称
+     */
     private void sendLocationMsg(double latitude  , double longitude , int scale , String street ,String name){
 
         String path = street;

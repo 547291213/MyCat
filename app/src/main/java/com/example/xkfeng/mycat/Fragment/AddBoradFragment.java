@@ -125,7 +125,6 @@ public class AddBoradFragment extends Fragment {
             case R.id.tv_chatMsgPosition:
 
                 mActivity.startActivityForResult(new Intent(mContext ,  MapViewActivity.class) ,ChatMsgActivity.RequestCode_LOCATION);
-                ITosast.showShort(getContext(), "position").show();
                 break;
 
             case R.id.tv_chatMsgBusiness:

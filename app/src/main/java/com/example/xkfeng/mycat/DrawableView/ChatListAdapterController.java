@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.Activity.FriendInfoActivity;
 import com.example.xkfeng.mycat.Activity.IndexActivity;
+import com.example.xkfeng.mycat.Activity.MapViewActivity;
 import com.example.xkfeng.mycat.Activity.PreviewPictureActivity;
 import com.example.xkfeng.mycat.Activity.UserInfoActivity;
 import com.example.xkfeng.mycat.Model.StaticMapModle;
@@ -551,12 +552,9 @@ public class ChatListAdapterController {
                                     public void run() {
                                         viewHolder.locationView.setVisibility(View.VISIBLE);
                                         viewHolder.picture.setImageBitmap(locationBitmap);
-                                        Log.d("ChatListAdapterContro", "run: locationBitmap not null");
-
                                     }
                                 });
                             } else {
-                                Log.d("ChatListAdapterContro", "run: locationBitmap is null");
                             }
                         }
                     }).start();
@@ -646,32 +644,7 @@ public class ChatListAdapterController {
         String mapUrl = "http://api.map.baidu.com/staticimage/v2?ak=NIMmHgy2KDKAvBmZkN7rAHG2z7kaMuYa" +
                 "&mcode=03:C1:DB:74:42:BB:44:1A:CC:62:EA:F7:9F:B3:B3:AB:1F:90:88:1C;com.example.xkfeng.mycat" +
                 "&center=" + longitude + "," + latitude + "&width=160&height=90&zoom=18";
-//&mcode=14912981
-//        String mapUrl = "http://api.map.baidu.com/staticimage/v2?ak=NIMmHgy2KDKAvBmZkN7rAHG2z7kaMuYa&mcode=03:C1:DB:74:42:BB:44:1A:CC:62:EA:F7:9F:B3:B3:AB:1F:90:88:1C;com.example.xkfeng.mycat&width=280&height=140&zoom=1" ;
         try {
-
-//            HttpHelper httpHelper = HttpHelper.getInstance(getApplicationContext());
-//            httpHelper.getRequest(mapUrl, null, HttpHelper.JSON_DATA_1,
-//                    new NetCallBackResultBean<StaticMapModle>() {
-//
-//                        @Override
-//                        public void Failed(String string) {
-//                            Log.d("ChatListAdapterContro", "createLocationBitmap: 网络访问失败 ：" + string);
-//
-//                        }
-//
-//                        @Override
-//                        public void onSuccess(List<Map<String, Object>> result) {
-//
-//                        }
-//
-//                        @Override
-//                        public void onSuccess(StaticMapModle staticMapModle) {
-//                            Log.d("ChatListAdapterContro", "onSuccess: msg :" + staticMapModle.getMessage() + " status:" + staticMapModle.getStatus());
-////                            return BitmapFactory.decodeFile(staticMapModle.getMessage());
-//                        }
-//                    });
-
             URL url = new URL(mapUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -681,8 +654,6 @@ public class ChatListAdapterController {
             conn.connect();
             if (conn.getResponseCode() == 200) {
                 InputStream inputStream = conn.getInputStream();
-                Log.d("ChatListAdapterContro", "createLocationBitmap: 网络访问成功 ：" + inputStream);
-
                 return BitmapFactory.decodeStream(inputStream);
             }
             conn.disconnect();
@@ -997,8 +968,15 @@ public class ChatListAdapterController {
                     break;
 
                 case location:
-
-                    ITosast.showShort(mContext, "暂无处理位置消息").show();
+                    if (holder.picture != null && view.getId() == holder.picture.getId()) {
+                        Intent intent = new Intent(mContext, MapViewActivity.class);
+                        LocationContent locationContent = (LocationContent) msg.getContent();
+                        intent.putExtra("latitude", locationContent.getLatitude().doubleValue());
+                        intent.putExtra("longitude", locationContent.getLongitude().doubleValue());
+                        intent.putExtra("address", locationContent.getAddress());
+                        intent.putExtra("isShowLoc", true);
+                        mContext.startActivity(intent);
+                    }
                     break;
 
                 default:
