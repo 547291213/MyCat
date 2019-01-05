@@ -9,18 +9,29 @@
         android:id="@+id/mv_mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@id/nlv_nearLocation"
 
         />
+
+    <com.example.xkfeng.mycat.DrawableView.NestedListView
+        android:id="@+id/nlv_nearLocation"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_alignParentBottom="true"
+        >
+
+    </com.example.xkfeng.mycat.DrawableView.NestedListView>
 
     <LinearLayout
         android:id="@+id/ll_titleLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:alpha="0.8"
-        android:background="@color/transparent_nocolor"
+        android:background="@color/transparent"
         android:orientation="horizontal"
         android:paddingTop="4dp"
-        android:paddingBottom="4dp">
+        android:paddingBottom="4dp"
+        >
 
         <TextView
             android:id="@+id/tv_setBackText"
@@ -49,4 +60,6 @@
             android:drawablePadding="2dp"
             />
     </LinearLayout>
+
+
 </RelativeLayout>

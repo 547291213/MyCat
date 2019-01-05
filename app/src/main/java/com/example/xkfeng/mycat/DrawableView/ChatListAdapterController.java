@@ -22,8 +22,12 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.Activity.FriendInfoActivity;
+import com.example.xkfeng.mycat.Activity.IndexActivity;
 import com.example.xkfeng.mycat.Activity.PreviewPictureActivity;
 import com.example.xkfeng.mycat.Activity.UserInfoActivity;
+import com.example.xkfeng.mycat.Model.StaticMapModle;
+import com.example.xkfeng.mycat.NetWork.HttpHelper;
+import com.example.xkfeng.mycat.NetWork.NetCallBackResultBean;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.FileHelper;
 import com.example.xkfeng.mycat.Util.HandleResponseCode;
@@ -70,6 +74,8 @@ import cn.jpush.im.api.BasicCallback;
 import top.zibin.luban.CompressionPredicate;
 import top.zibin.luban.Luban;
 import top.zibin.luban.OnCompressListener;
+
+import static cn.jpush.im.android.api.jmrtc.JMRTCInternalUse.getApplicationContext;
 
 public class ChatListAdapterController {
 
@@ -545,8 +551,12 @@ public class ChatListAdapterController {
                                     public void run() {
                                         viewHolder.locationView.setVisibility(View.VISIBLE);
                                         viewHolder.picture.setImageBitmap(locationBitmap);
+                                        Log.d("ChatListAdapterContro", "run: locationBitmap not null");
+
                                     }
                                 });
+                            } else {
+                                Log.d("ChatListAdapterContro", "run: locationBitmap is null");
                             }
                         }
                     }).start();
@@ -557,23 +567,40 @@ public class ChatListAdapterController {
                 try {
                     File file = new File(path);
                     if (file.exists() && file.isFile()) {
-                        Picasso.get().load(file).into(viewHolder.picture);
+                        Glide.with(mContext).load(file).into(viewHolder.picture);
+                    } else {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                final Bitmap locationBitmap = createLocationBitmap(locationContent.getLongitude(), locationContent.getLatitude());
+                                if (locationBitmap != null) {
+                                    mActivity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            viewHolder.picture.setImageBitmap(locationBitmap);
+
+                                        }
+                                    });
+                                } else {
+                                }
+                            }
+                        }).start();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            switch (msg.getStatus()){
+            switch (msg.getStatus()) {
                 case created:
 
                     viewHolder.text_receipt.setVisibility(View.GONE);
                     viewHolder.resend.setVisibility(View.GONE);
                     viewHolder.sendingIv.setVisibility(View.VISIBLE);
-                    break ;
+                    break;
 
                 case send_going:
 
-                    sendingTextVoiceOrLocation(viewHolder , msg);
+                    sendingTextVoiceOrLocation(viewHolder, msg);
                     break;
 
                 case send_success:
@@ -589,38 +616,61 @@ public class ChatListAdapterController {
                     viewHolder.text_receipt.setVisibility(View.GONE);
                     viewHolder.sendingIv.setVisibility(View.GONE);
                     viewHolder.resend.setVisibility(View.VISIBLE);
-                    break ;
+                    break;
             }
+        }
 
-            if (viewHolder.picture != null){
-                viewHolder.picture.setTag(position);
-                viewHolder.picture.setOnLongClickListener(contentLongClickListener);
-                viewHolder.picture.setOnClickListener(new OnItemClickListener(viewHolder , position));
+        if (viewHolder.picture != null) {
+            viewHolder.picture.setTag(position);
+            viewHolder.picture.setOnLongClickListener(contentLongClickListener);
+            viewHolder.picture.setOnClickListener(new OnItemClickListener(viewHolder, position));
 
-            }
+        }
 
-            if (viewHolder.resend != null){
-                viewHolder.resend.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (msg.getContent() != null){
-                            chatListAdapter.showReSendDialog(viewHolder , msg);
-                        }else {
-                            ITosast.showShort(mContext , "暂无外部存储").show();
-                        }
+        if (viewHolder.resend != null) {
+            viewHolder.resend.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (msg.getContent() != null) {
+                        chatListAdapter.showReSendDialog(viewHolder, msg);
+                    } else {
+                        ITosast.showShort(mContext, "暂无外部存储").show();
                     }
-                });
-            }
+                }
+            });
         }
     }
 
     private Bitmap createLocationBitmap(Number longitude, Number latitude) {
-//        String mapUrl = "http://api.map.baidu.com/staticimage?width=160&height=90&center="
-//                + longitude + "," + latitude + "&zoom=18";
-        String mapUrl = "http://api.map.baidu.com/staticimage/v2?ak=NIMmHgy2KDKAvBmZkN7rAHG2z7kaMuYa" +
-                "&mcode=666666&center=" + longitude + "," + latitude + "&width=300&height=200&zoom=11";
 
+        String mapUrl = "http://api.map.baidu.com/staticimage/v2?ak=NIMmHgy2KDKAvBmZkN7rAHG2z7kaMuYa" +
+                "&mcode=03:C1:DB:74:42:BB:44:1A:CC:62:EA:F7:9F:B3:B3:AB:1F:90:88:1C;com.example.xkfeng.mycat" +
+                "&center=" + longitude + "," + latitude + "&width=160&height=90&zoom=18";
+//&mcode=14912981
+//        String mapUrl = "http://api.map.baidu.com/staticimage/v2?ak=NIMmHgy2KDKAvBmZkN7rAHG2z7kaMuYa&mcode=03:C1:DB:74:42:BB:44:1A:CC:62:EA:F7:9F:B3:B3:AB:1F:90:88:1C;com.example.xkfeng.mycat&width=280&height=140&zoom=1" ;
         try {
+
+//            HttpHelper httpHelper = HttpHelper.getInstance(getApplicationContext());
+//            httpHelper.getRequest(mapUrl, null, HttpHelper.JSON_DATA_1,
+//                    new NetCallBackResultBean<StaticMapModle>() {
+//
+//                        @Override
+//                        public void Failed(String string) {
+//                            Log.d("ChatListAdapterContro", "createLocationBitmap: 网络访问失败 ：" + string);
+//
+//                        }
+//
+//                        @Override
+//                        public void onSuccess(List<Map<String, Object>> result) {
+//
+//                        }
+//
+//                        @Override
+//                        public void onSuccess(StaticMapModle staticMapModle) {
+//                            Log.d("ChatListAdapterContro", "onSuccess: msg :" + staticMapModle.getMessage() + " status:" + staticMapModle.getStatus());
+////                            return BitmapFactory.decodeFile(staticMapModle.getMessage());
+//                        }
+//                    });
 
             URL url = new URL(mapUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -631,8 +681,11 @@ public class ChatListAdapterController {
             conn.connect();
             if (conn.getResponseCode() == 200) {
                 InputStream inputStream = conn.getInputStream();
+                Log.d("ChatListAdapterContro", "createLocationBitmap: 网络访问成功 ：" + inputStream);
+
                 return BitmapFactory.decodeStream(inputStream);
             }
+            conn.disconnect();
         } catch (Exception e) {
 
             e.printStackTrace();
@@ -945,7 +998,7 @@ public class ChatListAdapterController {
 
                 case location:
 
-                    ITosast.showShort(mContext , "暂无处理位置消息").show();
+                    ITosast.showShort(mContext, "暂无处理位置消息").show();
                     break;
 
                 default:

@@ -64,7 +64,6 @@ public class AddBoradFragment extends Fragment {
     private static final String TAG = "AddBoradFragment";
     private Activity mActivity;
     private OnBusinessItemClickListener onBusinessItemClickListener;
-    private OnLocationClickListener onLocationClickListener ;
     private  File imageFileDir;
 
 
@@ -125,10 +124,7 @@ public class AddBoradFragment extends Fragment {
 
             case R.id.tv_chatMsgPosition:
 
-//                if (onLocationClickListener != null){
-//                    onLocationClickListener.onLocationItemClick();
-//                }
-                startActivity(new Intent(mContext ,  MapViewActivity.class));
+                mActivity.startActivityForResult(new Intent(mContext ,  MapViewActivity.class) ,ChatMsgActivity.RequestCode_LOCATION);
                 ITosast.showShort(getContext(), "position").show();
                 break;
 
@@ -199,16 +195,10 @@ public class AddBoradFragment extends Fragment {
         this.onBusinessItemClickListener = onBusinessItemClickListener;
     }
 
-    public void setOnLocationClickListener(OnLocationClickListener onLocationClickListener){
-        this.onLocationClickListener = onLocationClickListener ;
-    }
 
     public interface OnBusinessItemClickListener {
         public void onBusinessItemClick();
     }
 
-    public interface OnLocationClickListener{
-        public void onLocationItemClick() ;
-    }
 
 }

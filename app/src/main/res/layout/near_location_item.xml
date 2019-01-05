@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_nearLocationLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="2dp"
+    android:paddingTop="2dp"
+    >
+        <TextView
+        android:id="@+id/tv_locationName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:gravity="center|left"
+        android:paddingLeft="3dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:maxLines="1"
+        android:textColor="@color/chat_text_color"
+
+        />
+
+    <TextView
+        android:id="@+id/tv_locationAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:gravity="center|left"
+        android:paddingLeft="3dp"
+        android:paddingBottom="2dp"
+        android:maxLines="1"
+        android:layout_below="@id/tv_locationName"
+        android:text=""
+        android:textColor="@color/transparent"
+        />
+
+    <ImageView
+        android:id="@+id/iv_selectedItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_selected_blue_16"
+        android:scaleType="center"
+        android:visibility="gone"
+        android:layout_marginRight="5dp"
+        />
+
+
+</RelativeLayout>

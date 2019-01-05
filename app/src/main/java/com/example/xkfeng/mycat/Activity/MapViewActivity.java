@@ -1,16 +1,24 @@
 package com.example.xkfeng.mycat.Activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +46,8 @@ import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
+import com.example.xkfeng.mycat.DrawableView.NestedListView;
+import com.example.xkfeng.mycat.Model.NearLocationModel;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.DensityUtil;
 import com.example.xkfeng.mycat.Util.DialogHelper;
@@ -57,6 +67,8 @@ public class MapViewActivity extends BaseActivity {
     LinearLayout llTitleLayout;
     @BindView(R.id.tv_sendText)
     TextView tvSendText;
+    @BindView(R.id.nlv_nearLocation)
+    NestedListView nlvNearLocation;
 
 
     private MapView mvMapView;
@@ -78,12 +90,25 @@ public class MapViewActivity extends BaseActivity {
 
     private Dialog loadingDialog;
 
+    //地图缩放比例
+    private static final int ZOOM = 18;
+
+    //在地图中上次选中的item的位置。
+    private static int lastSelectedItemPos = 0;
+    //附近地址适配器
+    private NearLocationAdapter nearLocationAdapter;
+    //附近地址列表内容
+    private List<NearLocationModel> locationModels = new ArrayList<>();
+    //当前选中的列表项
+    private NearLocationModel currenSelectedModel = new NearLocationModel();
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map_view_layout);
         ButterKnife.bind(this);
 
+        lastSelectedItemPos = 0;
         mvMapView = findViewById(R.id.mv_mapView);
         initTitle();
         checkPermission();
@@ -120,6 +145,8 @@ public class MapViewActivity extends BaseActivity {
         } else {
             //初始化地图
             initMap();
+            //地址数据解析
+            addressDataParsing();
             /*开始定位*/
             startLocate();
         }
@@ -139,6 +166,7 @@ public class MapViewActivity extends BaseActivity {
                         }
                     }
                     initMap();
+                    addressDataParsing();
                     startLocate();
 
                 } else {
@@ -176,6 +204,13 @@ public class MapViewActivity extends BaseActivity {
 //        mBaiduMap.setMapType(BaiduMap.MAP_TYPE_SATELLITE);
         mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
 
+
+    }
+
+    private void addressDataParsing() {
+        /**
+         * 解析点击处附近的地址信息
+         */
         coder = GeoCoder.newInstance();
         coder.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
             @Override
@@ -189,10 +224,26 @@ public class MapViewActivity extends BaseActivity {
                     return;
                 }
                 String address = reverseGeoCodeResult.getAddress();//解析到的地址
+                //清空现有数据
+                locationModels.clear();
+                NearLocationModel nearLocationModel;
                 for (PoiInfo poi : reverseGeoCodeResult.getPoiList()) {
-                    Log.d(TAG, "onGetReverseGeoCodeResult: name :" + poi.getName() + " street :" + poi.getStreetId());
+                    Log.d(TAG, "onGetReverseGeoCodeResult: name :" + poi.getName() + " area :" + poi.getArea() + " address :" + poi.getAddress());
+                    nearLocationModel = new NearLocationModel();
+                    nearLocationModel.setAddress(poi.getAddress());
+                    nearLocationModel.setLatitude(poi.getLocation().latitude);
+                    nearLocationModel.setLongitude(poi.getLocation().longitude);
+                    nearLocationModel.setScale(ZOOM);
+                    nearLocationModel.setName(poi.getName());
+                    locationModels.add(nearLocationModel);
                 }
-
+                if (nearLocationAdapter == null) {
+                    nearLocationAdapter = new NearLocationAdapter(locationModels);
+                    nlvNearLocation.setAdapter(nearLocationAdapter);
+                }
+                //更新数据
+                nearLocationAdapter.notifyDataSetChanged();
+//                nearLocationAdapter.setList(locationModels);
             }
         });
     }
@@ -209,7 +260,7 @@ public class MapViewActivity extends BaseActivity {
 
         MapStatus mMapStatus = new MapStatus.Builder()
                 .target(arg0)
-                .zoom(18)
+                .zoom(ZOOM)
                 .build();
         //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
         MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
@@ -240,6 +291,20 @@ public class MapViewActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 ITosast.showShort(MapViewActivity.this, "发送").show();
+
+                if (TextUtils.isEmpty(currenSelectedModel.getName())){
+                    //数据为空不做任何处理
+                }else {
+                    Intent intent = new Intent();
+                    intent.putExtra("latitude", currenSelectedModel.getLatitude());
+                    intent.putExtra("longitude", currenSelectedModel.getLongitude());
+                    intent.putExtra("name", currenSelectedModel.getName());
+                    intent.putExtra("scale", currenSelectedModel.getScale());
+                    intent.putExtra("street" , currenSelectedModel.getAddress()) ;
+                    MapViewActivity.this.setResult(RESULT_OK, intent);
+                }
+
+                MapViewActivity.this.finish();
             }
         });
     }
@@ -295,7 +360,7 @@ public class MapViewActivity extends BaseActivity {
             lon = location.getLongitude();
 
             MapStatusUpdate update = MapStatusUpdateFactory.newLatLng(latLng);//地图中心点
-            MapStatusUpdate state = MapStatusUpdateFactory.zoomBy(4);//缩放比例
+            MapStatusUpdate state = MapStatusUpdateFactory.zoomBy(ZOOM);//缩放比例
             BitmapDescriptor mCurrentMarker = BitmapDescriptorFactory.fromResource(R.drawable.ic_position_red_32);
             OverlayOptions option = new MarkerOptions().position(latLng).icon(mCurrentMarker);
             coder.reverseGeoCode(new ReverseGeoCodeOption().location(latLng));
@@ -394,10 +459,104 @@ public class MapViewActivity extends BaseActivity {
         }
     }
 
+    private class NearLocationAdapter extends BaseAdapter {
+
+        private List<NearLocationModel> list;
+
+        public NearLocationAdapter(List<NearLocationModel> list) {
+            this.list = list;
+        }
+
+        public void setList(List<NearLocationModel> list) {
+            if (list != null) {
+                this.list = list;
+                notifyDataSetChanged();
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return list.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return list.get(i);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return i;
+        }
+
+        @Override
+        public View getView(final int pos, View convertView, ViewGroup parent) {
+            ViewHolder viewHolder = null;
+            if (convertView == null) {
+                viewHolder = new ViewHolder();
+                convertView = LayoutInflater.from(MapViewActivity.this).inflate(R.layout.near_location_item, null, false);
+                viewHolder.name = convertView.findViewById(R.id.tv_locationName);
+                viewHolder.address = convertView.findViewById(R.id.tv_locationAddress);
+                viewHolder.selectedItem = convertView.findViewById(R.id.iv_selectedItem);
+                viewHolder.nearLocationLayout = convertView.findViewById(R.id.rl_nearLocationLayout);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
+            viewHolder.name.setText(list.get(pos).getName());
+            viewHolder.address.setText(list.get(pos).getAddress());
+
+            // 对选中的项需要特殊处理
+            // 默认选中第一项
+            if (lastSelectedItemPos == pos) {
+                //当前选中的列表项
+                currenSelectedModel = list.get(pos);
+
+                setSelectedItem(viewHolder, true);
+            } else {
+                setSelectedItem(viewHolder, false);
+            }
+            viewHolder.nearLocationLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //更新点击的位置
+                    lastSelectedItemPos = pos;
+
+                    //更新数据
+                    notifyDataSetChanged();
+                }
+            });
+
+            return convertView;
+        }
+
+        private class ViewHolder {
+            TextView name;
+            TextView address;
+            ImageView selectedItem;
+            RelativeLayout nearLocationLayout;
+        }
+
+
+        private void setSelectedItem(ViewHolder viewHolder, boolean isSelected) {
+            if (isSelected) {
+                viewHolder.address.setTextColor(getResources().getColor(R.color.blue));
+                viewHolder.name.setTextColor(getResources().getColor(R.color.blue));
+                viewHolder.selectedItem.setVisibility(View.VISIBLE);
+            } else {
+                viewHolder.name.setTextColor(getResources().getColor(R.color.chat_text_color));
+                viewHolder.address.setTextColor(getResources().getColor(R.color.transparent));
+                viewHolder.selectedItem.setVisibility(View.GONE);
+
+            }
+        }
+    }
+
 
     @Override
     protected void onResume() {
         super.onResume();
+        lastSelectedItemPos = 0;
         //在activity执行onResume时必须调用mvMapView. onResume ()
         mvMapView.onResume();
     }
@@ -405,6 +564,7 @@ public class MapViewActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        lastSelectedItemPos = 0;
         //在activity执行onPause时必须调用mvMapView. onPause ()
         mvMapView.onPause();
     }
@@ -412,6 +572,7 @@ public class MapViewActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        lastSelectedItemPos = 0;
         //在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
         // 退出时销毁定位
         mLocationClient.unRegisterLocationListener(myListener);

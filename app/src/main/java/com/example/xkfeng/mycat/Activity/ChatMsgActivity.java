@@ -94,7 +94,6 @@ public class ChatMsgActivity extends BaseActivity implements
         EmojiconGridFragment.OnEmojiconClickedListener,
         EmojiconsFragment.OnEmojiconBackspaceClickedListener,
         AddBoradFragment.OnBusinessItemClickListener,
-        AddBoradFragment.OnLocationClickListener,
         KeyBoradRelativeLayout.KeyBoradStateListener {
 
 
@@ -111,27 +110,6 @@ public class ChatMsgActivity extends BaseActivity implements
     @BindView(R.id.ll_chatBottomLayout)
     LinearLayout llChatBottomLayout;
 
-    @Override
-    public void onLocationItemClick() {
-        //之前是在地图选择那边做的发送逻辑,这里是通过msgID拿到的message放到ui上.但是发现问题,message的status始终是send_going状态
-        //因为那边发送的是自己创建的对象,这里通过id取出来的不是同一个对象.尽管内容都是一样的.所以为了保证发送的对象个ui上拿出来的
-        //对象是同一个,就地图那边传过来数据,在这边进行创建message
-        double latitude = (double) IndexActivity.CURRENT_LATITUDE;
-        double longitude = (double) IndexActivity.CURRENT_LONGITUDE;
-        int mapview = 0;
-        String street = "street";
-        String path = latitude + "";
-        LocationContent locationContent = new LocationContent(latitude,
-                longitude, mapview, street);
-        locationContent.setStringExtra("path", path);
-        Message message = conversation.createSendMessage(locationContent);
-        MessageSendingOptions options = new MessageSendingOptions();
-        options.setNeedReadReceipt(true);
-        JMessageClient.sendMessage(message, options);
-        chatListAdapter.addMsgFromReceiveToList(message);
-
-
-    }
 
 
     enum SendOrAdd {
@@ -233,6 +211,8 @@ public class ChatMsgActivity extends BaseActivity implements
     public static final int RequestCode_VIEWOWNINFO = 103;
     //查看他人信息
     public static final int RequestCode_VIEWOTHERINFO = 104;
+    //位置信息
+    public static final int RequestCode_LOCATION = 105 ;
 
 
     //    【A】stateUnspecified：软键盘的状态并没有指定，系统将选择一个合适的状态或依赖于主题的设置
@@ -308,8 +288,6 @@ public class ChatMsgActivity extends BaseActivity implements
         addBoradFragment = new AddBoradFragment();
         //绑定名片点击事件
         addBoradFragment.setOnBusinessItemClickListener(this);
-        //绑定位置点击事件
-        addBoradFragment.setOnLocationClickListener(this);
 
         voiceFragment = new VoiceBoradFragment();
         nullBoradFragment = new NullBoradFragment();
@@ -1340,6 +1318,18 @@ public class ChatMsgActivity extends BaseActivity implements
                 }
                 break;
 
+            case RequestCode_LOCATION :
+                if (resultCode == RESULT_OK && data != null){
+                    sendLocationMsg(data.getDoubleExtra("latitude" , (Double) IndexActivity.CURRENT_LATITUDE) ,
+                            data.getDoubleExtra("longitude" , (Double) IndexActivity.CURRENT_LONGITUDE) ,
+                            data.getIntExtra("scale" , 18) ,
+                            data.getStringExtra("street") ,
+                            data.getStringExtra("name")) ;
+                }else {
+                    ITosast.showShort(ChatMsgActivity.this , "获取位置信息失败").show();
+                }
+                break ;
+
             default:
                 if (mController != null) {
                     mController.resumePalyVoice();
@@ -1347,6 +1337,19 @@ public class ChatMsgActivity extends BaseActivity implements
                 ITosast.showShort(ChatMsgActivity.this, "其他参数返回").show();
                 break;
         }
+    }
+
+    private void sendLocationMsg(double latitude  , double longitude , int scale , String street ,String name){
+
+        String path = street;
+        LocationContent locationContent = new LocationContent(latitude,
+                longitude, scale, name);
+        locationContent.setStringExtra("path", Environment.getExternalStorageState() + "/mycat/locationcontent");
+        Message message = conversation.createSendMessage(locationContent);
+        MessageSendingOptions options = new MessageSendingOptions();
+        options.setNeedReadReceipt(true);
+        JMessageClient.sendMessage(message, options);
+        chatListAdapter.addMsgFromReceiveToList(message);
     }
 
 
