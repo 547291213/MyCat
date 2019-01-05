@@ -78,4 +78,14 @@
     <string name="chat_friend_delete_tip">同时会屏蔽对方的临时会话，不再接收此人的消息</string>
     <string name="chat_friend_delete_delte">删除</string>
     <string name="chat_friend_delete_cancle">取消</string>
+
+
+    <!--send file-->
+    <string name="sendfile_document">文档</string>
+    <string name="sendfile_image">图片</string>
+    <string name="sendfile_music">音频</string>
+    <string name="sendfile_video">视频</string>
+    <string name="sendfile_apk">应用</string>
+    <string name="sendfile_other">其他</string>
+
 </resources>

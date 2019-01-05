@@ -24,6 +24,7 @@ import com.example.xkfeng.mycat.Activity.ChatMsgActivity;
 import com.example.xkfeng.mycat.Activity.IndexActivity;
 import com.example.xkfeng.mycat.Activity.MapViewActivity;
 import com.example.xkfeng.mycat.Activity.ModifyUserInfoActivity;
+import com.example.xkfeng.mycat.Activity.SendFileActivity;
 import com.example.xkfeng.mycat.Activity.ViewImageActivity;
 import com.example.xkfeng.mycat.DrawableView.DrawableTopTextView;
 import com.example.xkfeng.mycat.R;
@@ -138,12 +139,12 @@ public class AddBoradFragment extends Fragment {
             case R.id.tv_chatMsgGif:
 
 
-                ITosast.showShort(getContext(), "gif").show();
+                ITosast.showShort(getContext(), "暂未处理该类型的消息").show();
                 break;
 
             case R.id.tv_chatMsgFile:
 
-
+                startActivity(new Intent(mContext , SendFileActivity.class));
                 ITosast.showShort(getContext(), "file").show();
                 break;
         }

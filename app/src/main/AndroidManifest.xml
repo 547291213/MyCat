@@ -263,11 +263,21 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
 
             />
+
         <!--Activity : preview picture -->
         <activity android:name=".Activity.PreviewPictureActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            >
 
-            />
+        </activity>
+
+        <!--Activity : for send file msg-->
+        <activity android:name=".Activity.SendFileActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            >
+
+        </activity>
+
 
 
 
