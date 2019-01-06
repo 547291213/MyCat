@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
-        android:id="@+id/rl_titleLayout"
+    <LinearLayout
+        android:id="@+id/ll_titleLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/title_gradient"
@@ -24,14 +24,14 @@
             android:text="文件"
             android:textColor="@color/white"
             android:textSize="20sp" />
-    </RelativeLayout>
+    </LinearLayout>
 
 
     <LinearLayout
         android:id="@+id/ll_actionbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/rl_titleLayout"
+        android:layout_below="@id/ll_titleLayout"
         android:orientation="horizontal"
         android:paddingTop="3dp"
         android:paddingBottom="3dp"

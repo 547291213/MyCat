@@ -88,4 +88,11 @@
     <string name="sendfile_apk">应用</string>
     <string name="sendfile_other">其他</string>
 
+    <string name="sendfile_limit_filecount">选中的文件最多不超过五个</string>
+    <string name="sendfile_limit_filesize">所选的文件大小总和不能超过10M</string>
+
+
+    <string name="sdcard_not_prepare_toast">sdcard尚未准备好</string>
+    <string name="sdcard_in_scanning">正在扫描存储</string>
+
 </resources>

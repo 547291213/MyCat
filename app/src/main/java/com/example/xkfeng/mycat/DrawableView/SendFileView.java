@@ -11,6 +11,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.Util.DensityUtil;
 
 public class SendFileView extends RelativeLayout {
 
@@ -58,6 +59,8 @@ public class SendFileView extends RelativeLayout {
         mImageArray[0].setVisibility(View.VISIBLE);
 
     }
+
+
 
 
     public void setOnClickListner(OnClickListener listner){

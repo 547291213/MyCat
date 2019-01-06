@@ -40,8 +40,8 @@ public class ImageFragment extends Fragment implements ImageAdapter.UpdateSelect
     private ImageAdapter imageAdapter;
     private GridView gridView;
     private Dialog loadingDialog;
-    private final int SCAN_OK = 1;
-    private final int SCAN_ERROR = 0;
+    private static final int SCAN_OK = 1;
+    private static final int SCAN_ERROR = 0;
     private MyHandler myHandler = new MyHandler(this);
     private List<ImageFileItem> mImages = new ArrayList<>();
 
@@ -122,7 +122,7 @@ public class ImageFragment extends Fragment implements ImageAdapter.UpdateSelect
     }
 
 
-    private class MyHandler extends Handler {
+    private static class MyHandler extends Handler {
 
         private final WeakReference<ImageFragment> mFragment;
 
@@ -143,14 +143,14 @@ public class ImageFragment extends Fragment implements ImageAdapter.UpdateSelect
             switch (msg.what) {
                 case SCAN_OK:
                     imageFragment.loadingDialog.dismiss();
-                    imageFragment.imageAdapter = new ImageAdapter(imageFragment, mImages);
+                    imageFragment.imageAdapter = new ImageAdapter(imageFragment, imageFragment.mImages);
                     imageFragment.imageAdapter.setUpdateSelectStateListener(imageFragment);
                     imageFragment.gridView.setAdapter(imageFragment.imageAdapter);
                     break;
 
                 case SCAN_ERROR:
                     imageFragment.loadingDialog.dismiss();
-                    ITosast.showShort(mContext, "sd卡暂无准备好").show();
+                    ITosast.showShort(imageFragment.getContext(), imageFragment.getString(R.string.sdcard_not_prepare_toast)).show();
                     break;
             }
         }
