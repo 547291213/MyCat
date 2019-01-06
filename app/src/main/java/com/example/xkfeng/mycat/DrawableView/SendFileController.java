@@ -67,6 +67,7 @@ public class SendFileController implements
         musicFragment.setmController(this);
         videoFragment.setmController(this);
         otherFragment.setmController(this);
+        apkFragment.setmController(this);
 
         fragments.add(documentFragment);
         fragments.add(imageFragment);

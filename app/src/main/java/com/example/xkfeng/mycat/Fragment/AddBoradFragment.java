@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -143,9 +144,21 @@ public class AddBoradFragment extends Fragment {
                 break;
 
             case R.id.tv_chatMsgFile:
+                if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ITosast.showShort(mContext, "请在应用管理中打开“读写存储”访问权限！").show();
+                } else {
+                    MediaScannerConnection.scanFile(mContext,new String[]{Environment.getExternalStorageDirectory().toString()}, new String[]{"*.apk", "*.doc", "*.docx", "*.ppt",
+                            "*.ppts", "*.xls", "*.xlsx", "*.pdf", "*.png", "*.jpg", "*.mp3", "*.mp4", "*.zip", "*.wps"}, new MediaScannerConnection.OnScanCompletedListener() {
+                        @Override
+                        public void onScanCompleted(String s, Uri uri) {
+                            startActivity(new Intent(mContext , SendFileActivity.class));
+                        }
+                    });
 
-                startActivity(new Intent(mContext , SendFileActivity.class));
-                ITosast.showShort(getContext(), "file").show();
+                    ITosast.showShort(getContext(), "file").show();
+                }
+
                 break;
         }
     }

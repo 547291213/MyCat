@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -70,6 +71,7 @@ public class DocumentAdapter extends BaseAdapter {
             viewHolder.tv_documentTitle = convertView.findViewById(R.id.tv_documentTitle);
             viewHolder.tv_documentSize = convertView.findViewById(R.id.tv_documentSize);
             viewHolder.tv_documentDate = convertView.findViewById(R.id.tv_documentDate);
+            viewHolder.iv_document = convertView.findViewById(R.id.iv_document) ;
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -78,6 +80,21 @@ public class DocumentAdapter extends BaseAdapter {
         viewHolder.tv_documentTitle.setText(path.substring(path.lastIndexOf('/') + 1));
         TimeUtil timeUtil = new TimeUtil(mContext ,Long.valueOf(fileItem.getDate()) * 1000) ;
         viewHolder.tv_documentDate.setText(timeUtil.getDetailTime());
+
+        if (path.endsWith(".doc") || path.endsWith(".docx")){
+            viewHolder.iv_document.setImageResource(R.drawable.ic_word_48);
+        }else if (path.endsWith(".pdf")){
+            viewHolder.iv_document.setImageResource(R.drawable.ic_pdf_48);
+        }else if (path.endsWith(".ppt") || path.endsWith("pptx")){
+            viewHolder.iv_document.setImageResource(R.drawable.ic_ppt_48);
+        }else if (path.endsWith(".wps")){
+            viewHolder.iv_document.setImageResource(R.drawable.ic_wps_48);
+        }else if (path.endsWith(".xls") || path.endsWith(".xlsx")){
+            viewHolder.iv_document.setImageResource(R.drawable.ic_xls_48);
+        }else {
+            viewHolder.iv_document.setImageResource(R.drawable.ic_txt_48);
+        }
+        viewHolder.iv_document.setTag(pos);
 
 //        viewHolder.tv_documentDate.setText(TimeUtil.ms2date("yyyy-MM-dd" , Long.valueOf(fileItem.getDate()) * 1000));
 
@@ -163,6 +180,7 @@ public class DocumentAdapter extends BaseAdapter {
         TextView tv_documentTitle;
         TextView tv_documentSize;
         TextView tv_documentDate;
+        ImageView iv_document ;
     }
 
 
