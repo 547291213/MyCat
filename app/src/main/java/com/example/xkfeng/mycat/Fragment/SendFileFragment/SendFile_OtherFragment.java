@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,16 +80,18 @@ public class SendFile_OtherFragment extends Fragment {
                         MediaStore.Files.FileColumns.TITLE, MediaStore.Files.FileColumns.SIZE,
                         MediaStore.Files.FileColumns.DATE_MODIFIED};
 
-                String selection = MediaStore.Files.FileColumns.MIME_TYPE + "= ? or "
-                        + MediaStore.Files.FileColumns.MIME_TYPE + "= ? or "
-                        + MediaStore.Files.FileColumns.MEDIA_TYPE + "= ? ";
+//                String selection = MediaStore.Files.FileColumns.MIME_TYPE + "= ? or "
+//                        + MediaStore.Files.FileColumns.MIME_TYPE + "= ? or "
+//                        + MediaStore.Files.FileColumns.MEDIA_TYPE + "= ? ";
+                String selection = "(" + MediaStore.Files.FileColumns.DATA + " LIKE '%.zip'" + ") or " +
+                        "(" + MediaStore.Files.FileColumns.DATA + " LIKE '%.rar'" + ")";
 
                 //, "application/vnd.android.package-archive"
                 String[] selectionArgs = new String[]{"application/zip",
                         "application/x-rar-compressed" , "application/octet-stream" };
 
                 Cursor cursor = contentResolver.query(MediaStore.Files.getContentUri("external"), projection,
-                        selection, selectionArgs, MediaStore.Files.FileColumns.DATE_MODIFIED + " desc");
+                        selection, null, MediaStore.Files.FileColumns.DATE_MODIFIED + " desc");
 
                 if (cursor != null) {
                     while (cursor.moveToNext()) {
@@ -97,14 +100,16 @@ public class SendFile_OtherFragment extends Fragment {
                         String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
                         String size = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE));
                         String date = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED));
+
                         if (scannerFile(filePath)) {
 
-                            FileItem fileItem = new FileItem(filePath, fileName, size, date,0);
-                            String path = fileItem.getFilePath();
+                            String path = filePath;
                             String str = path.substring(path.lastIndexOf('/') + 1) ;
-                            if (TextUtils.isEmpty(str) || str.startsWith("com.") || str.startsWith(".")){
+                            if (TextUtils.isEmpty(str) || str.startsWith("com.") || str.startsWith(".")
+                                    || path.startsWith("/storage/emulated/0/Android/") || path.indexOf(".log") >= 0 || path.startsWith("/storage/emulated/0/tencent/MobileQQ/")){
                                 //对该类名称起始的文件不处理
                             }else {
+                                FileItem fileItem = new FileItem(filePath, fileName, size, date,0);
                                 fileItems.add(fileItem);
                             }
                         }

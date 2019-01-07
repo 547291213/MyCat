@@ -14,6 +14,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -132,9 +133,20 @@ public class SendFile_DocumentFragment extends Fragment {
                         String size = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE));
                         String date = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED));
                         if (scannerFile(filePath)) {
-                            FileItem fileItem = new FileItem(filePath, null, size, date, 0);
-                            mDocuments.add(fileItem);
+                            String path = filePath;
+                            String str = path.substring(path.lastIndexOf('/') + 1) ;
+                            if (TextUtils.isEmpty(str) || str.startsWith("com.") || str.startsWith(".")
+                                    || path.startsWith("/storage/emulated/0/Android/") || path.indexOf(".log") >= 0 || path.startsWith("/storage/emulated/0/tencent/TPush/Logs/")){
+                                //对该类名称起始的文件不处理
+                            }else {
+//                                Log.d("DocumentFile", "fileName " + str + " ,filePath " + filePath);
+                                FileItem fileItem = new FileItem(filePath, null, size, date,0);
+                                mDocuments.add(fileItem);
+                            }
+//                            FileItem fileItem = new FileItem(filePath, null, size, date, 0);
+//                            mDocuments.add(fileItem);
                         }
+
 
                     }
                     cursor.close();
