@@ -683,42 +683,7 @@ public class ChatListAdapterController {
             }
         }
         if (viewHolder.fileLoad != null) {
-            viewHolder.fileLoad.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (msg.getDirect() == MessageDirect.send) {
-                        ///？？？  很莫名其妙
-                        // fileLoad只在接收文件布局中存在，也就是发送文件方，理论上不存在该控件
-                        chatListAdapter.showReSendDialog(viewHolder, msg);
-                    } else {
-                        viewHolder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
-                        viewHolder.progressTv.setText("0%");
-                        viewHolder.progressTv.setVisibility(View.VISIBLE);
-                        if (!msg.isContentDownloadProgressCallbackExists()) {
-                            msg.setOnContentDownloadProgressCallback(new ProgressUpdateCallback() {
-                                @Override
-                                public void onProgressUpdate(double v) {
-                                    String progressStr = (int) (v * 100) + "%";
-                                    viewHolder.progressTv.setText(progressStr);
-                                }
-                            });
-                        }
-                        fileContent.downloadFile(msg, new DownloadCompletionCallback() {
-                            @Override
-                            public void onComplete(int status, String desc, File file) {
-                                viewHolder.progressTv.setVisibility(View.GONE);
-                                viewHolder.contentLl.setBackground(mContext.getResources().getDrawable(R.drawable.mycat_msg_receive_bg));
-                                if (status != 0) {
-                                    viewHolder.fileLoad.setText("未下载");
-                                    ITosast.showShort(mContext, "文件下载失败").show();
-                                } else {
-                                    ITosast.showShort(mContext, "文件下载完成").show();
-                                }
-                            }
-                        });
-                    }
-                }
-            });
+            viewHolder.fileLoad.setOnClickListener(new OnItemClickListener(viewHolder, position));
         }
         if (viewHolder.resend != null) {
             viewHolder.resend.setOnClickListener(new View.OnClickListener() {
@@ -735,6 +700,7 @@ public class ChatListAdapterController {
         viewHolder.contentLl.setTag(position);
         viewHolder.contentLl.setOnLongClickListener(contentLongClickListener);
         viewHolder.contentLl.setOnClickListener(new OnItemClickListener(viewHolder, position));
+
     }
 
     public void handleLocationMsg(final ChatListAdapter.ViewHolder viewHolder, final Message msg, final int position) {
@@ -1143,37 +1109,12 @@ public class ChatListAdapterController {
                     break;
 
                 case file:
-                    FileContent content = (FileContent) msg.getContent();
-                    String fileName = content.getFileName();
-                    String extra = content.getStringExtra("video");
-                    if (extra != null) {
-                        fileName = msg.getServerMessageId() + "." + extra;
-                    }
-                    final String path = content.getLocalPath();
-                    /**
-                     * 文件已经存在的情况：
-                     * 1 本人发送的文件
-                     * 2 本地已经缓存的文件
-                     */
-                    if (path != null && new File(path).exists()) {
-                        final String newPath = StaticValueHelper.FILE_DIR + fileName;
-                        File file = new File(newPath);
-                        if (file.exists() && file.isFile()) {
-                            browseDocument(fileName, newPath);
-                        } else {
-                            final String finalFileName = fileName;
-                            FileHelper.getInstance().copyFile(fileName, path, (Activity) mContext,
-                                    new FileHelper.CopyFileCallback() {
-                                        @Override
-                                        public void copyCallback(Uri uri) {
-                                            browseDocument(finalFileName, newPath);
-                                        }
-                                    });
-                        }
+                    if (holder.fileLoad != null) {
+                        DownLoadFile(holder, msg);
                     } else {
-                        //下载别人发送的文件
-                        ITosast.showShort(mContext, "获取文件失败").show();
+                        openFile(msg);
                     }
+
                     break;
 
                 case voice:
@@ -1222,6 +1163,76 @@ public class ChatListAdapterController {
                     ITosast.showShort(mContext, "未知数据类型").show();
                     break;
             }
+        }
+    }
+
+    private void DownLoadFile(final ChatListAdapter.ViewHolder holder, final Message msg) {
+        final FileContent fileContent = (FileContent) msg.getContent();
+        if (msg.getDirect() == MessageDirect.send) {
+            ///？？？  很莫名其妙
+            // fileLoad只在接收文件布局中存在，也就是发送文件方，理论上不存在该控件
+            chatListAdapter.showReSendDialog(holder, msg);
+        } else {
+            holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
+            holder.progressTv.setText("0%");
+            holder.progressTv.setVisibility(View.VISIBLE);
+            if (!msg.isContentDownloadProgressCallbackExists()) {
+                msg.setOnContentDownloadProgressCallback(new ProgressUpdateCallback() {
+                    @Override
+                    public void onProgressUpdate(double v) {
+                        String progressStr = (int) (v * 100) + "%";
+                        holder.progressTv.setText(progressStr);
+                    }
+                });
+            }
+            fileContent.downloadFile(msg, new DownloadCompletionCallback() {
+                @Override
+                public void onComplete(int status, String desc, File file) {
+                    holder.progressTv.setVisibility(View.GONE);
+                    holder.contentLl.setBackground(mContext.getResources().getDrawable(R.drawable.mycat_msg_receive_bg));
+                    if (status != 0) {
+                        holder.fileLoad.setText("未下载");
+                        ITosast.showShort(mContext, "文件下载失败").show();
+                    } else {
+                        ITosast.showShort(mContext, "文件下载完成").show();
+                        openFile(msg);
+                    }
+                }
+            });
+        }
+    }
+
+    private void openFile(Message msg) {
+        FileContent content = (FileContent) msg.getContent();
+        String fileName = content.getFileName();
+        String extra = content.getStringExtra("video");
+        if (extra != null) {
+            fileName = msg.getServerMessageId() + "." + extra;
+        }
+        final String path = content.getLocalPath();
+        /**
+         * 文件已经存在的情况：
+         * 1 本人发送的文件
+         * 2 本地已经缓存的文件
+         */
+        if (path != null && new File(path).exists()) {
+            final String newPath = StaticValueHelper.FILE_DIR + fileName;
+            File file = new File(newPath);
+            if (file.exists() && file.isFile()) {
+                browseDocument(fileName, newPath);
+            } else {
+                final String finalFileName = fileName;
+                FileHelper.getInstance().copyFile(fileName, path, (Activity) mContext,
+                        new FileHelper.CopyFileCallback() {
+                            @Override
+                            public void copyCallback(Uri uri) {
+                                browseDocument(finalFileName, newPath);
+                            }
+                        });
+            }
+        } else {
+            //下载别人发送的文件
+            ITosast.showShort(mContext, "获取文件失败").show();
         }
     }
 
@@ -1332,4 +1343,5 @@ public class ChatListAdapterController {
 
         return imageView;
     }
+
 }
