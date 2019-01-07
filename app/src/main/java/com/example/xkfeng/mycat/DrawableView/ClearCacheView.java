@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.example.xkfeng.mycat.R;
 
-public class ClearCacheView extends LinearLayout {
+public class ClearCacheView extends LinearLayout implements WaveRaiseView.OnAnimEndListener{
 
     private static final String TAG = "ClearCacheView";
     private View convertView;
@@ -51,8 +51,11 @@ public class ClearCacheView extends LinearLayout {
         iv_rotateImage.startAnimation(rotateAnimation);
 
         wv_waterView = convertView.findViewById(R.id.wv_waterView) ;
-        wv_waterView.startWaveAnim();
-        wrv_waveRaiseView = convertView.findViewById(R.id.wrv_waveRaiseView); ;
+        wv_waterView.setVisibility(View.GONE);
+
+        wrv_waveRaiseView = convertView.findViewById(R.id.wrv_waveRaiseView);
+        wrv_waveRaiseView.setOnAnimEndListener(this);
+        wrv_waveRaiseView.startAnim();
 
         tv_loadingTip = convertView.findViewById(R.id.tv_loadingTip) ;
         clearDrawable = (AnimationDrawable) tv_loadingTip.getCompoundDrawables()[1];
@@ -60,5 +63,12 @@ public class ClearCacheView extends LinearLayout {
 
         //设置为当前主布局
         addView(convertView);
+    }
+
+    @Override
+    public void onAnimEnd() {
+        wv_waterView.setVisibility(View.VISIBLE);
+        wv_waterView.startWaveAnim();
+
     }
 }

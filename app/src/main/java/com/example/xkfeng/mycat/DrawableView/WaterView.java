@@ -38,7 +38,7 @@ public class WaterView extends View {
     //水波纹长度
     private int waveLength = 300;
     //水波纹高度
-    private int waveHeight = 200;
+    private int waveHeight = 400;
     //初始状态水波纹所处高度值
     private int originY;
     private Paint paint1;
@@ -194,7 +194,7 @@ public class WaterView extends View {
                 float time = (float) valueAnimator.getAnimatedValue();
                 dx = (int) (time * waveLength);
                 dy = (int) (time * height);
-                waveHeight = (int) (waveHeight + time * 5);
+                waveHeight = (int) (waveHeight - time * 1.4 ) > 20 ? (int) (waveHeight - time * 1.4) :20;
                 postInvalidate();
             }
         });
