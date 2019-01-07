@@ -94,6 +94,11 @@ public class SendFileView extends RelativeLayout {
         }
     }
 
+    public void updateSelectedState(int totalCount , String displaySize){
+        totalText.setText(displaySize);
+        sendBtn.setText("(" +totalCount+")"+"发送");
+    }
+
     /**
      * 设置ViewPager是否响应侧滑滚动
      * @param canScroll

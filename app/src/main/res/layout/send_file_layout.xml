@@ -224,18 +224,20 @@
             android:id="@+id/tv_totalSize"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Text"
-            android:textSize="14sp"
-            android:textColor="@color/transparent"
             android:layout_centerVertical="true"
-            />
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="10dp"
+            android:text="0 KB"
+            android:textColor="@color/transparent"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/bt_sendBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="发送"
+            android:text="(0)发送"
             android:layout_alignParentRight="true"
             android:textColor="#FFFFFF"
             android:background="@color/light_blue"

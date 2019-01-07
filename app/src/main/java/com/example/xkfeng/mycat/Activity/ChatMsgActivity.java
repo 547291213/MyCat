@@ -111,7 +111,6 @@ public class ChatMsgActivity extends BaseActivity implements
     LinearLayout llChatBottomLayout;
 
 
-
     enum SendOrAdd {
         send, add
     }
@@ -212,7 +211,9 @@ public class ChatMsgActivity extends BaseActivity implements
     //查看他人信息
     public static final int RequestCode_VIEWOTHERINFO = 104;
     //位置信息
-    public static final int RequestCode_LOCATION = 105 ;
+    public static final int RequestCode_LOCATION = 105;
+    //文件信息
+    public static final int RequestCode_FILE = 106;
 
 
     //    【A】stateUnspecified：软键盘的状态并没有指定，系统将选择一个合适的状态或依赖于主题的设置
@@ -1318,17 +1319,27 @@ public class ChatMsgActivity extends BaseActivity implements
                 }
                 break;
 
-            case RequestCode_LOCATION :
-                if (resultCode == RESULT_OK && data != null){
-                    sendLocationMsg(data.getDoubleExtra("latitude" , (Double) IndexActivity.CURRENT_LATITUDE) ,
-                            data.getDoubleExtra("longitude" , (Double) IndexActivity.CURRENT_LONGITUDE) ,
-                            data.getIntExtra("scale" , 18) ,
-                            data.getStringExtra("street") ,
-                            data.getStringExtra("name")) ;
-                }else {
+            case RequestCode_LOCATION:
+                if (resultCode == RESULT_OK && data != null) {
+                    sendLocationMsg(data.getDoubleExtra("latitude", (Double) IndexActivity.CURRENT_LATITUDE),
+                            data.getDoubleExtra("longitude", (Double) IndexActivity.CURRENT_LONGITUDE),
+                            data.getIntExtra("scale", 18),
+                            data.getStringExtra("street"),
+                            data.getStringExtra("name"));
+                } else {
 //                    ITosast.showShort(ChatMsgActivity.this , "获取位置信息失败").show();
                 }
-                break ;
+                break;
+
+            case RequestCode_FILE:
+                if (resultCode == RESULT_OK && data != null) {
+                    int [] msgIds = data.getIntArrayExtra("msgIds") ;
+                    for (int msg : msgIds){
+                        handleSendMsg(msg);
+                    }
+
+                }
+                break;
 
             default:
                 if (mController != null) {
@@ -1341,13 +1352,14 @@ public class ChatMsgActivity extends BaseActivity implements
 
     /**
      * 发送位置信息
-     * @param latitude 纬度
+     *
+     * @param latitude  纬度
      * @param longitude 经度
-     * @param scale 缩放比例
-     * @param street 街道
-     * @param name 地址全称
+     * @param scale     缩放比例
+     * @param street    街道
+     * @param name      地址全称
      */
-    private void sendLocationMsg(double latitude  , double longitude , int scale , String street ,String name){
+    private void sendLocationMsg(double latitude, double longitude, int scale, String street, String name) {
 
         String path = street;
         LocationContent locationContent = new LocationContent(latitude,
@@ -1560,6 +1572,14 @@ public class ChatMsgActivity extends BaseActivity implements
             conversation = null;
         }
         System.gc();
+    }
+
+    public String getmTargetId() {
+        return mTargetId;
+    }
+
+    public String getmTargetAappkey() {
+        return mTargetAappkey;
     }
 
     /**

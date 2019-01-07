@@ -31,6 +31,7 @@ import com.example.xkfeng.mycat.DrawableView.DrawableTopTextView;
 import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.HandleResponseCode;
 import com.example.xkfeng.mycat.Util.ITosast;
+import com.example.xkfeng.mycat.Util.StaticValueHelper;
 
 import java.io.File;
 
@@ -66,7 +67,7 @@ public class AddBoradFragment extends Fragment {
     private static final String TAG = "AddBoradFragment";
     private Activity mActivity;
     private OnBusinessItemClickListener onBusinessItemClickListener;
-    private  File imageFileDir;
+    private File imageFileDir;
 
 
     @Nullable
@@ -113,7 +114,7 @@ public class AddBoradFragment extends Fragment {
                         (ContextCompat.checkSelfPermission(mContext, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)) {
 
                     ITosast.showShort(mContext, "请到管理中心去打开权限").show();
-                    return ;
+                    return;
                 }
                 Uri imageUri;
                 imageUri = getImageUri();
@@ -126,7 +127,7 @@ public class AddBoradFragment extends Fragment {
 
             case R.id.tv_chatMsgPosition:
 
-                mActivity.startActivityForResult(new Intent(mContext ,  MapViewActivity.class) ,ChatMsgActivity.RequestCode_LOCATION);
+                mActivity.startActivityForResult(new Intent(mContext, MapViewActivity.class), ChatMsgActivity.RequestCode_LOCATION);
                 break;
 
             case R.id.tv_chatMsgBusiness:
@@ -148,15 +149,17 @@ public class AddBoradFragment extends Fragment {
                         != PackageManager.PERMISSION_GRANTED) {
                     ITosast.showShort(mContext, "请在应用管理中打开“读写存储”访问权限！").show();
                 } else {
-                    MediaScannerConnection.scanFile(mContext,new String[]{Environment.getExternalStorageDirectory().toString()}, new String[]{"*.apk", "*.doc", "*.docx", "*.ppt",
+                    MediaScannerConnection.scanFile(mContext, new String[]{Environment.getExternalStorageDirectory().toString()}, new String[]{"*.apk", "*.doc", "*.docx", "*.ppt",
                             "*.ppts", "*.xls", "*.xlsx", "*.pdf", "*.png", "*.jpg", "*.mp3", "*.mp4", "*.zip", "*.wps"}, new MediaScannerConnection.OnScanCompletedListener() {
                         @Override
                         public void onScanCompleted(String s, Uri uri) {
-                            startActivity(new Intent(mContext , SendFileActivity.class));
+                            Intent sendFileIntent = new Intent();
+                            sendFileIntent.setClass(mContext, SendFileActivity.class);
+                            sendFileIntent.putExtra(StaticValueHelper.TARGET_ID, ((ChatMsgActivity) getActivity()).getmTargetId());
+                            sendFileIntent.putExtra(StaticValueHelper.TARGET_APP_KEY, ((ChatMsgActivity) getActivity()).getmTargetAappkey());
+                            mActivity.startActivityForResult(sendFileIntent ,ChatMsgActivity.RequestCode_FILE );
                         }
                     });
-
-                    ITosast.showShort(getContext(), "file").show();
                 }
 
                 break;
@@ -191,7 +194,7 @@ public class AddBoradFragment extends Fragment {
         }
 
         if (Build.VERSION.SDK_INT >= 24) {
-            imageUri = FileProvider.getUriForFile(mContext ,
+            imageUri = FileProvider.getUriForFile(mContext,
                     "com.example.xkfeng.mycat.fileprovider", imageFileDir);
         } else {
             imageUri = Uri.fromFile(imageFileDir);
@@ -200,8 +203,8 @@ public class AddBoradFragment extends Fragment {
         return imageUri;
     }
 
-    public File getImageFileDir(){
-        return imageFileDir ;
+    public File getImageFileDir() {
+        return imageFileDir;
     }
 
     public void setOnBusinessItemClickListener(OnBusinessItemClickListener onBusinessItemClickListener) {

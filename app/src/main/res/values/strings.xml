@@ -90,9 +90,14 @@
 
     <string name="sendfile_limit_filecount">选中的文件最多不超过五个</string>
     <string name="sendfile_limit_filesize">所选的文件大小总和不能超过10M</string>
-
+    <string name="sendfile_limit_atleastone">至少选中一个文件后才能发送</string>
 
     <string name="sdcard_not_prepare_toast">sdcard尚未准备好</string>
     <string name="sdcard_in_scanning">正在扫描存储</string>
+
+    <string name="sendfile_file_not_found">文件丢失，请重新尝试</string>
+    <string name="sendfile_file_unexception_error">发送文件时，发生未知错误</string>
+
+
 
 </resources>
