@@ -145,50 +145,14 @@
     </style>
 
     <!--normal dialog use for reSendMsg ....-->
-    <style name="mycat_default_dialog_style">
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:colorBackgroundCacheHint">@null</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:radius">5dp</item>
-    </style>
 
     <!--loading dialog style-->
-    <style name="mycat_loading_dialog_style" parent="android:style/Theme.Dialog">
-        <item  name="android:windowFrame">@null</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@color/transparent_nocolor</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-
-    </style>
 
     <!--force offline dialog-->
-    <style name="mycat_chat_force_offline_dialog"  parent="android:style/Theme.Dialog">
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowIsTranslucent">true</item>
-    </style>
 
     <!--forwarding dialog-->
-    <style name="mycat_chat_forwarding_dialog" parent="android:style/Theme.Dialog">
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:radius">5dp</item>
-        <item name="android:windowIsTranslucent">true</item>
 
-    </style>
-    
-    
+
     <style name="friend_list_header_text_style">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -202,14 +166,4 @@
     </style>
 
     <!--clear-cache dialog-->
-    <style name="mycat_clear_cache_dialog" parent="android:style/Theme.Dialog">
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:radius">5dp</item>
-        <item name="android:windowIsTranslucent">true</item>
-
-    </style>
 </resources>

@@ -16,14 +16,12 @@
         android:visibility="visible">
 
         <ImageView
-            android:id="@+id/network_disconnected_iv"
             android:layout_width="22dp"
             android:layout_height="22dp"
             android:layout_marginLeft="10dp"
             android:src="@drawable/send_message_failed" />
 
         <TextView
-            android:id="@+id/check_network_hit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"

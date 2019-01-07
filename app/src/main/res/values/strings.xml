@@ -1,11 +1,6 @@
 <resources>
     <string name="app_name">MyCat</string>
 
-    <dimen name="font_size_16">16</dimen>
-    <dimen name="distance_size_50">50</dimen>
-    <dimen name="distance_size_8">8</dimen>
-    <dimen name="distance_size_split_line">2dp</dimen>
-
     <declare-styleable name="IndexBottomLayout"  >
         <attr name="bigIconSrc" format="reference" />
         <attr name="smallIconSrc" format="reference" />
@@ -16,23 +11,15 @@
     </declare-styleable>
 
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">Author affiliation：xp134525@gmail.com</string>
-    <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
 
     <string name="loading">正在加载</string>
 
     <!--ListSlideView-->
-    <string name="listSlideView_top">"置顶</string>
-    <string name="listSlideView_unTop">取消置顶</string>
     <string name="listSlideView_markUnread">标记未读</string>
     <string name="listSlideView_markRead">标记已读</string>
-    <string name="listSlideView_delete">删除</string>
-    
-    
+
+
     <!--time util-->
     <string name="morning">上午</string>
     <string name="afternoon">下午</string>
@@ -41,7 +28,6 @@
     <string name="last_msg_image">[图片]</string>
     <string name="last_msg_file">[文件]</string>
     <string name="last_msg_voice">[录音]</string>
-    <string name="last_msg_movie">[视频]</string>
     <string name="last_msg_location">[位置]</string>
     <string name="last_msg_custom">[未知信息]</string>
 

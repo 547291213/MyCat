@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.example.xkfeng.mycat.DrawableView.MessageListDrawable.MsgListSlideView
-    android:id="@+id/msgListLayout"
-    android:layout_width="match_parent"
+<com.example.xkfeng.mycat.DrawableView.MessageListDrawable.MsgListSlideView android:layout_width="match_parent"
     android:layout_height="60dp"
     android:paddingBottom="1dp"
     android:scrollbars="none"
@@ -17,9 +15,7 @@
             android:layout_height="match_parent"
             >
 
-            <include
-                android:id="@+id/messageItem"
-                layout="@layout/message_item"
+            <include layout="@layout/message_item"
 
                 />
         </RelativeLayout>

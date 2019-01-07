@@ -19,9 +19,7 @@
 
         />
 
-    <include
-        android:id="@+id/ad_layout"
-        layout="@layout/ad_item_layout"
+    <include layout="@layout/ad_item_layout"
 
         />
 

@@ -10,6 +10,7 @@ android {
         versionCode 1
         versionName "1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
 
         ndk {
             //选择要添加的对应 cpu 类型的 .so 库。
@@ -32,7 +33,9 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+//            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -169,6 +172,8 @@ dependencies {
     //effect load image
     // 存在冲突
 //    implementation 'com.github.wangjiegulu:ImageLoaderSample:1.0.1'
+
+    implementation 'com.android.support:multidex:1.0.1'
 
 
 

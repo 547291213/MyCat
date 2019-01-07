@@ -61,7 +61,7 @@ public class StartMovieActivity extends AppCompatActivity {
         }
 
         //视频相关操作
-        final String videoPath = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.start_movie).toString();
+        final String videoPath = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.start_movie2).toString();
         startMovie.setVideoPath(videoPath);
         startMovie.start();
         startMovie.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {

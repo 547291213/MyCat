@@ -20,7 +20,6 @@
             android:button="@null"/>
 
         <ImageView
-            android:id="@+id/iv_audio"
             android:layout_width="46dp"
             android:layout_height="47dp"
             android:layout_marginLeft="13.33dp"
