@@ -3,6 +3,7 @@ package com.example.xkfeng.mycat.Fragment.SendFileFragment;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.PackageInfo;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +24,7 @@ import com.example.xkfeng.mycat.DrawableView.SendFile.ApkAdapter;
 import com.example.xkfeng.mycat.DrawableView.SendFileController;
 import com.example.xkfeng.mycat.Model.FileItem;
 import com.example.xkfeng.mycat.R;
+import com.example.xkfeng.mycat.Util.AppUtil;
 import com.example.xkfeng.mycat.Util.DialogHelper;
 import com.example.xkfeng.mycat.Util.ITosast;
 
@@ -79,15 +82,17 @@ public class SendFile_ApkFragment extends Fragment {
                         MediaStore.Files.FileColumns.TITLE, MediaStore.Files.FileColumns.SIZE,
                         MediaStore.Files.FileColumns.DATE_MODIFIED};
 
-                String selection = MediaStore.Files.FileColumns.MIME_TYPE + "= ? or "
-                        + MediaStore.Files.FileColumns.MIME_TYPE + "= ? or "
-                        + MediaStore.Files.FileColumns.MEDIA_TYPE + "= ? ";
+//                String selection = MediaStore.Files.FileColumns.MIME_TYPE + "= ? or "
+//                        + MediaStore.Files.FileColumns.MIME_TYPE + "= ? or "
+//                        + MediaStore.Files.FileColumns.MEDIA_TYPE + "= ? ";
+                String selection = "(" + MediaStore.Files.FileColumns.DATA + " LIKE '%.apk'" + ") and " + MediaStore.Files.FileColumns.SIZE + " >1 ";
 
                 //, "application/vnd.android.package-archive"
                 String[] selectionArgs = new String[]{"application/vnd.android.package-archive"};
-
-                Cursor cursor = contentResolver.query(MediaStore.Files.getContentUri("external"), projection,
-                        selection, selectionArgs, MediaStore.Files.FileColumns.DATE_MODIFIED + " desc");
+                Cursor cursor = contentResolver.query(MediaStore.Files.getContentUri("external"), projection, selection, null,
+                        MediaStore.Files.FileColumns.DATE_MODIFIED + " desc");
+//                Cursor cursor = contentResolver.query(MediaStore.Files.getContentUri("external"), projection,
+//                        selection, selectionArgs, MediaStore.Files.FileColumns.DATE_MODIFIED + " desc");
 
                 if (cursor != null) {
                     while (cursor.moveToNext()) {
@@ -97,7 +102,6 @@ public class SendFile_ApkFragment extends Fragment {
                         String size = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE));
                         String date = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED));
                         if (scannerFile(filePath)) {
-
                             FileItem fileItem = new FileItem(filePath, fileName, size, date, 0);
                             String path = fileItem.getFilePath();
                             String str = path.substring(path.lastIndexOf('/') + 1);

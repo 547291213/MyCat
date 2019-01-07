@@ -814,6 +814,12 @@ public class ChatListAdapterController {
         }
     }
 
+    /**
+     * 根据经度，纬度值用百度地图SDK来获取静态图。
+     * @param longitude
+     * @param latitude
+     * @return
+     */
     private Bitmap createLocationBitmap(Number longitude, Number latitude) {
 
         String mapUrl = "http://api.map.baidu.com/staticimage/v2?ak=NIMmHgy2KDKAvBmZkN7rAHG2z7kaMuYa" +
@@ -1092,7 +1098,6 @@ public class ChatListAdapterController {
             switch (msg.getContentType()) {
                 case text:
 
-
                     break;
 
                 case image:
@@ -1109,6 +1114,11 @@ public class ChatListAdapterController {
                     break;
 
                 case file:
+                    /**
+                     *  holder.fileload 只在接收文件的时候出现，
+                     *  ：接收的文件点击，对文件也需要进行特殊处理，先下载，再打开。
+                     *  ：自己发送的文件点击，直接走打开逻辑
+                     */
                     if (holder.fileLoad != null) {
                         DownLoadFile(holder, msg);
                     } else {
@@ -1166,6 +1176,11 @@ public class ChatListAdapterController {
         }
     }
 
+    /**
+     * 下载文件，以及打开文件
+     * @param holder
+     * @param msg
+     */
     private void DownLoadFile(final ChatListAdapter.ViewHolder holder, final Message msg) {
         final FileContent fileContent = (FileContent) msg.getContent();
         if (msg.getDirect() == MessageDirect.send) {
@@ -1202,6 +1217,10 @@ public class ChatListAdapterController {
         }
     }
 
+    /**
+     * 打开文件
+     * @param msg file message
+     */
     private void openFile(Message msg) {
         FileContent content = (FileContent) msg.getContent();
         String fileName = content.getFileName();
@@ -1231,7 +1250,6 @@ public class ChatListAdapterController {
                         });
             }
         } else {
-            //下载别人发送的文件
             ITosast.showShort(mContext, "获取文件失败").show();
         }
     }
