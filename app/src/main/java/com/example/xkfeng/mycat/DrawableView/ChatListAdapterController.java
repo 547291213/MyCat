@@ -11,8 +11,10 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +23,7 @@ import android.view.ViewOutlineProvider;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +41,7 @@ import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.FileHelper;
 import com.example.xkfeng.mycat.Util.HandleResponseCode;
 import com.example.xkfeng.mycat.Util.ITosast;
+import com.example.xkfeng.mycat.Util.ProviderUtil;
 import com.example.xkfeng.mycat.Util.StaticValueHelper;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.PicassoProvider;
@@ -537,9 +541,9 @@ public class ChatListAdapterController {
         }
     }
 
-    public void handleFileMsg(final ChatListAdapter.ViewHolder viewHolder , final Message msg , final int position){
+    public void handleFileMsg(final ChatListAdapter.ViewHolder viewHolder, final Message msg, final int position) {
         final FileContent fileContent = (FileContent) msg.getContent();
-        if(viewHolder.txtContent != null){
+        if (viewHolder.txtContent != null) {
             viewHolder.txtContent.setText(fileContent.getFileName());
         }
         Number fileSize = fileContent.getNumberExtra("fileSize");
@@ -547,8 +551,8 @@ public class ChatListAdapterController {
             String size = FileHelper.getFileSize(fileSize);
             viewHolder.sizeTv.setText(size);
         }
-        String fileType = fileContent.getStringExtra("fileType") ;
-        Drawable drawable ;
+        String fileType = fileContent.getStringExtra("fileType");
+        Drawable drawable;
         if (fileType != null && (fileType.equals("mp4") || fileType.equals("mov") || fileType.equals("rm") ||
                 fileType.equals("rmvb") || fileType.equals("wmv") || fileType.equals("avi") ||
                 fileType.equals("3gp") || fileType.equals("mkv"))) {
@@ -570,8 +574,8 @@ public class ChatListAdapterController {
         if (viewHolder.ivDocument != null)
             viewHolder.ivDocument.setImageBitmap(bitmapDrawable.getBitmap());
 
-        if (msg.getDirect() == MessageDirect.send){
-            switch (msg.getStatus()){
+        if (msg.getDirect() == MessageDirect.send) {
+            switch (msg.getStatus()) {
                 case created:
                     viewHolder.progressTv.setVisibility(View.VISIBLE);
                     viewHolder.progressTv.setText("0%");
@@ -618,7 +622,7 @@ public class ChatListAdapterController {
                             }
                         });
                     }
-                    break ;
+                    break;
 
                 case send_success:
                     viewHolder.text_receipt.setVisibility(View.VISIBLE);
@@ -635,10 +639,10 @@ public class ChatListAdapterController {
                     viewHolder.contentLl.setBackground(mContext.getResources().getDrawable(R.drawable.mycat_msg_send_bg));
                     viewHolder.progressTv.setVisibility(View.GONE);
                     viewHolder.resend.setVisibility(View.VISIBLE);
-                    break ;
+                    break;
             }
-        }else{
-            switch (msg.getStatus()){
+        } else {
+            switch (msg.getStatus()) {
                 case receive_going:
                     viewHolder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
                     viewHolder.progressTv.setVisibility(View.VISIBLE);
@@ -658,7 +662,7 @@ public class ChatListAdapterController {
                             }
                         });
                     }
-                    break ;
+                    break;
 
                 case receive_fail:
                     ///收到文件没下载也是这个状态
@@ -669,7 +673,7 @@ public class ChatListAdapterController {
                     //ContextCompat.getDrawable(mContext, R.drawable.jmui_msg_receive_bg)
                     viewHolder.contentLl.setBackground(ContextCompat.getDrawable(mContext, R.drawable.mycat_msg_receive_bg));
                     viewHolder.fileLoad.setText("未下载");
-                    break ;
+                    break;
 
                 case receive_success:
                     viewHolder.progressTv.setVisibility(View.GONE);
@@ -706,9 +710,9 @@ public class ChatListAdapterController {
                                 viewHolder.contentLl.setBackground(mContext.getResources().getDrawable(R.drawable.mycat_msg_receive_bg));
                                 if (status != 0) {
                                     viewHolder.fileLoad.setText("未下载");
-                                    ITosast.showShort(mContext , "文件下载失败").show();
+                                    ITosast.showShort(mContext, "文件下载失败").show();
                                 } else {
-                                    ITosast.showShort(mContext ,  "文件下载完成").show();
+                                    ITosast.showShort(mContext, "文件下载完成").show();
                                 }
                             }
                         });
@@ -730,7 +734,7 @@ public class ChatListAdapterController {
         }
         viewHolder.contentLl.setTag(position);
         viewHolder.contentLl.setOnLongClickListener(contentLongClickListener);
-        viewHolder.contentLl.setOnClickListener(new OnItemClickListener(viewHolder , position));
+        viewHolder.contentLl.setOnClickListener(new OnItemClickListener(viewHolder, position));
     }
 
     public void handleLocationMsg(final ChatListAdapter.ViewHolder viewHolder, final Message msg, final int position) {
@@ -1139,7 +1143,37 @@ public class ChatListAdapterController {
                     break;
 
                 case file:
-
+                    FileContent content = (FileContent) msg.getContent();
+                    String fileName = content.getFileName();
+                    String extra = content.getStringExtra("video");
+                    if (extra != null) {
+                        fileName = msg.getServerMessageId() + "." + extra;
+                    }
+                    final String path = content.getLocalPath();
+                    /**
+                     * 文件已经存在的情况：
+                     * 1 本人发送的文件
+                     * 2 本地已经缓存的文件
+                     */
+                    if (path != null && new File(path).exists()) {
+                        final String newPath = StaticValueHelper.FILE_DIR + fileName;
+                        File file = new File(newPath);
+                        if (file.exists() && file.isFile()) {
+                            browseDocument(fileName, newPath);
+                        } else {
+                            final String finalFileName = fileName;
+                            FileHelper.getInstance().copyFile(fileName, path, (Activity) mContext,
+                                    new FileHelper.CopyFileCallback() {
+                                        @Override
+                                        public void copyCallback(Uri uri) {
+                                            browseDocument(finalFileName, newPath);
+                                        }
+                                    });
+                        }
+                    } else {
+                        //下载别人发送的文件
+                        ITosast.showShort(mContext, "获取文件失败").show();
+                    }
                     break;
 
                 case voice:
@@ -1191,6 +1225,37 @@ public class ChatListAdapterController {
         }
     }
 
+    private void browseDocument(String fileName, String path) {
+        try {
+            String ext = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+            MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+            String mime = mimeTypeMap.getMimeTypeFromExtension(ext);
+            File file = new File(path);
+            if (!file.exists() || file.length() <= 0) {
+                ITosast.showShort(mContext, "文件不存在").show();
+                return;
+            }
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            Uri data;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                // "net.csdn.blog.ruancoder.fileprovider"即是在清单文件中配置的authorities
+                data = FileProvider.getUriForFile(mContext, "com.example.xkfeng.mycat.fileprovider", file);
+                // 给目标应用一个临时授权
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } else {
+                data = Uri.fromFile(file);
+            }
+
+            intent.setDataAndType(data, mime);
+            mContext.startActivity(intent);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            ITosast.showShort(mContext, "无法打开此类型的文件").show();
+        }
+
+    }
+
     private void pauseVoice(MessageDirect messageDirect, ImageView voice) {
         if (messageDirect == MessageDirect.send) {
             voice.setImageResource(R.drawable.send_3);
@@ -1222,7 +1287,8 @@ public class ChatListAdapterController {
      * @param path      图片路径
      * @param imageView 显示图片的View
      */
-    private ImageView setPictureScale(String extra, Message message, String path, final ImageView imageView) {
+    private ImageView setPictureScale(String extra, Message message, String path,
+                                      final ImageView imageView) {
 
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inJustDecodeBounds = true;
@@ -1235,7 +1301,8 @@ public class ChatListAdapterController {
         return setDensity(extra, message, imageWidth, imageHeight, imageView);
     }
 
-    private ImageView setDensity(String extra, Message message, double imageWidth, double imageHeight, ImageView imageView) {
+    private ImageView setDensity(String extra, Message message, double imageWidth,
+                                 double imageHeight, ImageView imageView) {
         if (extra != null) {
             imageWidth = 200;
             imageHeight = 200;

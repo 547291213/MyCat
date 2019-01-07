@@ -1,5 +1,7 @@
 package com.example.xkfeng.mycat.Util;
 
+import android.os.Environment;
+
 public class StaticValueHelper {
 
     public static final String TARGET_ID = "targetId" ;
@@ -19,6 +21,10 @@ public class StaticValueHelper {
     public static final String CHAT_MSG_TITLE = "chatMsgTitle" ;
 
     public static final String DRAFT_MSG = "draftMsg" ;
+
+//    public static String FILE_DIR = "sdcard/Mycat/recvFiles/";
+    public static String FILE_DIR = Environment.getExternalStorageDirectory() + "/mycat/downfile/";
+
 
 
     public static final  int REQUET_CODE_FRIEND_INFO = 1 ;
