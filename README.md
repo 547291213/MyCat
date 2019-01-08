@@ -16,7 +16,7 @@
     
 #####  接上：
 
-![](https://github.com/547291213/MyCat/master/mycat2.gif)  
+![](https://github.com/547291213/MyCat/blob/master/mycat2.gif)  
 
 ### 更多相关信息，或者有疑问可以到我的博客下提出
 [项目博客](https://blog.csdn.net/qq_29989087/article/details/82962296)
