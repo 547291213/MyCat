@@ -6,9 +6,15 @@
     * 聊天： 【文本，图片，位置，语音，文件，个人名片】消息的发送和接收，以及消息转发，删除，文本消息复制，
     
 ### 操作演示
+##### 登陆（本地数据库已经存储最近一次的账号信息）
 
-![](https://github.com/547291213/MyCat//raw/master/mycat_demo1.gif)  
+
+##### 部分操作演示
+
+![](https://github.com/547291213/MyCat/blob/master/mycat.gif)  
     
+#####  接上：
+
 
 ### 更多相关信息，或者有疑问可以到我的博客下提出
 [项目博客](https://blog.csdn.net/qq_29989087/article/details/82962296)
