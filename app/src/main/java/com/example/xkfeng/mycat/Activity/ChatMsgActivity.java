@@ -215,6 +215,8 @@ public class ChatMsgActivity extends BaseActivity implements
     //文件信息
     public static final int RequestCode_FILE = 106;
 
+    public static final int RequestCode_LookUserInfo = 107 ;
+
 
     //    【A】stateUnspecified：软键盘的状态并没有指定，系统将选择一个合适的状态或依赖于主题的设置
 //　　【B】stateUnchanged：当这个activity出现时，软键盘将一直保持在上一个activity里的状态，无论是隐藏还是显示
@@ -879,6 +881,9 @@ public class ChatMsgActivity extends BaseActivity implements
 
             case R.id.tv_setBackText:
 
+                if (mController != null) {
+                    mController.stopVoice();
+                }
                 finish();
                 break;
 
@@ -1246,6 +1251,10 @@ public class ChatMsgActivity extends BaseActivity implements
                     isOpenVoiceBorad(false);
                 }
                 return false;
+            }else{
+                if (mController != null) {
+                    mController.stopVoice();
+                }
             }
         }
 
@@ -1345,7 +1354,7 @@ public class ChatMsgActivity extends BaseActivity implements
                 if (mController != null) {
                     mController.resumePalyVoice();
                 }
-                ITosast.showShort(ChatMsgActivity.this, "其他参数返回").show();
+//                ITosast.showShort(ChatMsgActivity.this, "其他参数返回").show();
                 break;
         }
     }

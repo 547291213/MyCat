@@ -615,7 +615,8 @@ public class ChatListAdapter extends BaseAdapter {
                 Intent intent = new Intent();
                 if (msg.getDirect() == MessageDirect.send) {
                     intent.setClass(mContext, UserInfoActivity.class);
-                    mContext.startActivity(intent);
+                    ((Activity) mContext).startActivityForResult(intent, ChatMsgActivity.RequestCode_LookUserInfo);
+
                 } else {
                     UserInfo userInfo = msg.getFromUser();
                     intent.putExtra(StaticValueHelper.TARGET_ID, userInfo.getUserName());
@@ -624,7 +625,11 @@ public class ChatListAdapter extends BaseAdapter {
                     intent.putExtra(StaticValueHelper.IS_FRIEDN, userInfo.isFriend());
                     intent.setClass(mContext, FriendInfoActivity.class);
 
-                    ((Activity) mContext).startActivityForResult(intent, StaticValueHelper.REQUET_CODE_FRIEND_INFO);
+                    ((Activity) mContext).startActivityForResult(intent, ChatMsgActivity.RequestCode_LookUserInfo);
+                }
+                //如果存在正在播放的录音，暂停。
+                if (mController != null){
+                    mController.pauseVoice();
                 }
             }
         });

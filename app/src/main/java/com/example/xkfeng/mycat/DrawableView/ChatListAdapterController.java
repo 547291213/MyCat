@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.xkfeng.mycat.Activity.ChatMsgActivity;
 import com.example.xkfeng.mycat.Activity.FriendInfoActivity;
 import com.example.xkfeng.mycat.Activity.IndexActivity;
 import com.example.xkfeng.mycat.Activity.MapViewActivity;
@@ -297,7 +298,11 @@ public class ChatListAdapterController {
                 UserInfo userInfo = mUserInfoMap.get(userName.hashCode());
                 intent.putExtra(StaticValueHelper.IS_FRIEDN, userInfo.isFriend());
             }
-            mContext.startActivity(intent);
+            /**
+             * 暂停录音播放
+             */
+            pauseVoice();
+            mActivity.startActivityForResult(intent , ChatMsgActivity.RequestCode_LookUserInfo);
 
         }
     }
@@ -413,10 +418,20 @@ public class ChatListAdapterController {
         Collections.sort(mIndexList);
     }
 
+    /**
+     * 重点记录
+     * 之前mPosition存储的是position,即mPosition = position ，
+     * 但是当界面下拉刷新之后，position的值会改变。
+     * 导致判断出错。所以后面改为了msgId
+     * @param viewHolder
+     * @param msg
+     * @param position
+     * @param isSender
+     */
     public void playVoice(final ChatListAdapter.ViewHolder viewHolder, Message msg, int position, final boolean isSender) {
 
         //记录当前位置
-        mPosition = position;
+        mPosition = msg.getId();
         mediaPlayer.reset();
         VoiceContent vc = (VoiceContent) msg.getContent();
         try {
@@ -816,6 +831,7 @@ public class ChatListAdapterController {
 
     /**
      * 根据经度，纬度值用百度地图SDK来获取静态图。
+     *
      * @param longitude
      * @param latitude
      * @return
@@ -1139,17 +1155,20 @@ public class ChatListAdapterController {
                         mVoiceAnimationDrawable.stop();
                     }
                     //点击了正在播放的录音，暂停处理
-                    if (mediaPlayer.isPlaying() && mPosition == position) {
+                    if (mediaPlayer.isPlaying() && mPosition == msg.getId()) {
                         holder.voice.setImageResource(R.drawable.mycat_chat_item_voice_anim);
                         mVoiceAnimationDrawable = (AnimationDrawable) holder.voice.getDrawable();
                         pauseVoice(msg.getDirect(), holder.voice);
                         break;
                     }
+                    boolean isPos = +mPosition == msg.getId();
+                    Log.d("Voice", "onClick: " + mediaPlayer.isPlaying() + " , mPosition == msg.getId() : " + isPos);
                     holder.voice.setImageResource(R.drawable.mycat_chat_item_voice_anim);
                     mVoiceAnimationDrawable = (AnimationDrawable) holder.voice.getDrawable();
 
+
                     //播放录音（分为继续播放暂停的录音，重新播放新的录音）
-                    if (isPause == true && mPosition == position) {
+                    if (isPause == true && mPosition == msg.getId()) {
                         mediaPlayer.start();
                         mVoiceAnimationDrawable.start();
                     } else {
@@ -1178,6 +1197,7 @@ public class ChatListAdapterController {
 
     /**
      * 下载文件，以及打开文件
+     *
      * @param holder
      * @param msg
      */
@@ -1219,6 +1239,7 @@ public class ChatListAdapterController {
 
     /**
      * 打开文件
+     *
      * @param msg file message
      */
     private void openFile(Message msg) {
@@ -1295,18 +1316,36 @@ public class ChatListAdapterController {
         isPause = true;
     }
 
+    /**
+     *
+     */
     public void resumePalyVoice() {
         if (isPause == true) {
+            isPause = false;
             mediaPlayer.start();
             mVoiceAnimationDrawable.start();
         }
 
     }
 
+    /**
+     *
+     */
     public void pauseVoice() {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             isPause = true;
+        }
+    }
+
+    /**
+     *
+     */
+    public void stopVoice() {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+            mediaPlayer = null;
+            isPause = false;
         }
     }
 
