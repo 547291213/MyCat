@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.Activity.IsFirstActivity;
 import com.example.xkfeng.mycat.Fragment.SendFileFragment.SendFile_ApkFragment;
 import com.example.xkfeng.mycat.Interface.UpdateSelectedStateListener;
@@ -99,7 +100,9 @@ public class ApkAdapter extends BaseAdapter {
             viewHolder.tv_apkTitle.setText(path.substring(path.lastIndexOf('/') + 1));
         }
         if (drawable != null) {
-            viewHolder.iv_apk.setImageDrawable(drawable);
+            Glide.with(mContext).load(drawable).into(viewHolder.iv_apk) ;
+//            viewHolder.iv_apk.setImageDrawable(drawable);
+
         } else {
             viewHolder.iv_apk.setImageResource(R.drawable.ic_apk_48);
         }

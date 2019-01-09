@@ -7,6 +7,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
+import android.net.Uri;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.xkfeng.mycat.Fragment.SendFileFragment.SendFile_VideoFragment;
 import com.example.xkfeng.mycat.Interface.UpdateSelectedStateListener;
 import com.example.xkfeng.mycat.Model.FileItem;
@@ -26,6 +28,7 @@ import com.example.xkfeng.mycat.R;
 import com.example.xkfeng.mycat.Util.ITosast;
 import com.example.xkfeng.mycat.Util.TimeUtil;
 
+import java.io.File;
 import java.util.List;
 
 public class VideoAdapter extends BaseAdapter {
@@ -91,12 +94,16 @@ public class VideoAdapter extends BaseAdapter {
         if (item.getVideoScaledDownPath() != null) {
              bitmap = BitmapFactory.decodeFile(item.getVideoScaledDownPath());
             if (bitmap != null) {
-                viewHolder.iv_video.setImageBitmap(bitmap);
+                Glide.with(mContext).load(bitmap).into(viewHolder.iv_video) ;
+                viewHolder.iv_video.setTag(item.getVideoScaledDownPath());
+
             }else {
-                bitmap = getVideoThumbnail(item.getFilePath()) ;
-                viewHolder.iv_video.setImageBitmap(bitmap);
+//                bitmap = getVideoThumbnail(item.getFilePath()) ;
+                Glide.with(mContext).load(Uri.fromFile(new File(item.getFilePath()))).into(viewHolder.iv_video) ;
+
             }
         }
+
         viewHolder.ll_videoItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -165,7 +172,12 @@ public class VideoAdapter extends BaseAdapter {
         TextView tv_videoDate;
     }
 
-    // 获取视频缩略图
+    /**
+     * 获取视频缩略图
+     * 极为耗时，卡顿明显
+     * 实在需要采用这种方法，请做好缓存【Lrucache】
+     */
+    @Deprecated
     public Bitmap getVideoThumbnail(String filePath) {
         Bitmap b = null;
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
